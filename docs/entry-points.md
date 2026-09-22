@@ -1,31 +1,25 @@
 # Entry Points
 
-The Builders Program is designed as a single path with multiple entry points, so builders can join wherever they fit rather than restart at the beginning regardless of experience.
+Five connected pillars — progressive layers building on one another, from understanding the Frontier, to building in the Frontier, to accelerating development with AI-assisted workflows. This is the approved baseline (see [scope.md](scope.md)). Start wherever matches your background, not necessarily at Pillar 0.
 
-## First Contact
+## Pillar 0 — Frontier Builder Foundations
 
-For people who are new to EVE Frontier, on-chain building, or both.
+The bare minimum to reason about being a builder: where the docs and help are, how wallets work, where data lives, why indexers exist.
 
-- What EVE Frontier is and how the builder ecosystem fits together — start with [Why Build on EVE Frontier?](https://docs.evefrontier.com/)
-- Core concepts: Smart Assemblies, the underlying Sui-based on-chain foundation (see the [Sui Documentation](https://docs.sui.io/)), the [CARBON Engine](https://github.com/carbonengine) simulation layer, and how player-built systems plug into the world
-- Orientation to the tools referenced in [tools-and-standards.md](tools-and-standards.md), including the Sui ecosystem platforms from [Mysten Labs](https://www.mystenlabs.com/platforms-and-protocols)
+## Pillar 1 — Agentic Coding and Low Code for EVE Frontier
 
-## Core Path
+AI-assisted and low-code workflows (Cursor, Claude Code, Copilot, MCP, Frontier Flow, Easy Assemblies) that lower onboarding friction — especially for non-developers.
 
-Shared ground for all builders, regardless of prior experience.
+## Pillar 2 — Frontier Systems & World Interaction
 
-- Shared tools and standards used across the ecosystem
-- Conventions for publishing and discovering builder work (e.g. via [dapp-index](https://github.com/evefrontier/dapp-index))
-- Where to find deeper technical reference in [builder-documentation](https://github.com/evefrontier/builder-documentation)
+A deeper mental model of the Frontier world: Smart Objects/Assemblies, world state, GraphQL/World API, operational constraints.
 
-## Build & Deploy
+## Pillar 3 — Move & Sui
 
-For builders ready to ship something within EVE Frontier.
+General Sui/Move fundamentals — object model, transactions, deploying a "Hello Frontier" contract to localnet/testnet.
 
-- Using starter tooling such as [builder-scaffold](https://github.com/evefrontier/builder-scaffold)
-- Building and publishing a dapp, tool, or integration
-- Listing and maintaining your work so other builders and players can discover it
+## Pillar 4 — Move & Sui in the Context of EVE Frontier
 
-## Choosing a Track
+Applying Move/Sui within EVE Frontier: Smart Assembly extensions, World Contracts, sponsored transactions, deployment to Stillness.
 
-If you're unsure where to start, begin at **First Contact** — it's designed to be quick for experienced builders to skim and thorough enough for newcomers to rely on. Each track links forward to the next, so you can move at your own pace.
+Full detail — Focus, Areas Covered, Goal, and Module Structure for each pillar — lives in [scope.md](scope.md).

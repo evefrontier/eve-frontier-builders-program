@@ -4,28 +4,20 @@ Thanks for your interest in improving the Builders Program.
 
 ## Discussions and Support
 
-For real-time questions and general coordination, join the [EVE Frontier Discord](https://discord.gg/CSnU8e6FC) and head to the [builders channel](https://discord.com/channels/1021714190102175754/1316697380069969930) — this is where most day-to-day builder chat happens.
-
-Use GitHub Discussions for anything you want tracked in writing — program feedback, track suggestions, content gaps. This is also a good place to write up an idea after floating it on Discord.
+Real-time: [EVE Frontier Discord](https://discord.gg/CSnU8e6FC) → [builders channel](https://discord.com/channels/1021714190102175754/1316697380069969930). Tracked in writing: GitHub Discussions, for program feedback, module suggestions, and content gaps.
 
 ## Reporting Issues
 
-If you spot outdated information, a broken link, or a gap in a track:
-
-1. Search existing issues first to avoid duplicates.
-2. Open an issue with enough context to act on — which doc, what's wrong, and what you'd expect instead.
-3. For larger suggestions (a new track, a new tool to standardize on), explain the impact on builders and how it fits the existing program structure.
+Search existing issues first. Open a new one with which doc, what's wrong, and what you'd expect instead. For a larger suggestion (a new module, a new tool to standardize on), explain the impact on builders.
 
 ## Proposing Changes (Pull Requests)
 
-1. Fork the repository and create a branch for your change.
-2. Keep pull requests focused — it's better to open multiple small PRs than one large one, since smaller PRs are easier to review and merge.
-3. Update any links or cross-references in [docs/](docs/) affected by your change.
-4. Follow the pull request template and describe what changed and why.
+Fork, branch, keep PRs focused — smaller PRs are easier to review than one large one. Update any cross-references in [docs/](docs/) your change affects, and follow the PR template.
 
-Changes to [docs/entry-points.md](docs/entry-points.md) or [docs/tools-and-standards.md](docs/tools-and-standards.md) may need extra maintainer review, since they affect every track.
+Changes to [docs/entry-points.md](docs/entry-points.md) or [docs/tools-and-standards.md](docs/tools-and-standards.md) may need extra maintainer review, since they affect every pillar.
+
+**The five-pillar structure is an approved baseline** (see [docs/scope.md](docs/scope.md)). A PR that adds, removes, or merges a pillar — or otherwise materially expands scope — needs maintainer sign-off before it goes further, not just a content review.
 
 ## Style
 
-- Keep documentation plain and builder-facing — write for someone joining the program for the first time.
-- Prefer linking to the canonical source (e.g. [builder-documentation](https://github.com/evefrontier/builder-documentation) for deep technical reference) over duplicating content.
+Write plain and builder-facing. Link to the canonical source (e.g. [builder-documentation](https://github.com/evefrontier/builder-documentation)) rather than duplicating content.

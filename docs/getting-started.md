@@ -1,31 +1,17 @@
 # Getting Started
 
-Welcome to the EVE Frontier Builders Program. This guide gets you oriented and pointed at the right track.
+## 1. Find Your Pillar
 
-## 1. Understand the Program
+Five connected pillars, Pillar 0 through 4 — see [entry-points.md](entry-points.md) for a summary or [scope.md](scope.md) for full detail. Start wherever matches your background, not necessarily at Pillar 0.
 
-The program is one path with multiple entry points rather than a set of disconnected courses. Read [entry-points.md](entry-points.md) to see the available tracks and pick the one that matches your background:
+## 2. Know Where the Curriculum Lives
 
-- New to EVE Frontier and/or on-chain building
-- Familiar with general software or game development, new to EVE Frontier's stack
-- Experienced Frontier builder looking to go deeper or ship a specific integration
+GitBook is the primary learning surface, synced from a docs repo via Git Sync. This repo is process and reference, not a second copy of the lessons.
 
-## 2. Set Up Shared Tools
+## 3. Shared Tools
 
-Regardless of track, builders use a common set of tools and standards. See [tools-and-standards.md](tools-and-standards.md) for the current list, including the [`@evefrontier/component-library`](https://github.com/evefrontier/eve-frontier-component-library/pkgs/npm/component-library) package used for builder-facing UI.
+See [tools-and-standards.md](tools-and-standards.md) — AI-assisted/low-code tooling (Pillar 1), the underlying Sui/CARBON stack, and related evefrontier repos.
 
-## 3. Explore the Ecosystem
+## 4. Ask Questions
 
-Related repositories worth knowing about as you build:
-
-- [dapp-index](https://github.com/evefrontier/dapp-index) — publish and discover Frontier dapps
-- [builder-scaffold](https://github.com/evefrontier/builder-scaffold) — starter templates and tooling
-- [builder-documentation](https://github.com/evefrontier/builder-documentation) — deeper technical reference
-
-The full set of org repositories is listed at [github.com/orgs/evefrontier/repositories](https://github.com/orgs/evefrontier/repositories).
-
-## 4. Ask Questions and Get Involved
-
-Join the [EVE Frontier Discord](https://discord.gg/CSnU8e6FC) and post in the [builders channel](https://discord.com/channels/1021714190102175754/1316697380069969930) — this is where day-to-day builder chat, help, and coordination happen.
-
-For anything you want tracked in writing (program structure, content gaps, suggestions), use GitHub Discussions or Issues on this repo. See [CONTRIBUTING.md](../CONTRIBUTING.md) for how to propose changes.
+Real-time: [EVE Frontier Discord](https://discord.gg/CSnU8e6FC) → [builders channel](https://discord.com/channels/1021714190102175754/1316697380069969930). Tracked in writing: GitHub Discussions or Issues here — see [CONTRIBUTING.md](../CONTRIBUTING.md).
