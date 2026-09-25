@@ -26,7 +26,7 @@ Start with [docs/getting-started.md](docs/getting-started.md).
 
 ## Community
 
-Real-time chat: [EVE Frontier Discord](https://discord.gg/CSnU8e6FC) → [builders channel](https://discord.com/channels/1021714190102175754/1316697380069969930). Anything you want tracked in writing: GitHub Issues or Discussions on this repo.
+Real-time chat: [EVE Frontier - ext-builders-course-program - Slack channel]([https://discord.gg/CSnU8e6FC](https://join.slack.com/share/enQtMTIxNDQzMDMyMTA3NzMtMGRhZjgzZGYxMjljMWIxYTk2NzU2NGVhMWY4NDVlMTJjZmExYWNhZTAzNTY0YTg1NDUwNTAyZjM2NjcyOWJlMw)). Anything you want tracked in writing: GitHub Issues or Discussions on this repo.
 
 ## Documentation
 
