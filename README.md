@@ -27,6 +27,7 @@ Start with [docs/getting-started.md](docs/getting-started.md).
 ## Web Development
 
 The web application requires Node.js 24 and pnpm 10.33.2.
+See [Tools and Standards](docs/tools-and-standards.md#program-website) for the web stack and canonical documentation.
 
 ```sh
 cd web
