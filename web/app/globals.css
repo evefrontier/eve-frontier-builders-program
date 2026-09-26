@@ -45,8 +45,8 @@
   --color-illustration-accent:    var(--orange-600);
 
   /* type */
-  --font-heading: var(--font-disket);
-  --font-body: var(--font-favorit);
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
 
   --text-step--3:  0.625rem;
   --text-step--2:  0.75rem;
