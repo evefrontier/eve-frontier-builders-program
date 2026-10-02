@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;                    /* drops Tailwind's stock palette */
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* surfaces and ink */
+  --color-background: var(--neutral-cream);
+  --color-foreground: var(--neutral-crude);
+  --color-card: #eeeeda;
+  --color-card-secondary: #e4e4cf;
+
+  /* lines and secondary text */
+  --color-line: rgb(11 11 11 / 0.22);
+  --color-trim: rgb(11 11 11 / 0.34);
+  --color-muted: rgb(11 11 11 / 0.62);
+  --color-control-line: rgb(11 11 11 / 0.45);
+
+  /* accent */
+  --color-accent: var(--orange-600);
+  --color-accent-hover: #ed3f01;
+  --color-accent-pressed: var(--orange-650);
+  --color-accent-keyline: var(--orange-800);
+  --color-accent-text: #ba3500;
+  --color-text-on-accent: var(--neutral-crude);
+
+  /* tinted notice */
+  --color-tint-background: var(--orange-100);
+  --color-tint-border: var(--orange-300);
+  --color-tint-text: var(--orange-900);
+
+  /* status */
+  --color-info: #0c27db;
+  --color-warning: #8a5a00;
+  --color-danger: #c20046;
+
+  /* artwork */
+  --color-illustration-paper:     #efe9d6;
+  --color-illustration-ink:       #0d0c0b;
+  --color-illustration-line:      #0d0c0b;
+  --color-illustration-grey:      #9b9a8f;
+  --color-illustration-grey-deep: #6f6e66;
+  --color-illustration-hatch:     #6f6e66;
+  --color-illustration-accent:    var(--orange-600);
+
+  /* type */
+  --font-heading: var(--font-geist-sans);
+  --font-body: var(--font-geist-sans);
+
+  --text-step--3:  0.625rem;
+  --text-step--2:  0.75rem;
+  --text-step--1:  clamp(0.9375rem, 0.925rem + 0.0625vw, 1rem);
+  --text-step-0:   clamp(1.125rem, 1.1rem + 0.125vw, 1.25rem);
+  --text-step-1:   clamp(1.375rem, 1.35rem + 0.125vw, 1.5rem);
+  --text-step-2:   clamp(1.625rem, 1.575rem + 0.25vw, 1.875rem);
+  --text-step-3:   clamp(1.938rem, 1.875rem + 0.3125vw, 2.25rem);
+  --text-step-4:   clamp(2.312rem, 2.175rem + 0.6875vw, 3rem);
+  --text-step-5:   clamp(2.812rem, 2.625rem + 0.9375vw, 3.75rem);
+
+  /* space */
+  --spacing-3xs:   0.25rem;
+  --spacing-2xs:   clamp(0.5625rem, 0.55rem + 0.0625vw, 0.625rem);
+  --spacing-xs:    clamp(0.8125rem, 0.8rem + 0.0625vw, 0.875rem);
+  --spacing-s:     clamp(1.125rem, 1.1rem + 0.125vw, 1.25rem);
+  --spacing-m:     clamp(1.562rem, 1.525rem + 0.1875vw, 1.75rem);
+  --spacing-l:     clamp(2.25rem, 2.2rem + 0.25vw, 2.5rem);
+  --spacing-xl:    clamp(3.125rem, 3.05rem + 0.375vw, 3.5rem);
+  --spacing-2xl:   clamp(4.5rem, 4.4rem + 0.5vw, 5rem);
+  --spacing-3xl:   clamp(6.312rem, 6.175rem + 0.6875vw, 7rem);
+
+  /* space pairs — s-l is the grid gutter */
+  --spacing-3xs-2xs: clamp(0.25rem, 0.175rem + 0.375vw, 0.625rem);
+  --spacing-2xs-xs:  clamp(0.5625rem, 0.5rem + 0.3125vw, 0.875rem);
+  --spacing-xs-s:    clamp(0.8125rem, 0.725rem + 0.4375vw, 1.25rem);
+  --spacing-s-m:     clamp(1.125rem, 1rem + 0.625vw, 1.75rem);
+  --spacing-m-l:     clamp(1.562rem, 1.375rem + 0.9375vw, 2.5rem);
+  --spacing-l-xl:    clamp(2.25rem, 2rem + 1.25vw, 3.5rem);
+  --spacing-xl-2xl:  clamp(3.125rem, 2.75rem + 1.875vw, 5rem);
+  --spacing-2xl-3xl: clamp(4.5rem, 4rem + 2.5vw, 7rem);
+  --spacing-s-l:     clamp(1.125rem, 0.85rem + 1.375vw, 2.5rem);
+
+  /* layout */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1920px;
+  --container-grid: 1240px;
+}
+
+:root {
+  /* primitives */
+  --neutral-crude: #0b0b0b;
+  --neutral-cream: #fafae5;
+
+  --orange-50:  #fff5ec;
+  --orange-100: #ffe9d3;
+  --orange-200: #ffcfa5;
+  --orange-300: #ffae6d;
+  --orange-400: #ff8132;
+  --orange-500: #ff5f0a;
+  --orange-600: #ff4700;
+  --orange-650: #e64100;
+  --orange-700: #cc3002;
+  --orange-800: #a1270b;
+  --orange-900: #82230c;
+  --orange-950: #460e04;
+
+  /* shapes */
+  --clip-card:           polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  --clip-card-small:     polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  --clip-diagonal:       polygon(17px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 17px), calc(100% - 17px) 100%, 5px 100%, 0 calc(100% - 5px), 0 17px);
+  --clip-diagonal-small: polygon(12px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 4px 100%, 0 calc(100% - 4px), 0 12px);
+
+  /* layers */
+  --layer-raised: 10;
+  --layer-sticky: 100;
+  --layer-scrim:  200;
+  --layer-menu:   300;
+  --layer-toast:  400;
+}
+
+/* dark mode: system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-background: var(--neutral-crude);
+    --color-foreground: var(--neutral-cream);
+    --color-card: #171716;
+    --color-card-secondary: #222220;
+    --color-line: rgb(250 250 229 / 0.16);
+    --color-trim: rgb(250 250 229 / 0.3);
+    --color-muted: rgb(250 250 229 / 0.58);
+    --color-control-line: rgb(250 250 229 / 0.35);
+    --color-accent-hover: #ff5506;
+    --color-accent-keyline: var(--orange-600);
+    --color-accent-text: #ff6a33;
+    --color-tint-background: var(--orange-950);
+    --color-tint-border: var(--orange-800);
+    --color-tint-text: var(--orange-300);
+    --color-info: #6b80ff;
+    --color-danger: #ff5c8f;
+    --color-warning: #ffb651;
+    --color-illustration-paper:     #181714;
+    --color-illustration-ink:       #030303;
+    --color-illustration-line:      #ebe6d2;
+    --color-illustration-grey:      #5d5c55;
+    --color-illustration-grey-deep: #3b3a35;
+    --color-illustration-hatch:     #8a887d;
+  }
+}
+
+/* dark mode: explicit */
+:root[data-theme="dark"] {
+  --color-background: var(--neutral-crude);
+  --color-foreground: var(--neutral-cream);
+  --color-card: #171716;
+  --color-card-secondary: #222220;
+  --color-line: rgb(250 250 229 / 0.16);
+  --color-trim: rgb(250 250 229 / 0.3);
+  --color-muted: rgb(250 250 229 / 0.58);
+  --color-control-line: rgb(250 250 229 / 0.35);
+  --color-accent-hover: #ff5506;
+  --color-accent-keyline: var(--orange-600);
+  --color-accent-text: #ff6a33;
+  --color-tint-background: var(--orange-950);
+  --color-tint-border: var(--orange-800);
+  --color-tint-text: var(--orange-300);
+  --color-info: #6b80ff;
+  --color-danger: #ff5c8f;
+  --color-warning: #ffb651;
+  --color-illustration-paper:     #181714;
+  --color-illustration-ink:       #030303;
+  --color-illustration-line:      #ebe6d2;
+  --color-illustration-grey:      #5d5c55;
+  --color-illustration-grey-deep: #3b3a35;
+  --color-illustration-hatch:     #8a887d;
+}
+
+@layer base {
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-size: var(--text-step-0);
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+}

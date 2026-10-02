@@ -24,6 +24,26 @@ Five connected pillars, each building on the last — see [docs/entry-points.md]
 
 Start with [docs/getting-started.md](docs/getting-started.md).
 
+## Web Development
+
+The web application requires Node.js 24 and pnpm 10.33.2.
+See [Tools and Standards](docs/tools-and-standards.md#program-website) for the web stack and canonical documentation.
+
+```sh
+cd web
+nvm use
+corepack enable
+pnpm install
+pnpm dev
+```
+
+Before opening a pull request, run:
+
+```sh
+pnpm lint
+pnpm build
+```
+
 ## Community
 
 Real-time chat: [EVE Frontier Discord](https://discord.gg/CSnU8e6FC) → [builders channel](https://discord.com/channels/1021714190102175754/1316697380069969930). Anything you want tracked in writing: GitHub Issues or Discussions on this repo.
