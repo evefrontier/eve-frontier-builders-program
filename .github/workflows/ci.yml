@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    outputs:
+      site: ${{ steps.site.outputs.present }}
+    concurrency:
+      group: verify-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Lets this workflow merge before the site itself (web/) is on main.
+      - name: Check for site
+        id: site
+        working-directory: .
+        run: |
+          if [ -f web/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No web/package.json, skipping lint, build and deploy"
+          fi
+
+      - name: Setup pnpm
+        if: steps.site.outputs.present == 'true'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: web/package.json
+
+      - name: Setup Node.js
+        if: steps.site.outputs.present == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: web/.nvmrc
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        if: steps.site.outputs.present == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        if: steps.site.outputs.present == 'true'
+        run: pnpm lint
+
+      - name: Build static site
+        if: steps.site.outputs.present == 'true'
+        run: pnpm build
+
+      - name: Upload site artifact
+        if: steps.site.outputs.present == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site
+          path: web/out
+          if-no-files-found: error
+          retention-days: 7
+
+  # Deploy jobs never install dependencies or build, they only publish the
+  # artifact from verify, so no dependency or build code runs with AWS creds
+
+  deploy-preview:
+    name: Deploy preview
+    needs: verify
+    # Fork and Dependabot pull requests can't assume deploy role.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      needs.verify.outputs.site == 'true' &&
+      vars.AMPLIFY_APP_ID != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: amplify-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    environment:
+      name: preview
+      url: https://pr-${{ github.event.pull_request.number }}.${{ vars.AMPLIFY_APP_ID }}.amplifyapp.com
+    steps:
+      - name: Checkout deploy script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - name: Download site artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: site
+          path: site
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Deploy to Amplify
+        env:
+          AMPLIFY_APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          BRANCH: pr-${{ github.event.pull_request.number }}
+        run: bash .github/scripts/amplify-deploy.sh "$AMPLIFY_APP_ID" "$BRANCH" site
+
+  deploy-production:
+    name: Deploy production
+    needs: verify
+    if: >-
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main' &&
+      needs.verify.outputs.site == 'true' &&
+      vars.AMPLIFY_APP_ID != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: amplify-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: ${{ vars.SITE_URL || format('https://main.{0}.amplifyapp.com', vars.AMPLIFY_APP_ID) }}
+    env:
+      AMPLIFY_APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+      SITE_URL: ${{ vars.SITE_URL || format('https://main.{0}.amplifyapp.com', vars.AMPLIFY_APP_ID) }}
+    steps:
+      - name: Checkout deploy script and headers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github/scripts
+            web/customHttp.yml
+          sparse-checkout-cone-mode: false
+
+      - name: Download site artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: site
+          path: site
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Apply security headers
+        run: >-
+          aws amplify update-app --app-id "$AMPLIFY_APP_ID"
+          --custom-headers file://web/customHttp.yml
+          --query 'app.appId' --output text
+
+      - name: Deploy to Amplify
+        run: bash .github/scripts/amplify-deploy.sh "$AMPLIFY_APP_ID" main site
+
+      - name: Verify security headers on the live site
+        run: |
+          required="content-security-policy strict-transport-security x-content-type-options x-frame-options referrer-policy permissions-policy"
+          for attempt in $(seq 1 12); do
+            headers="$(curl --silent --show-error --head --location "$SITE_URL" | tr '[:upper:]' '[:lower:]')" || headers=""
+            missing=""
+            for name in $required; do
+              grep -q "^$name:" <<<"$headers" || missing="$missing $name"
+            done
+            if [ -z "$missing" ]; then
+              echo "All security headers present on $SITE_URL"
+              exit 0
+            fi
+            echo "Attempt $attempt: missing$missing"
+            sleep 10
+          done
+          echo "::error::Security headers missing on $SITE_URL:$missing"
+          exit 1

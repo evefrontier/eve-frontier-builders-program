@@ -1,0 +1,44 @@
+name: Preview cleanup
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: read
+
+jobs:
+  delete-preview:
+    name: Delete preview
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      vars.AMPLIFY_APP_ID != ''
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    # Shares the deploy group so a cleanup never races a preview deploy.
+    concurrency:
+      group: amplify-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    environment:
+      name: preview
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Delete Amplify branch
+        env:
+          AMPLIFY_APP_ID: ${{ vars.AMPLIFY_APP_ID }}
+          BRANCH: pr-${{ github.event.pull_request.number }}
+        run: |
+          if aws amplify get-branch --app-id "$AMPLIFY_APP_ID" --branch-name "$BRANCH" >/dev/null 2>&1; then
+            aws amplify delete-branch --app-id "$AMPLIFY_APP_ID" --branch-name "$BRANCH" >/dev/null
+            echo "Deleted preview branch $BRANCH"
+          else
+            echo "No preview branch $BRANCH to delete"
+          fi
