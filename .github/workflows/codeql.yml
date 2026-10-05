@@ -39,13 +39,28 @@ jobs:
         with:
           persist-credentials: false
 
+      # CodeQL fails when a language has no source; web/ may not be on main yet.
+      - name: Check for source
+        id: source
+        env:
+          LANGUAGE: ${{ matrix.language }}
+        run: |
+          if [ "$LANGUAGE" != "javascript-typescript" ] || [ -f web/package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No web/package.json, skipping $LANGUAGE analysis"
+          fi
+
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
+        if: steps.source.outputs.present == 'true'
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
+        if: steps.source.outputs.present == 'true'
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
         with:
           category: /language:${{ matrix.language }}
