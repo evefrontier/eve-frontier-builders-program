@@ -1,5 +1,7 @@
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
+# Default: either team can approve.
+* @evefrontier/builders-program @evefrontier/product-apps
 
-* @evefrontier/builders-program
-* @evefrontier/product-apps
+# Restricted paths: workflows and deploy scripts, ownership and security
+/.github/ @evefrontier/product-apps
+/CODEOWNERS @evefrontier/product-apps
+/web/customHttp.yml @evefrontier/product-apps
