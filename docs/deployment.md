@@ -24,13 +24,22 @@ CODEOWNERS lets either evefrontier/builders-program or evefrontier/product-apps 
 
 ## Configuration
 
-The workflows read these settings. 
+The workflows read these settings.
 
-  AMPLIFY_APP_ID
-  AWS_REGION
-  SITE_URL
-  AWS_ROLE_ARN
-  AWS_ROLE_ARN
+### Variables
+
+Set on the repository.
+
+- AMPLIFY_APP_ID: the Amplify app to deploy to. The deploy jobs are skipped while it is unset.
+- AWS_REGION: the region of the Amplify app.
+- SITE_URL: the production URL used for the header check. Optional; defaults to https://main.app-id.amplifyapp.com.
+
+### Secrets
+
+Set on each GitHub environment, not on the repository. Each environment has its own role.
+
+- AWS_ROLE_ARN in the production environment: the role that deploys main and applies the security headers. Only the main branch can deploy to this environment.
+- AWS_ROLE_ARN in the preview environment: the role that creates, deploys and deletes pr-* preview branches.
 
 ## Dependency Updates
 

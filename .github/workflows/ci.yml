@@ -101,9 +101,11 @@ jobs:
       name: preview
       url: https://pr-${{ github.event.pull_request.number }}.${{ vars.AMPLIFY_APP_ID }}.amplifyapp.com
     steps:
+      # The deploy script comes from main, not from the pull request being deployed.
       - name: Checkout deploy script
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
           sparse-checkout: .github/scripts
 
@@ -123,7 +125,7 @@ jobs:
         env:
           AMPLIFY_APP_ID: ${{ vars.AMPLIFY_APP_ID }}
           BRANCH: pr-${{ github.event.pull_request.number }}
-        run: bash .github/scripts/amplify-deploy.sh "$AMPLIFY_APP_ID" "$BRANCH" site
+        run: bash .github/scripts/amplify-deploy.sh "$AMPLIFY_APP_ID" "$BRANCH" site PULL_REQUEST
 
   deploy-production:
     name: Deploy production
@@ -175,7 +177,7 @@ jobs:
           --query 'app.appId' --output text
 
       - name: Deploy to Amplify
-        run: bash .github/scripts/amplify-deploy.sh "$AMPLIFY_APP_ID" main site
+        run: bash .github/scripts/amplify-deploy.sh "$AMPLIFY_APP_ID" main site PRODUCTION
 
       - name: Verify security headers on the live site
         run: |

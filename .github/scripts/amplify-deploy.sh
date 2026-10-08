@@ -1,13 +1,15 @@
+#!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -ne 3 ]; then
-  echo "usage: $0 <app-id> <branch-name> <site-dir>" >&2
+if [ "$#" -ne 4 ]; then
+  echo "usage: $0 <app-id> <branch-name> <site-dir> <stage>" >&2
   exit 2
 fi
 
 app_id="$1"
 branch="$2"
 site_dir="$3"
+stage="$4"
 
 if [ ! -f "$site_dir/index.html" ]; then
   echo "error: $site_dir/index.html not found; is the build output there?" >&2
@@ -15,8 +17,9 @@ if [ ! -f "$site_dir/index.html" ]; then
 fi
 
 if ! aws amplify get-branch --app-id "$app_id" --branch-name "$branch" >/dev/null 2>&1; then
-  echo "Creating Amplify branch $branch"
-  aws amplify create-branch --app-id "$app_id" --branch-name "$branch" >/dev/null
+  echo "Creating Amplify branch $branch (stage $stage)"
+  aws amplify create-branch --app-id "$app_id" --branch-name "$branch" \
+    --stage "$stage" >/dev/null
 fi
 
 work_dir="$(mktemp -d)"
