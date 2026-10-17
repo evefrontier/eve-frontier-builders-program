@@ -2,8 +2,6 @@
   Layout, type and colour are utilities in nav-item.tsx; this file holds
   the interlock geometry and the lamp. */
 @layer components {
-  .list { --nav-gap: 7px; }
-
   /* First item: the 17/5 octagon, cut by Plate */
   .item {
     --cut-tl: 17px;
@@ -22,7 +20,9 @@
     n·(√2 − 1) along its edge so the keyline stays even. */
   /* 17px is the cut: the notch sits under the previous corner, --nav-gap along the seam */
   .slot + .slot { margin-left: calc(var(--nav-gap) - 17px); }
-  .slot + .slot .item {
+  /* .notched is shared with Field, which can join the end of a row */
+  .slot + .slot .item,
+  .notched {
     --_n: var(--plate-keyline-width, 1px);
     --plate-clip: polygon(
       12px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 17px),
@@ -38,9 +38,9 @@
       calc(17px + var(--_n)) calc(100% - 17px + var(--_n) * 0.41421),
       calc(17px + var(--_n)) calc(5px - var(--_n) * 0.41421)
     );
-    /* 24px plus the 12px top wedge */
-    --nav-inset: 36px;
   }
+  /* 24px plus the 12px top wedge */
+  .slot + .slot .item { --nav-inset: 36px; }
 
   /* Keyboard focus thickens the keyline in the foreground colour */
   .item:focus-visible {

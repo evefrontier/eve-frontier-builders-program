@@ -1,0 +1,45 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in field.tsx; this file holds the
+  frame's states. The clear button and shortcut hint show and hide through
+  peer and group utilities, so display stays in one layer. */
+@layer components {
+  /* The 17/5 octagon, cut by Plate */
+  .field {
+    --cut-tl: 17px;
+    --cut-br: 17px;
+    --cut-tr: 5px;
+    --cut-bl: 5px;
+    --plate-keyline: var(--color-control-line);
+    --plate-fill: var(--color-background);
+    --field-inset: 16px;
+  }
+
+  /* Interlocked after a NavList: pulls back by the 17px cut less the seam
+    gap. The polygon is the nav module's .notched class. */
+  .linked {
+    /* 16px plus the 12px top wedge */
+    --field-inset: 28px;
+    margin-left: calc(var(--nav-gap) - 17px);
+  }
+
+  .field:focus-within {
+    --plate-keyline: var(--color-foreground);
+    --plate-keyline-width: 2px;
+    --plate-fill: var(--color-card);
+  }
+
+  .field:has(.input:disabled) {
+    --plate-keyline: var(--color-line);
+    --plate-fill: repeating-linear-gradient(-45deg, var(--color-line) 0 1px, transparent 1px 6px), var(--color-background);
+  }
+
+  .input::-webkit-search-cancel-button { appearance: none; }
+
+  @media (forced-colors: active) {
+    /* Forced colours drop the clip-path, so space the field instead */
+    .linked { --field-inset: 16px; margin-left: 6px; }
+    .field:focus-within { outline: 2px solid Highlight; outline-offset: 2px; }
+    /* The hatch fill is gone, so the border carries the state */
+    .field:has(.input:disabled) { border-color: GrayText; }
+  }
+}

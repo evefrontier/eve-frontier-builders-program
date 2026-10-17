@@ -123,6 +123,9 @@
   --cut-sm: 12px;
   --cut-md: 20px;
 
+  /* interlock seam: between NavItems, and between a NavList and a Field */
+  --nav-gap: 7px;
+
   /* layers */
   --layer-raised: 10;
   --layer-sticky: 100;
