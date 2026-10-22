@@ -1,0 +1,14 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout and type are utilities in hint.tsx; this file holds the keyline
+  colour per style. There's no success colour in the theme yet. */
+@layer components {
+  .hint { --plate-keyline: var(--color-trim); }
+  .hint[data-style="info"] { --plate-keyline: var(--color-info); }
+  .hint[data-style="warning"] { --plate-keyline: var(--color-warning); }
+  .hint[data-style="danger"] { --plate-keyline: var(--color-danger); }
+
+  .label { color: var(--color-muted); }
+  .hint[data-style="info"] .label { color: var(--color-info); }
+  .hint[data-style="warning"] .label { color: var(--color-warning); }
+  .hint[data-style="danger"] .label { color: var(--color-danger); }
+}

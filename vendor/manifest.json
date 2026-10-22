@@ -1,0 +1,12 @@
+{
+  "sources": {
+    "builder-documentation": {
+      "repo": "evefrontier/builder-documentation",
+      "branch": "main",
+      "commit": "4a2edd51ad57521b3a97305ab665c59f343fdc23",
+      "files": {
+        "smart-assemblies/storage-unit/README.md": "2a59a27d35e340d6c2dae94f2b97090a3cd62d3905ced9042c676b85708ee6b7"
+      }
+    }
+  }
+}

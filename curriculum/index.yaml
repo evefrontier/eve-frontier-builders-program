@@ -1,0 +1,24 @@
+# Which courses and pathways exist, in order, and the text on their index pages.
+courses:
+  title: "Courses"
+  description: "Every course, in the order we'd suggest if you're starting from zero."
+  intro: |
+    Each course is a set of modules, and each module is a few short lessons. If you're not sure where to begin, a [pathway](/pathways) picks the courses for you, and the [glossary](/glossary) explains the terms along the way.
+  list:
+    - agentic-coding
+    - low-code
+pathways:
+  title: "Pathways"
+  description: "Courses in a recommended order for where you're starting from."
+  intro: |
+    A pathway is a list of courses in the order we'd suggest taking them. Pick the one closest to where you're starting.
+  # The question flow on the Pathways page: each answer narrows the pathways
+  # to those whose `for:` matches, and the reader's answers carry into lessons.
+  finder:
+    title: "Find your way in"
+    ask: [idea, way]
+    result: "Your way in"
+    none: "That part of the program isn't built yet. Pillars 3 and 4 will teach Sui and Move step by step, from your first contract to the Frontier world."
+  list:
+    - build-with-ai
+    - new-to-building

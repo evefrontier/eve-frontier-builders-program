@@ -1,0 +1,22 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout and type are utilities in term.tsx; this file holds the plate and
+  the motion. */
+@layer components {
+  .popup {
+    --plate-keyline: var(--color-trim);
+    --plate-fill: var(--color-background);
+    transition: opacity .18s ease, translate .26s cubic-bezier(.2,.7,.2,1);
+  }
+
+  .popup[data-starting-style],
+  .popup[data-ending-style] {
+    opacity: 0;
+    translate: 0 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .popup { transition: opacity .18s ease; }
+    .popup[data-starting-style],
+    .popup[data-ending-style] { translate: none; }
+  }
+}

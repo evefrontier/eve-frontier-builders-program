@@ -1,0 +1,11 @@
+title: "Build it with AI agents"
+description: "You describe what you want. AI agents write the code, test it and keep notes."
+pillar: 1
+intro: |
+  You never need to learn to code: your job is to decide what gets built and whether it's right.
+
+  [[We'll use your idea as the example throughout: {{idea.label}}.]]
+modules:
+  - how-it-works
+  - set-yourself-up
+  - watch-a-first-build

@@ -1,0 +1,99 @@
+# Questions we ask the reader. Answers stay on their device and personalise
+# lessons: a `question` block asks one, a `by-answer` block shows different
+# text per answer, and {{question.field}} drops a field of the chosen option
+# into a sentence.
+
+idea:
+  label: "What do you want to build?"
+  intro: "You don't need to know how yet. Pick the closest idea."
+  options:
+    - id: turrets
+      label: "Choose who my turrets fire at"
+      hint: "Leave your friends alone, shoot everyone else."
+      want: "I want my turrets to leave my friends alone and shoot everyone else."
+      topic: "my turret rules"
+    - id: gate
+      label: "Charge for using my gate"
+      hint: "Let people through for a fee. Tribe goes free."
+      want: "I want to charge a small fee for using my gate, with my tribe going free."
+      topic: "the gate fee"
+    - id: storage
+      label: "Track my tribe's storage"
+      hint: "See what's in there and who took what."
+      want: "I want a page that shows what's in my tribe's shared storage and who took what."
+      topic: "the storage page"
+    - id: bounty
+      label: "Run a bounty board"
+      hint: "Put a price on someone's head."
+      want: "I want to run a bounty board where people put a reward on a pilot."
+      topic: "the bounty board"
+    - id: killboard
+      label: "Build a killboard"
+      hint: "Who's fighting where, open to every player."
+      want: "I want a public killboard showing who killed who, where and when."
+      topic: "the killboard"
+    - id: other
+      label: "Something else"
+      hint: "A racetrack? Hauling contracts? If you can describe it, you can start."
+      want: "I want to build something new for EVE Frontier: [say your idea here, in your own words]."
+      topic: "my idea"
+
+way:
+  label: "How do you want to build it?"
+  intro: "There are three ways in."
+  options:
+    - id: agentic
+      label: "Describe it to an AI"
+      hint: "Say what you want in your own words. AI agents write the code; you never have to."
+    - id: low-code
+      label: "Use building blocks"
+      hint: "Connect ready-made pieces in a visual editor, and the tool writes the code."
+    - id: manual
+      label: "Write the code yourself"
+      hint: "Learn Sui and Move step by step, from your first contract to the Frontier world."
+
+audience:
+  label: "Who is it for?"
+  options:
+    - id: me
+      label: "Just me"
+      hint: "A tool or script for your own use"
+      phrase: "just for me"
+    - id: friends
+      label: "A few friends"
+      hint: "Something small you share with a handful of people"
+      phrase: "for a few friends"
+    - id: tribe
+      label: "My tribe"
+      hint: "A tool your tribe relies on every day"
+      phrase: "for my tribe"
+    - id: everyone
+      label: "The whole game"
+      hint: "A public tool anyone in EVE Frontier can use"
+      phrase: "for anyone in EVE Frontier"
+
+tool:
+  label: "Which AI do you have?"
+  options:
+    - id: none
+      label: "Haven't tried one yet"
+      hint: "ChatGPT, Claude, Gemini and Microsoft Copilot all have free versions"
+      phrase: "I haven't used an AI for building before"
+      extra: "Give me one step at a time and tell me exactly what to click."
+    - id: chat
+      label: "A chat app"
+      hint: "In a browser or on your phone. Many can now reach GitHub too"
+      phrase: "I'm using a chat app in my browser"
+      extra: "Give me one step at a time and tell me exactly what to click."
+    - id: desktop
+      label: "An app that works on my files"
+      hint: "The AI company's own app, working in a folder you choose"
+      phrase: "I'm using an AI app that works on a folder on my computer"
+    - id: editor
+      label: "A code editor with an AI agent"
+      hint: "Like VS Code: files, commands and test links in one place"
+      phrase: "I'm using a code editor with an AI agent"
+    - id: cloud
+      label: "AI agents in the cloud"
+      hint: "They work on your GitHub project and send you changes to approve"
+      phrase: "I'm using an AI agent that works on my GitHub project"

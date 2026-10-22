@@ -1,0 +1,9 @@
+title: "Build with AI"
+description: "Describe it in your own words; AI agents write the code."
+audience: "No coding needed"
+for:
+  way: agentic
+intro: |
+  You know the game, the AI knows the code, and you get there together.
+courses:
+  - agentic-coding
