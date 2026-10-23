@@ -1,0 +1,12 @@
+# What the Courses and Pathways pages show, in order.
+courses:
+  title: Courses
+  description: Every course, in the order we'd suggest if you're starting from zero.
+  list:
+    - example-course
+
+pathways:
+  title: Pathways
+  description: Courses in a recommended order for where you're starting from.
+  list:
+    - example-pathway

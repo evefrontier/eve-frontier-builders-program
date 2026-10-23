@@ -1,0 +1,6 @@
+# A course: modules in order. Pathways list courses by file name.
+title: Example course
+description: One line on what this course teaches.
+pillar: 0
+modules:
+  - example-module

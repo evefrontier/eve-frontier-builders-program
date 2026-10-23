@@ -1,0 +1,6 @@
+# A pathway: courses in a recommended order for one kind of reader.
+title: Example pathway
+description: One line on who this pathway is for.
+audience: New to building
+courses:
+  - example-course

@@ -1,0 +1,5 @@
+# A module: lessons in order. Courses list modules by file name.
+title: Example module
+description: One line on what this module covers.
+lessons:
+  - example-lesson
