@@ -84,14 +84,16 @@ export function Sheet({
           initialFocus={initialFocus ?? closeRef}
         >
           <Dialog.Title className="sr-only">{label}</Dialog.Title>
-          <div className="mx-auto flex min-h-(--bar-height) max-w-grid items-center justify-between gap-s bg-background px-s-l">
+          <div className="mx-auto flex min-h-(--bar-height) max-w-grid items-center justify-between gap-s bg-background bg-grain px-s-l">
             {header}
             <Dialog.Close ref={closeRef} render={<DotsButton />} aria-label={`Close ${label.toLowerCase()}`}>
               <Dots cross />
             </Dialog.Close>
           </div>
           <div className={cn("grid border-b border-line bg-background", styles.body)}>
-            <div className="min-h-0 overflow-hidden">
+            {/* Positioned, so absolutely placed content (a visually hidden label) is clipped
+                here rather than stretching the popup's scroll area while the row grows */}
+            <div className="relative min-h-0 overflow-hidden">
               <div className="mx-auto grid max-w-grid gap-s px-s-l pt-s pb-m" onClick={closeOnLink}>
                 {children}
               </div>

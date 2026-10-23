@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Section } from "@/stories/section";
-import { Menu, MenuLink, MenuSeparator } from "./menu";
+import { LinkRow, Menu, MenuLink, MenuSeparator } from "./menu";
 import { NavItem, NavList } from "./nav-item";
 
 const meta = {
   title: "Navigation/Menu",
   component: Menu,
-  subcomponents: { MenuLink, MenuSeparator },
+  subcomponents: { MenuLink, MenuSeparator, LinkRow },
   args: {
     label: "More",
     children: null,

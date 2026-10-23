@@ -27,6 +27,16 @@ export type FieldProps = {
 const EDITABLE = "input, textarea, select, [contenteditable]:not([contenteditable='false'])";
 
 /**
+ * Whether a keydown is a shortcut's bare key that nothing has claimed yet,
+ * pressed outside anywhere the key would be typed as text.
+ */
+export function claimsShortcut(event: KeyboardEvent, key: string) {
+  if (event.defaultPrevented || event.key !== key) return false;
+  if (event.metaKey || event.ctrlKey || event.altKey) return false;
+  return !(event.target as Element | null)?.closest?.(EDITABLE);
+}
+
+/**
  * A single-line text field with a clear button and an optional keyboard shortcut.
  *
  * `placeholder` is required: the clear button hides via `:placeholder-shown`.
@@ -74,9 +84,10 @@ export function Field({
     if (!shortcut || disabled) return;
     const onKey = (event: KeyboardEvent) => {
       // The first field to claim a key keeps it
-      if (event.defaultPrevented || event.key !== shortcut) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if ((event.target as Element | null)?.closest?.(EDITABLE)) return;
+      if (!claimsShortcut(event, shortcut)) return;
+      // A field hidden with display: none up the tree has no offsetParent and
+      // can't take focus, so it leaves the key for whatever is showing instead
+      if (inputRef.current?.offsetParent === null) return;
       event.preventDefault();
       inputRef.current?.focus();
     };

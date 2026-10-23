@@ -32,35 +32,53 @@
     --plate-keyline: transparent;
     --plate-keyline-width: 0px;
     --plate-fill: transparent;
+    /* Here rather than a utility, which would beat the forced-colours ring below */
+    outline: none;
   }
   .link:first-child { --cut-tr: var(--menu-cut); }
   .link:last-child { --cut-bl: var(--menu-cut); }
 
   /* Plate paints the keyline under the fill, so a fading fill would show
-    the ring through the row. Scoped to outrank Plate's own rule. */
-  .list .link::before { transition: none; }
+    the ring through the row. The element selector outranks Plate's rule. */
+  a.link::before { transition: none; }
 
-  .link[data-highlighted],
-  .link[aria-current] { --plate-fill: var(--color-card); }
+  /* Row states, in a menu or out of one: highlight, hover, the current
+    page and focus fill the row and light its lamp. Keyboard focus adds a
+    2px keyline, which the fill turns into a ring since Plate paints the
+    keyline underneath. A menu focuses its first row however it opened, so
+    there the ring waits for the keyboard. */
+  .link:is([data-highlighted], [aria-current], :focus-visible) { --plate-fill: var(--color-card); }
+  @media (hover: hover) {
+    .link:hover { --plate-fill: var(--color-card); }
+  }
 
-  .popup[data-input="keyboard"] .link:focus-visible {
+  .popup[data-input="keyboard"] .link:focus-visible,
+  .link:not([role="menuitem"]):focus-visible {
     --plate-keyline: var(--color-foreground);
     --plate-keyline-width: 2px;
   }
 
-  /* The nav module's lamp, lit on highlight and the current page */
-  .link:is([data-highlighted], [aria-current]) .lamp {
-    background: var(--nav-lamp-lit);
-    box-shadow: var(--nav-lamp-glow);
+  /* The nav module's lamp, a row shorter than the bar's */
+  .link .lamp { height: 11px; }
+  .link:is([data-highlighted], [aria-current], :focus-visible) .lamp {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+  @media (hover: hover) {
+    .link:hover .lamp {
+      --nav-lamp: var(--nav-lamp-lit);
+      filter: var(--nav-lamp-glow);
+    }
   }
 
-  /* Branch from below a parent's lamp to each child's, 2px so it centres on
-    the 4px lamp at 16–20px. Links clip their contents, so the parent draws
-    the stub below its lamp and each child draws on from its own top. */
+  /* Branch from below a parent's lamp to each child's, 2px down the lamp's
+    first column of squares. Links clip their contents, so the parent draws
+    the stub from 4px below its 11px lamp and each child draws on from its
+    own top. */
   .link:not(.sub):has(+ .sub)::after {
     content: "";
     position: absolute;
-    top: calc(50% + 8px);
+    top: calc(50% + 10px);
     bottom: 0;
     left: 17px;
     border-left: 2px solid var(--color-line);
@@ -93,6 +111,6 @@
   }
 
   @media (forced-colors: active) {
-    .link[data-highlighted] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .link:is([data-highlighted], :not([role="menuitem"]):focus-visible) { outline: 2px solid Highlight; outline-offset: -2px; }
   }
 }

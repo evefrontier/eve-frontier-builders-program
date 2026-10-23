@@ -10,7 +10,8 @@
     --cut-tr: 5px;
     --cut-bl: 5px;
     --plate-keyline: var(--color-control-line);
-    --plate-fill: var(--color-background);
+    /* The grain over the fill, so the field reads as part of a grained surface */
+    --plate-fill: var(--grain), var(--color-background);
     --field-inset: 16px;
   }
 
@@ -25,7 +26,7 @@
   .field:focus-within {
     --plate-keyline: var(--color-foreground);
     --plate-keyline-width: 2px;
-    --plate-fill: var(--color-card);
+    --plate-fill: var(--grain), var(--color-card);
   }
 
   .field:has(.input:disabled) {

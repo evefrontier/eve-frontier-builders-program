@@ -66,7 +66,7 @@ export function NavItemControl({ as = "a", current = false, indicator, className
       )}
       aria-current={current ? "page" : undefined}
     >
-      {indicator ?? <span className={cn("h-3 w-1 flex-none", styles.lamp)} aria-hidden="true" />}
+      {indicator ?? <span className={styles.lamp} aria-hidden="true" />}
       {children}
     </Plate>
   );

@@ -42,6 +42,10 @@
   /* 24px plus the 12px top wedge */
   .slot + .slot .item { --nav-inset: 36px; }
 
+  /* The fill and the keyline change at once, with the lamp, rather than
+    fading in after it. The element selector outranks Plate's own rule. */
+  :is(a, button).item::before { transition: none; }
+
   /* Keyboard focus thickens the keyline in the foreground colour */
   .item:focus-visible {
     --plate-keyline: var(--color-foreground);
@@ -49,48 +53,49 @@
     outline: none;
   }
 
-  /* Lamp: dim at rest, lit on hover, focus and the current page. The lit
-    look is two properties so Menu can light its own lamps */
+  /* Lamp: 2px squares on a 3px pitch, each tile a conic gradient that
+    paints its top-left 2px so the gutters are real holes. The glow is a
+    drop-shadow, which follows the squares where a box-shadow would light
+    the box. */
   .lamp {
+    --nav-lamp: color-mix(in srgb, var(--color-foreground) 22%, transparent);
     --nav-lamp-lit: var(--color-accent);
+    /* Two short passes: one into the gutters, one for a little body. Any
+      wider blurs the 5px set into a soft disc. */
     --nav-lamp-glow:
-      0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent),
-      0 0 10px 2px color-mix(in srgb, var(--color-accent) 60%, transparent);
-    background: color-mix(in srgb, var(--color-foreground) 18%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-foreground) 12%, transparent);
-    transition: background .14s ease, box-shadow .14s ease;
+      drop-shadow(0 0 1px color-mix(in srgb, var(--color-accent) 85%, transparent))
+      drop-shadow(0 0 2px color-mix(in srgb, var(--color-accent) 55%, transparent));
+    flex: none;
+    width: 5px;
+    height: 14px;
+    background: conic-gradient(at 2px 2px, transparent 75%, var(--nav-lamp) 0) 0 0 / 3px 3px;
   }
 
   .item:focus-visible .lamp,
   .item[aria-current] .lamp {
-    background: var(--nav-lamp-lit);
-    box-shadow: var(--nav-lamp-glow);
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
   }
 
-  /* Hover is gated so it can't stick after a tap */
+  /* Hover is gated so it can't stick after a tap. It fills the tab as the
+    current page is filled, matching the menu's rows; the keyline stays for focus. */
   @media (hover: hover) {
+    .item:hover { --plate-fill: var(--color-card); }
     .item:hover .lamp {
-      background: var(--nav-lamp-lit);
-      box-shadow: var(--nav-lamp-glow);
+      --nav-lamp: var(--nav-lamp-lit);
+      filter: var(--nav-lamp-glow);
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .lamp { transition: none; }
-  }
-
   @media (forced-colors: active) {
-    /* Forced colours apply after transitions compute, so every frame
-      would snap to Canvas and flash */
-    .lamp { transition: none; }
-
     /* Forced colours drop the clip-path, so the overlap would read as
       doubled borders; space the items instead */
     .list { gap: 6px; }
     .slot + .slot { margin-left: 0; }
     .slot + .slot .item { --nav-inset: 24px; }
 
-    .lamp { --nav-lamp-lit: Highlight; --nav-lamp-glow: none; background: ButtonText; box-shadow: none; }
+    /* Forced colours drop gradients, so the lamp is a solid block in system colours */
+    .lamp { --nav-lamp: ButtonText; --nav-lamp-lit: Highlight; --nav-lamp-glow: none; background: var(--nav-lamp); }
 
     .item:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
   }
