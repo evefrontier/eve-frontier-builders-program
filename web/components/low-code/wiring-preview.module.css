@@ -1,0 +1,30 @@
+.preview { display: grid; gap: 20px; color: var(--color-foreground); }
+.canvas {
+  height: 650px;
+  min-width: 0;
+  border: 1px solid var(--color-control-line);
+  background: var(--color-background);
+  --xy-background-color: var(--color-background);
+  --xy-edge-stroke: var(--color-foreground);
+  --xy-handle-background-color: var(--color-background);
+  --xy-handle-border-color: var(--color-foreground);
+  --xy-attribution-background-color: var(--color-card);
+}
+.canvas :global(.react-flow__handle) { width: 16px; height: 16px; border: 2px solid var(--color-foreground); }
+.canvas :global(.react-flow__attribution a) { color: var(--color-foreground); }
+.executionHandle { border-radius: 0 !important; }
+.executionEdge path { stroke: var(--color-foreground); stroke-width: 2; stroke-dasharray: 7 5; }
+.valueEdge path { stroke: var(--color-accent-text); stroke-width: 3; }
+.controls { display: flex; flex-wrap: wrap; align-items: end; gap: 20px; border: 1px solid var(--color-line); padding: 16px; }
+.controls label { display: grid; gap: 8px; }
+.controls select { padding: 8px; border: 1px solid var(--color-control-line); background: var(--color-card); color: var(--color-foreground); }
+.controls select:focus-visible { outline: 3px solid var(--color-foreground); outline-offset: 3px; }
+@media (forced-colors: active) {
+  .canvas { --xy-handle-background-color: Canvas; --xy-handle-border-color: CanvasText; background: Canvas; }
+  .canvas :global(.react-flow__handle) { border-color: CanvasText; }
+  .executionEdge path, .valueEdge path { stroke: CanvasText; }
+  .controls select { background: Canvas; color: CanvasText; border-color: CanvasText; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .preview *, .preview *::before, .preview *::after { animation: none !important; transition: none !important; }
+}
