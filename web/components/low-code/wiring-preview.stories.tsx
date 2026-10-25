@@ -5,7 +5,6 @@ const meta = {
   title: "Components/Low Code/ReactFlow Working Example",
   component: WiringPreview,
   parameters: {
-    layout: "padded",
     docs: {
       description: {
         component:
@@ -13,19 +12,15 @@ const meta = {
       },
     },
   },
+  args: {
+    showCodePreview: true,
+    showControls: true,
+    canvasOnly: false,
+  },
   argTypes: {
-    showCodePreview: {
-      control: "boolean",
-      description: "Display the generated Move source code inspection pane below the canvas.",
-    },
-    showControls: {
-      control: "boolean",
-      description: "Display the accessible dropdown controls for keyboard and screen-reader users.",
-    },
-    canvasOnly: {
-      control: "boolean",
-      description: "Render only the design surface (nodes, edges, background) without surrounding documentation panels.",
-    },
+    showCodePreview: { description: "Display the generated Move source code inspection pane below the canvas." },
+    showControls: { description: "Display the accessible dropdown controls for keyboard and screen-reader users." },
+    canvasOnly: { description: "Render only the design surface (nodes, edges, background) without surrounding documentation panels." },
   },
 } satisfies Meta<typeof WiringPreview>;
 
@@ -39,19 +34,6 @@ type Story = StoryObj<typeof meta>;
  * - Linear Request execution flow (`exec-out` → `exec-in`)
  * - Live uncompiled Move source generation reflecting statement execution order
  */
-export const All: Story = {
-  args: {
-    showCodePreview: true,
-    showControls: true,
-  },
-};
+export const All: Story = {};
 
-/**
- * Standard Storybook Playground for tweaking component arguments.
- */
-export const Playground: Story = {
-  args: {
-    showCodePreview: true,
-    showControls: true,
-  },
-};
+export const Playground: Story = {};

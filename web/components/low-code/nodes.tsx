@@ -1,7 +1,19 @@
 "use client";
 
-import { useId, useState, useMemo, useRef, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type FocusEvent,
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { Dialog } from "@base-ui/react/dialog";
+import { Icon } from "@/components/ui/icon";
 import { Plate } from "@/components/ui/plate";
 import { cn } from "@/lib/cn";
 import { socketTypeMeta, type SocketType } from "./connections.mjs";
@@ -17,6 +29,23 @@ export const itemCatalog = [
   { id: "STRANGERS_HEAD", name: "Strangers Head", category: "Salvage Artifact", description: "Preserved cybernetic cranial module of unknown origin" },
 ] as const;
 
+const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+/* 24px targets, as the Field's clear button */
+const ICON_BUTTON = cn(
+  "grid size-6 flex-none cursor-pointer place-items-center text-muted",
+  "hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground",
+  "forced-colors:text-[ButtonText] forced-colors:focus-visible:outline-[Highlight]",
+);
+
+const PILL = cn(
+  "inline-flex min-h-6 cursor-pointer items-center gap-0.5 border border-line bg-background px-1.5",
+  "font-heading text-step--3 font-bold tracking-[0.04em] uppercase",
+  "hover:border-accent focus-visible:outline-2 focus-visible:outline-foreground",
+  "aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-text-on-accent",
+  "forced-colors:aria-pressed:border-[Highlight] forced-colors:aria-pressed:bg-[Highlight] forced-colors:aria-pressed:text-[HighlightText]",
+);
+
 function ItemSearchDialog({
   open,
   onOpenChange,
@@ -30,6 +59,7 @@ function ItemSearchDialog({
 }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const customId = query.trim().toUpperCase().replace(/\s+/g, "_");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -39,98 +69,116 @@ function ItemSearchDialog({
         item.id.toLowerCase().includes(q) ||
         item.name.toLowerCase().includes(q) ||
         item.category.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q)
+        item.description.toLowerCase().includes(q),
     );
   }, [query]);
+
+  const choose = (itemId: string) => {
+    onSelect(itemId);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Backdrop className={styles.dialogBackdrop} />
+        <Dialog.Backdrop className={cn("fixed inset-0 z-(--layer-scrim) bg-[rgb(0_0_0/0.6)] backdrop-blur-xs", styles.backdrop)} />
         <Dialog.Popup
-          className={styles.dialogPopup}
+          className={cn(
+            "fixed top-1/2 left-1/2 z-(--layer-menu) flex max-h-[calc(100vh-64px)] w-[calc(100vw-32px)] max-w-120 -translate-1/2 flex-col outline-none",
+            styles.popup,
+          )}
           initialFocus={inputRef}
-          aria-label="Select Item Type"
         >
-          <Plate className={styles.dialogSurface}>
-            <div className={styles.dialogHeader}>
+          <Plate className={cn("flex w-full flex-col px-5 pt-4 pb-3.5", styles.dialogSurface)}>
+            <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <Dialog.Title className={styles.dialogTitle}>Select Item Type</Dialog.Title>
-                <Dialog.Description className={styles.dialogDescription}>
+                <Dialog.Title className="font-heading text-step--1 font-bold tracking-[0.04em] uppercase">
+                  Select item type
+                </Dialog.Title>
+                <Dialog.Description className="mt-0.5 text-step--2 text-muted">
                   Search and pick a known Move item or entity type identifier.
                 </Dialog.Description>
               </div>
-              <Dialog.Close className={styles.dialogCloseBtn} aria-label="Close dialog">
-                ✕
+              <Dialog.Close
+                className={cn(ICON_BUTTON, "border border-line hover:border-foreground")}
+                aria-label="Close dialog"
+              >
+                <Icon name="cross" className="size-2.5" />
               </Dialog.Close>
             </div>
 
-            <div className={styles.dialogSearchWrapper}>
-              <input
-                ref={inputRef}
-                className={styles.dialogSearchInput}
-                type="search"
-                placeholder="Search by ID, name, or category (e.g. EU_40, Feral, Fuel)..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                aria-label="Search item types"
-              />
-            </div>
-
-            <div className={styles.dialogList} role="listbox" aria-label="Available item types">
-              {filtered.length === 0 ? (
-                <div className={styles.dialogEmpty}>
-                  No items match &ldquo;{query}&rdquo;.
-                  <button
-                    type="button"
-                    className={styles.dialogCustomBtn}
-                    onClick={() => {
-                      const customId = query.trim().toUpperCase().replace(/\s+/g, "_");
-                      if (customId) {
-                        onSelect(customId);
-                        onOpenChange(false);
-                      }
-                    }}
-                  >
-                    Use custom identifier &ldquo;{query.trim().toUpperCase().replace(/\s+/g, "_")}&rdquo;
-                  </button>
-                </div>
-              ) : (
-                filtered.map(item => {
-                  const isSelected = item.id.toUpperCase() === currentValue.toUpperCase();
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      className={cn(styles.dialogItemBtn, isSelected && styles.dialogItemActive)}
-                      onClick={() => {
-                        onSelect(item.id);
-                        onOpenChange(false);
-                      }}
-                    >
-                      <div className={styles.dialogItemMain}>
-                        <span className={styles.dialogItemId}>
-                          <span className={styles.itemGlyph} aria-hidden="true">◆</span> {item.id}
-                        </span>
-                        <span className={styles.dialogItemName}>{item.name}</span>
-                      </div>
-                      <div className={styles.dialogItemMeta}>
-                        <span className={styles.dialogItemCategory}>{item.category}</span>
-                        <span className={styles.dialogItemDesc}>{item.description}</span>
-                      </div>
-                    </button>
-                  );
-                })
+            <input
+              ref={inputRef}
+              /* 16px: iOS zooms the page when a focused input is smaller */
+              className={cn(
+                "mb-2.5 w-full border border-socket-item bg-background px-3 py-2 font-heading text-base text-foreground outline-none",
+                "placeholder:text-muted focus-visible:outline-2 focus-visible:outline-foreground",
               )}
-            </div>
+              type="search"
+              placeholder="Search by ID, name, or category (e.g. EU_40, Feral, Fuel)..."
+              value={query}
+              onChange={event => setQuery(event.target.value)}
+              aria-label="Search item types"
+            />
 
-            <div className={styles.dialogFooter}>
-              <span className={styles.dialogTip}>
-                Press <kbd>Esc</kbd> or click ✕ to cancel
-              </span>
-            </div>
+            {filtered.length === 0 ? (
+              <div
+                className="flex flex-col items-center gap-2.5 border border-line bg-card px-4 py-5 text-center text-step--2 text-muted"
+                role="status"
+              >
+                No items match &ldquo;{query}&rdquo;.
+                <button
+                  type="button"
+                  className={cn(
+                    "min-h-6 cursor-pointer border border-socket-item bg-background px-2.5 font-heading text-step--2 font-bold text-socket-item",
+                    "hover:bg-[color-mix(in_oklab,var(--color-socket-item)_12%,var(--color-background))]",
+                    "focus-visible:outline-2 focus-visible:outline-foreground",
+                  )}
+                  onClick={() => {
+                    if (customId) choose(customId);
+                  }}
+                >
+                  Use custom identifier &ldquo;{customId}&rdquo;
+                </button>
+              </div>
+            ) : (
+              <div
+                className="flex max-h-65 flex-col gap-1 overflow-y-auto border border-line bg-card p-1"
+                role="listbox"
+                aria-label="Available item types"
+              >
+                {filtered.map(item => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="option"
+                    aria-selected={item.id === currentValue.toUpperCase()}
+                    className={cn(
+                      "flex cursor-pointer flex-col gap-0.5 border border-transparent px-2.5 py-2 text-left text-foreground",
+                      "hover:border-socket-item hover:bg-[color-mix(in_oklab,var(--color-socket-item)_12%,var(--color-background))]",
+                      "aria-selected:border-socket-item aria-selected:bg-[color-mix(in_oklab,var(--color-socket-item)_18%,var(--color-background))]",
+                      "focus-visible:outline-2 focus-visible:outline-foreground",
+                    )}
+                    onClick={() => choose(item.id)}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="font-heading text-step--2 font-bold tracking-[0.04em] text-socket-item">
+                        <span aria-hidden="true">◆</span> {item.id}
+                      </span>
+                      <span className="text-step--2 font-semibold">{item.name}</span>
+                    </span>
+                    <span className="flex items-center gap-2 text-step--3 text-muted">
+                      <span className="font-semibold tracking-[0.04em] uppercase">{item.category}</span>
+                      <span className="truncate">{item.description}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className="mt-2.5 text-step--3 text-muted">
+              Press <kbd className="border border-line bg-background px-1 font-heading">Esc</kbd> or click ✕ to cancel
+            </p>
           </Plate>
         </Dialog.Popup>
       </Dialog.Portal>
@@ -200,6 +248,7 @@ const primitiveSpec: Record<OperationRole, {
   },
 };
 
+/** Classes for a port, on the standalone marker or a React Flow handle. */
 export function socketPortClassName({
   direction,
   type = "u64",
@@ -209,8 +258,23 @@ export function socketPortClassName({
   type?: SocketType;
   connected?: boolean;
 }) {
-  return cn(styles.port, styles[direction], styles[type], connected && styles.portConnected);
+  return cn(
+    "border-2 border-(--node-socket-color) forced-colors:border-[CanvasText]",
+    connected ? "bg-(--node-socket-fill) forced-colors:bg-[Highlight]" : "bg-background forced-colors:bg-[Canvas]",
+    styles.port,
+    styles[direction],
+    styles[type],
+  );
 }
+
+export type SocketProps = {
+  direction: "in" | "out";
+  type?: SocketType;
+  label?: string;
+  binding?: string;
+  connected?: boolean;
+  handle?: ReactNode;
+};
 
 export function Socket({
   direction,
@@ -219,36 +283,43 @@ export function Socket({
   binding,
   connected = false,
   handle,
-}: {
-  direction: "in" | "out";
-  type?: SocketType;
-  label?: string;
-  binding?: string;
-  connected?: boolean;
-  handle?: ReactNode;
-}) {
-  const meta = socketTypeMeta[type];
-
+}: SocketProps) {
   return (
-    <div className={cn(styles.socket, direction === "out" && styles.socketOut, styles[type])}>
-      {handle ?? (
-        <span
-          aria-hidden="true"
-          className={socketPortClassName({ direction, type, connected })}
-        />
+    <div
+      className={cn(
+        "relative -mx-5 flex items-center justify-between gap-2 border-t border-line px-5 pt-2 pb-0.5 text-step--2",
+        direction === "out" && "flex-row-reverse",
+        styles.socket,
+        styles[type],
       )}
-      <span className={styles.socketMain}>
-        <span className={styles.typeBadge}>
-          <span aria-hidden="true">{meta.glyph}</span> {meta.badge}
-        </span>
-        {label && <span className={styles.socketName}>{label}</span>}
+    >
+      {handle ?? <span aria-hidden="true" className={socketPortClassName({ direction, type, connected })} />}
+      <span className={cn("inline-flex min-w-0 items-center gap-1.5", direction === "out" && "flex-row-reverse")}>
+        <TypeBadge type={type} />
+        {label && <span className="font-semibold text-foreground">{label}</span>}
       </span>
       {binding && (
-        <span className={cn(styles.socketMeta, styles.socketMetaConnected)}>
+        <span className="font-heading text-step--2 font-bold whitespace-nowrap text-(--node-socket-color) forced-colors:text-[CanvasText]">
           {binding}
         </span>
       )}
     </div>
+  );
+}
+
+/* Reads its colour from the enclosing socket or type class */
+function TypeBadge({ type }: { type: SocketType }) {
+  const meta = socketTypeMeta[type];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 border px-1.5 font-heading text-step--3 leading-tight font-bold tracking-[0.04em] whitespace-nowrap uppercase",
+        "border-(--node-socket-color) bg-card text-(--node-socket-color)",
+        "forced-colors:border-[CanvasText] forced-colors:bg-[Canvas] forced-colors:text-[CanvasText]",
+      )}
+    >
+      <span aria-hidden="true">{meta.glyph}</span> {meta.badge}
+    </span>
   );
 }
 
@@ -259,102 +330,69 @@ function NodeShell({
   selected,
   highlighted,
   invalid,
-  headerContent,
+  eyebrow,
   children,
-  ports,
 }: {
-  title?: string;
+  title: string;
   category?: string;
   accentType?: SocketType;
   selected?: boolean;
   highlighted?: boolean;
   invalid?: boolean;
-  headerContent?: ReactNode;
+  eyebrow?: string;
   children: ReactNode;
-  ports?: ReactNode;
 }) {
   return (
-    <section
+    <div
       className={cn(
+        "relative w-76 text-step--1 text-foreground",
         styles.node,
         selected && styles.selected,
         highlighted && !selected && styles.highlighted,
-        invalid && styles.invalid
+        invalid && styles.invalid,
       )}
       data-accent={accentType}
-      aria-label={title}
     >
       <Plate className={styles.ring} aria-hidden="true">
         <Plate className={styles.surface} />
       </Plate>
-      <div className={styles.content}>
-        {headerContent ?? (
-          <header className={styles.header}>
-            <div>
-              {category && <div className={styles.eyebrow}>{category}</div>}
-              {title && <div className={styles.heading}>{title}</div>}
+      <div className={cn("bg-card", styles.fill)} aria-hidden="true" />
+      <div className="relative z-[1] grid gap-2 px-5 pt-4 pb-5 *:min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <div className="font-heading text-step--2 tracking-[0.05em] text-muted uppercase forced-colors:text-[CanvasText]">
+              {eyebrow ?? category}
             </div>
-          </header>
-        )}
+            <h3 className={cn("truncate font-heading text-step--1 font-bold", eyebrow && "sr-only")}>{title}</h3>
+          </div>
+        </div>
         {children}
       </div>
-      {ports}
-    </section>
+    </div>
   );
 }
 
 const editableTypes: SocketType[] = ["u64", "boolean", "item"];
 
-function validateConstantValue(type: SocketType, value: string): { error: string | null; hint: string } {
-  if (type === "u64") {
-    const res = validateU64(value);
-    return {
-      error: res.error,
-      hint: "Copyable value · zero is valid u64",
-    };
-  }
+function validateConstantValue(type: SocketType, value: string): string | null {
+  if (type === "u64") return validateU64(value).error;
   if (type === "boolean") {
     const trimmed = value.trim().toLowerCase();
-    if (trimmed !== "true" && trimmed !== "false") {
-      return {
-        error: "Boolean must be 'true' or 'false'",
-        hint: "Literal boolean signal · true | false",
-      };
-    }
-    return {
-      error: null,
-      hint: "Literal boolean signal · true | false",
-    };
+    return trimmed === "true" || trimmed === "false" ? null : "Boolean must be 'true' or 'false'";
   }
   if (type === "item") {
     const trimmed = value.trim();
-    if (!trimmed) {
-      return {
-        error: "Item identifier cannot be empty",
-        hint: "Move Item/Entity identifier (e.g. FERAL_DATA)",
-      };
-    }
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
-      return {
-        error: "Must be a valid identifier (alphanumeric and underscore)",
-        hint: "Move Item/Entity identifier (e.g. FERAL_DATA)",
-      };
-    }
-    return {
-      error: null,
-      hint: "Move Item/Entity identifier (e.g. FERAL_DATA)",
-    };
+    if (!trimmed) return "Item identifier cannot be empty";
+    return IDENTIFIER.test(trimmed) ? null : "Must be a valid identifier (alphanumeric and underscore)";
   }
-  return { error: null, hint: `Literal ${type} constant` };
+  return null;
 }
 
-function EditIcon({ className }: { className?: string }) {
+function EditIcon() {
   return (
     <svg
-      className={className}
+      className="size-3"
       viewBox="0 0 16 16"
-      width="12"
-      height="12"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
@@ -367,6 +405,63 @@ function EditIcon({ className }: { className?: string }) {
   );
 }
 
+/* Closing an inline editor unmounts the focused input, so focus goes back to
+  the button that opened it unless it has already moved somewhere else */
+function useReturnFocus(editing: boolean, target: RefObject<HTMLButtonElement | null>) {
+  const pending = useRef(false);
+  useEffect(() => {
+    if (editing || !pending.current) return;
+    pending.current = false;
+    target.current?.focus();
+  }, [editing, target]);
+  return useCallback(() => {
+    pending.current = true;
+  }, []);
+}
+
+function focusLeavesRow(event: FocusEvent<HTMLElement>) {
+  const next = event.relatedTarget;
+  return !(next instanceof Node) || !event.currentTarget.contains(next);
+}
+
+function PropRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex min-h-6 items-center justify-between gap-2">
+      <span className="w-13 flex-none font-heading text-step--2 font-bold tracking-[0.05em] text-muted uppercase forced-colors:text-[CanvasText]">
+        {label}:
+      </span>
+      <div className="flex min-w-0 flex-1 items-center justify-end">{children}</div>
+    </div>
+  );
+}
+
+function PropValue({ children, placeholder = false, title }: { children: ReactNode; placeholder?: boolean; title: string }) {
+  return (
+    <span
+      className={cn(
+        "max-w-[170px] truncate font-heading text-step--2 font-bold",
+        placeholder && "font-normal text-muted italic",
+      )}
+      title={title}
+    >
+      {children}
+    </span>
+  );
+}
+
+export type PrimitiveConstantProps = {
+  name?: string;
+  dataType?: SocketType;
+  value: string;
+  onChange: (text: string) => void;
+  onNameChange?: (name: string) => void;
+  onTypeChange?: (type: SocketType) => void;
+  selected?: boolean;
+  highlighted?: boolean;
+  connected?: boolean;
+  handle?: ReactNode;
+};
+
 export function PrimitiveConstant({
   name = "CONSTANT_A",
   dataType = "u64",
@@ -378,53 +473,35 @@ export function PrimitiveConstant({
   highlighted,
   connected,
   handle,
-  ports,
-}: {
-  name?: string;
-  dataType?: SocketType;
-  value: string;
-  onChange: (text: string) => void;
-  onNameChange?: (name: string) => void;
-  onTypeChange?: (type: SocketType) => void;
-  selected?: boolean;
-  highlighted?: boolean;
-  connected?: boolean;
-  handle?: ReactNode;
-  ports?: ReactNode;
-}) {
-  const id = useId();
+}: PrimitiveConstantProps) {
+  const errorId = useId();
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(name);
-
   const [isEditingType, setIsEditingType] = useState(false);
-
   const [isEditingValue, setIsEditingValue] = useState(false);
   const [valueDraft, setValueDraft] = useState(value);
-
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
 
-  const { error } = validateConstantValue(dataType, isEditingValue ? valueDraft : value);
-  const meta = socketTypeMeta[dataType];
+  const nameButton = useRef<HTMLButtonElement>(null);
+  const typeButton = useRef<HTMLButtonElement>(null);
+  const valueButton = useRef<HTMLButtonElement>(null);
+  const returnToName = useReturnFocus(isEditingName, nameButton);
+  const returnToType = useReturnFocus(isEditingType, typeButton);
+  const returnToValue = useReturnFocus(isEditingValue, valueButton);
+
+  const error = validateConstantValue(dataType, isEditingValue ? valueDraft : value);
+  const isTrue = value.trim().toLowerCase() === "true";
 
   function commitName() {
     const trimmed = nameDraft.trim();
-    if (trimmed && trimmed !== name) {
-      onNameChange?.(trimmed);
-    } else {
-      setNameDraft(name);
-    }
+    if (trimmed && trimmed !== name) onNameChange?.(trimmed);
+    else setNameDraft(name);
     setIsEditingName(false);
   }
 
-  function handleNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      commitName();
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      setNameDraft(name);
-      setIsEditingName(false);
-    }
+  function cancelName() {
+    setNameDraft(name);
+    setIsEditingName(false);
   }
 
   function commitValue() {
@@ -432,308 +509,290 @@ export function PrimitiveConstant({
     setIsEditingValue(false);
   }
 
-  function handleValueKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      commitValue();
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      setValueDraft(value);
-      setIsEditingValue(false);
-    }
+  function cancelValue() {
+    setValueDraft(value);
+    setIsEditingValue(false);
   }
 
-  function selectType(t: SocketType) {
-    onTypeChange?.(t);
-    if (t === "boolean") {
-      const lower = value.trim().toLowerCase();
-      if (lower !== "true" && lower !== "false") {
-        onChange("true");
-        setValueDraft("true");
-      }
-    } else if (t === "item") {
-      const trimmed = value.trim();
-      if (!trimmed || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(trimmed)) {
-        onChange("STORAGE_UNIT");
-        setValueDraft("STORAGE_UNIT");
-      }
+  function onEditorKeyDown(event: KeyboardEvent<HTMLInputElement>, commit: () => void, cancel: () => void, returnFocus: () => void) {
+    if (event.key !== "Enter" && event.key !== "Escape") return;
+    event.preventDefault();
+    returnFocus();
+    if (event.key === "Enter") commit();
+    else cancel();
+  }
+
+  function onPickerKeyDown(event: KeyboardEvent<HTMLElement>, close: () => void, returnFocus: () => void) {
+    if (event.key !== "Escape") return;
+    event.preventDefault();
+    event.stopPropagation();
+    returnFocus();
+    close();
+  }
+
+  function selectType(next: SocketType) {
+    onTypeChange?.(next);
+    if (next === "boolean" && !["true", "false"].includes(value.trim().toLowerCase())) {
+      onChange("true");
+      setValueDraft("true");
+    } else if (next === "item" && !IDENTIFIER.test(value.trim())) {
+      onChange("STORAGE_UNIT");
+      setValueDraft("STORAGE_UNIT");
     }
+    returnToType();
     setIsEditingType(false);
   }
 
-  const placeholder =
-    dataType === "u64"
-      ? "Decimal u64 (e.g. 40)"
-      : dataType === "boolean"
-      ? "true or false"
-      : dataType === "item"
-      ? "Item ID (e.g. EU_40)"
-      : `Value`;
+  function setBoolean(next: "true" | "false") {
+    onChange(next);
+    setValueDraft(next);
+    returnToValue();
+    setIsEditingValue(false);
+  }
 
-  const headerContent = (
-    <header className={styles.header}>
-      <div>
-        <div className={styles.eyebrow}>Primitive Constant</div>
-      </div>
-    </header>
-  );
+  const placeholder =
+    dataType === "u64" ? "Decimal u64 (e.g. 40)"
+    : dataType === "boolean" ? "true or false"
+    : dataType === "item" ? "Item ID (e.g. EU_40)"
+    : "Value";
 
   return (
     <>
       <NodeShell
         title={name}
+        eyebrow="Primitive Constant"
         accentType={dataType}
         selected={selected}
         highlighted={highlighted}
-        invalid={!!error}
-        headerContent={headerContent}
-        ports={ports}
+        invalid={Boolean(error)}
       >
-        <div className={cn(styles.propertiesList, "nodrag nopan")}>
-          {/* Row 1: Name */}
-          <div className={styles.propRow}>
-            <span className={styles.propLabel}>Name:</span>
-            <div className={styles.propContent}>
-              {isEditingName ? (
-                <div className={styles.inlineEditForm}>
-                  <input
-                    className={styles.inlineInput}
-                    value={nameDraft}
-                    autoFocus
-                    onChange={e => setNameDraft(e.target.value)}
-                    onBlur={commitName}
-                    onKeyDown={handleNameKeyDown}
-                    aria-label="Edit constant name"
-                  />
-                  <button
-                    type="button"
-                    className={styles.inlineSaveBtn}
-                    onMouseDown={e => {
-                      e.preventDefault();
-                      commitName();
-                    }}
-                    title="Save name"
-                    aria-label="Save name"
-                  >
-                    ✓
-                  </button>
-                </div>
-              ) : (
-                <div className={styles.propValueWrapper}>
-                  <span className={styles.propValueText} title={name}>
-                    {name}
-                  </span>
-                  <button
-                    type="button"
-                    className={styles.inlineEditBtn}
-                    onClick={() => {
-                      setNameDraft(name);
-                      setIsEditingName(true);
-                    }}
-                    title="Edit name"
-                    aria-label={`Edit name for ${name}`}
-                  >
-                    <EditIcon />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="nodrag nopan flex flex-col gap-2 pt-0.5 pb-1.5">
+          <PropRow label="Name">
+            {isEditingName ? (
+              <div
+                className="flex w-full items-center justify-end gap-1"
+                onBlur={event => {
+                  if (!focusLeavesRow(event)) return;
+                  if (event.relatedTarget === null) returnToName();
+                  commitName();
+                }}
+              >
+                <input
+                  /* 16px: iOS zooms the page when a focused input is smaller */
+                  className="w-full max-w-[170px] min-w-0 border border-accent bg-background px-1.5 py-0.5 font-heading text-base font-bold text-foreground outline-none"
+                  value={nameDraft}
+                  autoFocus
+                  onChange={event => setNameDraft(event.target.value)}
+                  onKeyDown={event => onEditorKeyDown(event, commitName, cancelName, returnToName)}
+                  aria-label="Edit constant name"
+                />
+                <button
+                  type="button"
+                  className={cn(ICON_BUTTON, "bg-accent text-step--2 font-bold text-text-on-accent hover:text-text-on-accent")}
+                  onMouseDown={event => event.preventDefault()}
+                  onClick={() => {
+                    returnToName();
+                    commitName();
+                  }}
+                  aria-label="Save name"
+                >
+                  ✓
+                </button>
+              </div>
+            ) : (
+              <div className="inline-flex max-w-full items-center justify-end gap-1.5">
+                <PropValue title={name}>{name}</PropValue>
+                <button
+                  ref={nameButton}
+                  type="button"
+                  className={ICON_BUTTON}
+                  onClick={() => {
+                    setNameDraft(name);
+                    setIsEditingName(true);
+                  }}
+                  aria-label={`Edit name for ${name}`}
+                >
+                  <EditIcon />
+                </button>
+              </div>
+            )}
+          </PropRow>
 
-          {/* Row 2: Type */}
-          <div className={styles.propRow}>
-            <span className={styles.propLabel}>Type:</span>
-            <div className={styles.propContent}>
-              {isEditingType ? (
-                <div className={styles.inlineTypePicker}>
-                  {editableTypes.map(t => {
-                    const m = socketTypeMeta[t];
-                    const isCurrent = t === dataType;
-                    return (
-                      <button
-                        key={t}
-                        type="button"
-                        className={cn(styles.typeOptionBtn, isCurrent && styles.typeOptionActive)}
-                        onClick={() => selectType(t)}
-                      >
-                        <span aria-hidden="true">{m.glyph}</span> {m.badge}
-                      </button>
-                    );
-                  })}
+          <PropRow label="Type">
+            {isEditingType ? (
+              <div
+                className="inline-flex flex-wrap items-center justify-end gap-1"
+                onKeyDown={event => onPickerKeyDown(event, () => setIsEditingType(false), returnToType)}
+              >
+                {editableTypes.map(type => (
                   <button
+                    key={type}
                     type="button"
-                    className={styles.inlineCancelBtn}
-                    onClick={() => setIsEditingType(false)}
-                    title="Close type picker"
-                    aria-label="Close type picker"
+                    autoFocus={type === dataType}
+                    className={PILL}
+                    aria-pressed={type === dataType}
+                    onClick={() => selectType(type)}
                   >
-                    ✕
+                    <span aria-hidden="true">{socketTypeMeta[type].glyph}</span> {socketTypeMeta[type].badge}
                   </button>
-                </div>
-              ) : (
-                <div className={styles.propValueWrapper}>
-                  <span className={styles.typeBadge}>
-                    <span aria-hidden="true">{meta.glyph}</span> {meta.badge}
-                  </span>
-                  <button
-                    type="button"
-                    className={styles.inlineEditBtn}
-                    onClick={() => setIsEditingType(true)}
-                    title="Edit type"
-                    aria-label={`Edit type (currently ${dataType})`}
-                  >
-                    <EditIcon />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+                ))}
+                <button
+                  type="button"
+                  className={cn(ICON_BUTTON, "hover:text-danger")}
+                  onClick={() => {
+                    returnToType();
+                    setIsEditingType(false);
+                  }}
+                  aria-label="Close type picker"
+                >
+                  <Icon name="cross" className="size-2.5" />
+                </button>
+              </div>
+            ) : (
+              <div className={cn("inline-flex max-w-full items-center justify-end gap-1.5", styles[dataType])}>
+                <TypeBadge type={dataType} />
+                <button
+                  ref={typeButton}
+                  type="button"
+                  className={ICON_BUTTON}
+                  onClick={() => setIsEditingType(true)}
+                  aria-label={`Edit type (currently ${dataType})`}
+                >
+                  <EditIcon />
+                </button>
+              </div>
+            )}
+          </PropRow>
 
-          {/* Row 3: Value */}
-          <div className={styles.propRow}>
-            <span className={styles.propLabel}>Value:</span>
-            <div className={styles.propContent}>
-              {dataType === "boolean" ? (
-                isEditingValue ? (
-                  <div className={styles.inlineTypePicker}>
+          <PropRow label="Value">
+            {dataType === "boolean" ? (
+              isEditingValue ? (
+                <div
+                  className="inline-flex flex-wrap items-center justify-end gap-1"
+                  onKeyDown={event => onPickerKeyDown(event, () => setIsEditingValue(false), returnToValue)}
+                >
+                  {(["true", "false"] as const).map(option => (
                     <button
+                      key={option}
                       type="button"
-                      className={cn(
-                        styles.typeOptionBtn,
-                        valueDraft.toLowerCase() === "true" && styles.typeOptionActive
-                      )}
-                      onClick={() => {
-                        onChange("true");
-                        setValueDraft("true");
-                        setIsEditingValue(false);
-                      }}
+                      autoFocus={option === valueDraft.toLowerCase()}
+                      className={PILL}
+                      aria-pressed={option === valueDraft.toLowerCase()}
+                      onClick={() => setBoolean(option)}
                     >
-                      True
+                      {option}
                     </button>
-                    <button
-                      type="button"
-                      className={cn(
-                        styles.typeOptionBtn,
-                        valueDraft.toLowerCase() === "false" && styles.typeOptionActive
-                      )}
-                      onClick={() => {
-                        onChange("false");
-                        setValueDraft("false");
-                        setIsEditingValue(false);
-                      }}
-                    >
-                      False
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.inlineCancelBtn}
-                      onClick={() => setIsEditingValue(false)}
-                      title="Close boolean selector"
-                      aria-label="Close boolean selector"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div className={styles.propValueWrapper}>
-                    <span className={styles.propValueText} title={value}>
-                      {value.toLowerCase() === "true" ? "True" : "False"}
-                    </span>
-                    <button
-                      type="button"
-                      className={styles.inlineEditBtn}
-                      onClick={() => {
-                        setValueDraft(value.toLowerCase() === "true" ? "true" : "false");
-                        setIsEditingValue(true);
-                      }}
-                      title="Edit boolean value"
-                      aria-label={`Edit boolean value (currently ${value})`}
-                    >
-                      <EditIcon />
-                    </button>
-                  </div>
-                )
-              ) : dataType === "item" ? (
-                <div className={styles.propValueWrapper}>
-                  <span className={styles.propValueText} title={value || "Select item..."}>
-                    {value || "Select item..."}
-                  </span>
+                  ))}
                   <button
                     type="button"
-                    className={styles.inlineEditBtn}
-                    onClick={() => setIsItemDialogOpen(true)}
-                    title="Search and select item type"
-                    aria-label={`Select item type (currently ${value || "none"})`}
-                  >
-                    <EditIcon />
-                  </button>
-                </div>
-              ) : isEditingValue ? (
-                <div className={styles.inlineEditForm}>
-                  <input
-                    className={styles.inlineInput}
-                    type="text"
-                    inputMode={dataType === "u64" ? "numeric" : "text"}
-                    placeholder={placeholder}
-                    value={valueDraft}
-                    autoFocus
-                    onChange={e => setValueDraft(e.target.value)}
-                    onBlur={commitValue}
-                    onKeyDown={handleValueKeyDown}
-                    aria-label="Edit constant value"
-                  />
-                  <button
-                    type="button"
-                    className={styles.inlineSaveBtn}
-                    onMouseDown={e => {
-                      e.preventDefault();
-                      commitValue();
+                    className={cn(ICON_BUTTON, "hover:text-danger")}
+                    onClick={() => {
+                      returnToValue();
+                      setIsEditingValue(false);
                     }}
-                    title="Save value"
-                    aria-label="Save value"
+                    aria-label="Close boolean selector"
                   >
-                    ✓
+                    <Icon name="cross" className="size-2.5" />
                   </button>
                 </div>
               ) : (
-                <div className={styles.propValueWrapper}>
-                  <span
-                    className={cn(styles.propValueText, !value && styles.propPlaceholder)}
-                    title={value || placeholder}
-                  >
-                    {value || placeholder}
-                  </span>
+                <div className="inline-flex max-w-full items-center justify-end gap-1.5">
+                  <PropValue title={value}>{isTrue ? "True" : "False"}</PropValue>
                   <button
+                    ref={valueButton}
                     type="button"
-                    className={styles.inlineEditBtn}
+                    className={ICON_BUTTON}
                     onClick={() => {
-                      setValueDraft(value);
+                      setValueDraft(isTrue ? "true" : "false");
                       setIsEditingValue(true);
                     }}
-                    title="Edit value"
-                    aria-label={`Edit value for ${name}`}
+                    aria-label={`Edit boolean value (currently ${value})`}
                   >
                     <EditIcon />
                   </button>
                 </div>
-              )}
-            </div>
-          </div>
+              )
+            ) : dataType === "item" ? (
+              <div className="inline-flex max-w-full items-center justify-end gap-1.5">
+                <PropValue title={value || "Select item..."} placeholder={!value}>
+                  {value || "Select item..."}
+                </PropValue>
+                <button
+                  ref={valueButton}
+                  type="button"
+                  className={ICON_BUTTON}
+                  onClick={() => setIsItemDialogOpen(true)}
+                  aria-label={`Select item type (currently ${value || "none"})`}
+                >
+                  <EditIcon />
+                </button>
+              </div>
+            ) : isEditingValue ? (
+              <div
+                className="flex w-full items-center justify-end gap-1"
+                onBlur={event => {
+                  if (!focusLeavesRow(event)) return;
+                  if (event.relatedTarget === null) returnToValue();
+                  commitValue();
+                }}
+              >
+                <input
+                  /* 16px: iOS zooms the page when a focused input is smaller */
+                  className="w-full max-w-[170px] min-w-0 border border-accent bg-background px-1.5 py-0.5 font-heading text-base font-bold text-foreground outline-none placeholder:text-muted"
+                  type="text"
+                  inputMode={dataType === "u64" ? "numeric" : "text"}
+                  placeholder={placeholder}
+                  value={valueDraft}
+                  autoFocus
+                  onChange={event => setValueDraft(event.target.value)}
+                  onKeyDown={event => onEditorKeyDown(event, commitValue, cancelValue, returnToValue)}
+                  aria-label="Edit constant value"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? errorId : undefined}
+                />
+                <button
+                  type="button"
+                  className={cn(ICON_BUTTON, "bg-accent text-step--2 font-bold text-text-on-accent hover:text-text-on-accent")}
+                  onMouseDown={event => event.preventDefault()}
+                  onClick={() => {
+                    returnToValue();
+                    commitValue();
+                  }}
+                  aria-label="Save value"
+                >
+                  ✓
+                </button>
+              </div>
+            ) : (
+              <div className="inline-flex max-w-full items-center justify-end gap-1.5">
+                <PropValue title={value || placeholder} placeholder={!value}>
+                  {value || placeholder}
+                </PropValue>
+                <button
+                  ref={valueButton}
+                  type="button"
+                  className={ICON_BUTTON}
+                  onClick={() => {
+                    setValueDraft(value);
+                    setIsEditingValue(true);
+                  }}
+                  aria-label={`Edit value for ${name}`}
+                >
+                  <EditIcon />
+                </button>
+              </div>
+            )}
+          </PropRow>
         </div>
 
         {error && (
-          <p id={id} className={styles.error}>
-            {"Error: " + error}
+          <p id={errorId} className="text-step--2 font-semibold text-danger forced-colors:text-[CanvasText]">
+            Error: {error}
           </p>
         )}
 
-        <div className={styles.sockets}>
-          <Socket
-            direction="out"
-            type={dataType}
-            connected={connected}
-            handle={handle}
-          />
+        <div className="grid gap-1.5">
+          <Socket direction="out" type={dataType} connected={connected} handle={handle} />
         </div>
       </NodeShell>
 
@@ -750,6 +809,17 @@ export function PrimitiveConstant({
   );
 }
 
+export type OperationNodeProps = {
+  role: OperationRole;
+  item?: string;
+  connected?: boolean;
+  execInConnected?: boolean;
+  execOutConnected?: boolean;
+  selected?: boolean;
+  highlighted?: boolean;
+  handles?: Partial<Record<OperationHandleId, ReactNode>>;
+};
+
 export function OperationNode({
   role,
   item,
@@ -759,18 +829,7 @@ export function OperationNode({
   selected,
   highlighted,
   handles,
-  ports,
-}: {
-  role: OperationRole;
-  item?: string;
-  connected?: boolean;
-  execInConnected?: boolean;
-  execOutConnected?: boolean;
-  selected?: boolean;
-  highlighted?: boolean;
-  handles?: Partial<Record<OperationHandleId, ReactNode>>;
-  ports?: ReactNode;
-}) {
+}: OperationNodeProps) {
   const spec = primitiveSpec[role];
   const resolvedItem = item ?? spec.defaultItem;
 
@@ -781,10 +840,9 @@ export function OperationNode({
       accentType={spec.accent}
       selected={selected}
       highlighted={highlighted}
-      ports={ports}
     >
-      <p className={styles.hint}>{spec.summary}</p>
-      <div className={styles.sockets}>
+      <p className="text-step--2 text-muted forced-colors:text-[CanvasText]">{spec.summary}</p>
+      <div className="grid gap-1.5">
         {spec.valueInput && (
           <Socket
             direction="in"
@@ -795,32 +853,13 @@ export function OperationNode({
           />
         )}
         {resolvedItem && role !== "Start Request" && (
-          <Socket
-            direction="in"
-            type="item"
-            label="Item type"
-            binding={resolvedItem}
-            connected={true}
-            handle={handles?.item}
-          />
+          <Socket direction="in" type="item" label="Item type" binding={resolvedItem} connected handle={handles?.item} />
         )}
         {spec.hasExecIn && (
-          <Socket
-            direction="in"
-            type="execution"
-            label="Request in"
-            connected={execInConnected}
-            handle={handles?.["exec-in"]}
-          />
+          <Socket direction="in" type="execution" label="Request in" connected={execInConnected} handle={handles?.["exec-in"]} />
         )}
         {spec.hasExecOut && (
-          <Socket
-            direction="out"
-            type="execution"
-            label="Request out"
-            connected={execOutConnected}
-            handle={handles?.["exec-out"]}
-          />
+          <Socket direction="out" type="execution" label="Request out" connected={execOutConnected} handle={handles?.["exec-out"]} />
         )}
       </div>
     </NodeShell>

@@ -1,0 +1,3 @@
+/* React Flow's stylesheet is unlayered, so it would beat the component layer.
+  Importing it into base lets the modules restyle handles and edges without !important. */
+@import "@xyflow/react/dist/style.css" layer(base);

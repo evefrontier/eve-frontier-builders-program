@@ -1,740 +1,155 @@
-.node {
-  --socket-execution: var(--color-accent-text);
-  --socket-execution-fill: var(--color-accent);
-  --socket-u64: #086352;
-  --socket-u64-fill: #0d9488;
-  --socket-item: var(--color-info);
-  --socket-item-fill: var(--color-info);
-  --socket-boolean: var(--color-warning);
-  --socket-boolean-fill: var(--color-warning);
-
-  position: relative;
-  width: 304px;
-  color: var(--color-foreground);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-@media (prefers-color-scheme: dark) {
-  :global(:root:not([data-theme="light"])) .node {
-    --socket-u64: #2dd4bf;
-    --socket-u64-fill: #14b8a6;
-  }
-}
-
-:global(:root[data-theme="dark"]) .node {
-  --socket-u64: #2dd4bf;
-  --socket-u64-fill: #14b8a6;
-}
-
-.node:focus-within {
-  outline: none;
-}
-
-/* Outer clipped Plate ring that traces the node's tr-bl chamfer 4px out.
-   Each 20px cut grows by 4px × (2 − √2) = 2.343px so the diagonal edges stay parallel. */
-.ring {
-  position: absolute;
-  inset: -4px;
-  padding: 4px;
-  pointer-events: none;
-  --cut-tr: calc(var(--cut-md) + 2.343px);
-  --cut-bl: calc(var(--cut-md) + 2.343px);
-  --plate-keyline: transparent;
-  --plate-keyline-width: 2px;
-  --plate-fill: transparent;
-}
-
-.surface {
-  width: 100%;
-  height: 100%;
-  --plate-fill: var(--color-card);
-  --plate-keyline: var(--color-control-line);
-  --plate-keyline-width: 1px;
-}
-
-.node[data-accent="execution"] .surface { --plate-keyline: color-mix(in oklab, var(--socket-execution) 55%, var(--color-control-line)); }
-.node[data-accent="u64"] .surface { --plate-keyline: color-mix(in oklab, var(--socket-u64) 60%, var(--color-control-line)); }
-.node[data-accent="item"] .surface { --plate-keyline: color-mix(in oklab, var(--socket-item) 55%, var(--color-control-line)); }
-.node[data-accent="boolean"] .surface { --plate-keyline: color-mix(in oklab, var(--socket-boolean) 55%, var(--color-control-line)); }
-
-.selected .ring {
-  --plate-keyline: var(--color-accent-text);
-  --plate-fill: var(--color-background);
-  box-shadow: 0 0 16px rgba(255, 120, 40, 0.35);
-}
-
-.selected .surface {
-  --plate-keyline: var(--color-accent);
-  --plate-keyline-width: 2px;
-}
-
-.node:hover .ring {
-  --plate-keyline: var(--color-foreground);
-  --plate-fill: var(--color-background);
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.15);
-}
-
-.highlighted .ring {
-  --plate-keyline: var(--socket-u64);
-  --plate-keyline-width: 2px;
-  --plate-fill: var(--color-background);
-  box-shadow: 0 0 14px color-mix(in oklab, var(--socket-u64) 45%, transparent);
-}
-
-.highlighted[data-accent="execution"] .ring {
-  --plate-keyline: var(--socket-execution);
-  box-shadow: 0 0 14px color-mix(in oklab, var(--socket-execution) 45%, transparent);
-}
-
-.highlighted .surface {
-  --plate-keyline-width: 1.5px;
-}
-
-.node:focus-within .ring {
-  --plate-keyline: var(--color-foreground);
-  --plate-fill: var(--color-background);
-}
-
-.node:focus-within .surface {
-  --plate-keyline: var(--color-foreground);
-  --plate-keyline-width: 2px;
-}
-
-.invalid .surface {
-  --plate-keyline: var(--color-danger);
-  --plate-keyline-width: 2px;
-}
-
-.content {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 10px;
-  padding: 16px 20px 22px;
-}
-
-.content > * {
-  min-width: 0;
-}
-
-.header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.propertiesList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 2px 0 6px;
-}
-
-.propRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 24px;
-}
-
-.propLabel {
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  flex-shrink: 0;
-  width: 52px;
-}
-
-.propContent {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex: 1;
-  min-width: 0;
-}
-
-.propValueWrapper {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  max-width: 100%;
-}
-
-.propValueText {
-  font-family: var(--font-heading);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--color-foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 170px;
-}
-
-.propPlaceholder {
-  color: var(--color-muted);
-  font-weight: normal;
-  font-style: italic;
-}
-
-.inlineEditBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--color-muted);
-  cursor: pointer;
-  border-radius: 2px;
-  flex-shrink: 0;
-  transition: color 120ms ease, border-color 120ms ease, background-color 120ms ease;
-}
-
-.inlineEditBtn:hover {
-  color: var(--color-foreground);
-  background: color-mix(in oklab, var(--color-foreground) 10%, transparent);
-  border-color: var(--color-line);
-}
-
-.inlineEditForm {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  justify-content: flex-end;
-}
-
-.inlineInput {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  border: 1px solid var(--color-accent);
-  padding: 2px 6px;
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 0.8125rem;
-  outline: none;
-  width: 100%;
-  max-width: 170px;
-}
-
-.inlineSaveBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-accent);
-  color: var(--color-background);
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 3px 6px;
-  cursor: pointer;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.inlineSaveBtn:hover {
-  filter: brightness(1.15);
-}
-
-.inlineTypePicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.typeOptionBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 1px 5px;
-  background: var(--color-background);
-  border: 1px solid var(--color-line);
-  color: var(--color-foreground);
-  font-family: var(--font-heading);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 120ms ease, background-color 120ms ease;
-}
-
-.typeOptionBtn:hover {
-  border-color: var(--color-accent);
-  background: color-mix(in oklab, var(--color-accent) 10%, var(--color-background));
-}
-
-.typeOptionActive {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  color: var(--color-background);
-}
-
-.inlineCancelBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--color-muted);
-  font-size: 0.6875rem;
-  padding: 1px 4px;
-  cursor: pointer;
-}
-
-.inlineCancelBtn:hover {
-  color: var(--color-danger);
-}
-
-.heading {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 0.9375rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.selectedBadge {
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-accent-text);
-  white-space: nowrap;
-}
-
-.hint {
-  color: var(--color-muted);
-  font-size: 0.8125rem;
-}
-
-.error {
-  color: var(--color-danger);
-  font-weight: 600;
-  font-size: 0.8125rem;
-}
-
-.sockets {
-  display: grid;
-  gap: 6px;
-}
-
-.socket {
-  --_socket-color: var(--socket-u64);
-  --_socket-fill: var(--socket-u64-fill);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-inline: -20px;
-  padding: 8px 20px 2px;
-  border-top: 1px solid var(--color-line);
-  font-size: 0.8125rem;
-}
-
-.socketOut {
-  flex-direction: row-reverse;
-}
-
-.execution {
-  --_socket-color: var(--socket-execution);
-  --_socket-fill: var(--socket-execution-fill);
-}
-
-.u64 {
-  --_socket-color: var(--socket-u64);
-  --_socket-fill: var(--socket-u64-fill);
-}
-
-.item {
-  --_socket-color: var(--socket-item);
-  --_socket-fill: var(--socket-item-fill);
-}
-
-.boolean {
-  --_socket-color: var(--socket-boolean);
-  --_socket-fill: var(--socket-boolean-fill);
-}
-
-.socketMain {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.socketOut .socketMain {
-  flex-direction: row-reverse;
-}
-
-.typeBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 6px;
-  border: 1px solid var(--_socket-color);
-  background: color-mix(in oklab, var(--_socket-color) 12%, var(--color-card));
-  color: var(--_socket-color);
-  font-family: var(--font-heading);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.socketName {
-  font-weight: 600;
-  color: var(--color-foreground);
-}
-
-.socketMeta {
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  color: var(--color-muted);
-  white-space: nowrap;
-}
-
-.socketMetaConnected {
-  color: var(--_socket-color);
-  font-weight: 700;
-}
-
-.port {
-  position: absolute !important;
-  top: calc(50% + 3px) !important;
-  width: 14px !important;
-  height: 14px !important;
-  min-width: 14px !important;
-  min-height: 14px !important;
-  border: 2px solid var(--_socket-color) !important;
-  background: var(--color-background) !important;
-  box-sizing: border-box;
-}
-
-.in {
-  left: 0 !important;
-  right: auto !important;
-  transform: translate(-50%, -50%) !important;
-}
-
-.out {
-  right: 0 !important;
-  left: auto !important;
-  transform: translate(50%, -50%) !important;
-}
-
-.port.execution {
-  border-radius: 0 !important;
-}
-
-.port.u64 {
-  border-radius: 9999px !important;
-}
-
-.port.item {
-  border-radius: 2px !important;
-}
-
-.port.in.item {
-  transform: translate(-50%, -50%) rotate(45deg) !important;
-}
-
-.port.out.item {
-  transform: translate(50%, -50%) rotate(45deg) !important;
-}
-
-.port.boolean {
-  border-radius: 4px !important;
-}
-
-.portConnected {
-  background: var(--_socket-fill) !important;
-}
-
-@media (forced-colors: active) {
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in nodes.tsx; this file holds the
+  node's plate geometry, its state variables, the port shapes and the motion. */
+@layer components {
+  /* The card: an accent keyline whose width carries the state */
   .node {
-    color: CanvasText;
+    --node-keyline: var(--color-control-line);
+    --node-keyline-width: 1px;
   }
+  .node[data-accent="execution"] { --node-keyline: color-mix(in oklab, var(--color-socket-execution) 55%, var(--color-control-line)); }
+  .node[data-accent="u64"] { --node-keyline: color-mix(in oklab, var(--color-socket-u64) 60%, var(--color-control-line)); }
+  .node[data-accent="item"] { --node-keyline: color-mix(in oklab, var(--color-socket-item) 55%, var(--color-control-line)); }
+  .node[data-accent="boolean"] { --node-keyline: color-mix(in oklab, var(--color-socket-boolean) 55%, var(--color-control-line)); }
+
+  /* Outer ring: a 2px plate tracing the card 4px out, so each cut grows by
+    4px × (2 − √2). Transparent until a state lights it. */
   .ring {
-    border: 0;
+    position: absolute;
+    inset: -4px;
+    padding: 4px;
+    pointer-events: none;
+    --cut-tr: calc(var(--cut-md) + 2.343px);
+    --cut-bl: calc(var(--cut-md) + 2.343px);
+    --plate-keyline: transparent;
+    --plate-keyline-width: 2px;
+    --plate-fill: transparent;
   }
+
+  /* Plate paints the keyline under the fill; snap the ring's fill so the
+    dark keyline never flashes through the 4px gap while fading in */
+  .node .ring::before { transition: none; }
+
   .surface {
-    --plate-fill: Canvas;
-    --plate-keyline: CanvasText;
+    width: 100%;
+    height: 100%;
+    --plate-keyline: var(--node-keyline);
+    --plate-keyline-width: var(--node-keyline-width);
+    --plate-fill: var(--color-card);
   }
-  .selected .ring,
-  .node:focus-within .ring {
-    outline: 2px solid Highlight;
-    outline-offset: 2px;
+
+  /* Plate paints its fill in a pseudo-element, which contrast checkers skip
+    and so read the keyline as the text's background. This real layer traces
+    the surface's inner polygon so the card colour is what gets measured. */
+  .fill {
+    position: absolute;
+    inset: 0;
+    --node-k: var(--node-keyline-width);
+    --node-c: calc(var(--cut-md) + var(--node-k) * 0.41421);
+    clip-path: polygon(
+      var(--node-k) var(--node-k),
+      calc(100% - var(--node-c)) var(--node-k),
+      calc(100% - var(--node-k)) var(--node-c),
+      calc(100% - var(--node-k)) calc(100% - var(--node-k)),
+      var(--node-c) calc(100% - var(--node-k)),
+      var(--node-k) calc(100% - var(--node-c))
+    );
   }
-  .hint,
-  .error,
-  .eyebrow,
-  .socketMeta,
-  .socketMetaConnected {
-    color: CanvasText;
+
+  .selected {
+    --node-keyline: var(--color-accent);
+    --node-keyline-width: 2px;
   }
-  .typeBadge {
-    border-color: CanvasText;
-    background: Canvas;
-    color: CanvasText;
+  .selected .ring {
+    --plate-keyline: var(--color-accent-text);
+    --plate-fill: var(--color-background);
   }
+
+  .highlighted { --node-keyline-width: 1.5px; }
+  .highlighted .ring {
+    --plate-keyline: var(--color-socket-u64);
+    --plate-fill: var(--color-background);
+  }
+  .highlighted[data-accent="execution"] .ring { --plate-keyline: var(--color-socket-execution); }
+
+  /* Hover is gated so it can't stick after a tap */
+  @media (hover: hover) {
+    .node:hover .ring {
+      --plate-keyline: var(--color-foreground);
+      --plate-fill: var(--color-background);
+    }
+  }
+
+  /* On the canvas the focusable element is React Flow's wrapper, the node's parent */
+  .node:focus-within,
+  :global(.react-flow__node:focus-visible) .node {
+    --node-keyline: var(--color-foreground);
+    --node-keyline-width: 2px;
+  }
+  .node:focus-within .ring,
+  :global(.react-flow__node:focus-visible) .node .ring {
+    --plate-keyline: var(--color-foreground);
+    --plate-fill: var(--color-background);
+  }
+
+  .invalid {
+    --node-keyline: var(--color-danger);
+    --node-keyline-width: 2px;
+  }
+
+  /* Sockets carry the colour of their type for the badge, name and port */
+  .socket { --node-socket-color: var(--color-socket-u64); --node-socket-fill: var(--color-socket-u64); }
+  .execution { --node-socket-color: var(--color-socket-execution); --node-socket-fill: var(--color-socket-execution-fill); }
+  .u64 { --node-socket-color: var(--color-socket-u64); --node-socket-fill: var(--color-socket-u64); }
+  .item { --node-socket-color: var(--color-socket-item); --node-socket-fill: var(--color-socket-item); }
+  .boolean { --node-socket-color: var(--color-socket-boolean); --node-socket-fill: var(--color-socket-boolean); }
+
+  /* Ports straddle the card edge on the socket row's text line. React Flow's
+    handle rules sit in the base layer, so these win without !important. */
   .port {
-    border-color: CanvasText !important;
-    background: Canvas !important;
+    position: absolute;
+    top: calc(50% + 3px);
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    box-sizing: border-box;
   }
-  .portConnected {
-    background: Highlight !important;
+  .in { left: 0; right: auto; transform: translate(-50%, -50%); }
+  .out { right: 0; left: auto; transform: translate(50%, -50%); }
+  .port.execution { border-radius: 0; }
+  .port.u64 { border-radius: 9999px; }
+  .port.item { border-radius: 2px; }
+  .port.in.item { transform: translate(-50%, -50%) rotate(45deg); }
+  .port.out.item { transform: translate(50%, -50%) rotate(45deg); }
+  .port.boolean { border-radius: 4px; }
+
+  /* Item picker */
+  .popup { transition: opacity .18s ease, translate .26s cubic-bezier(.2,.7,.2,1); }
+  .popup[data-starting-style],
+  .popup[data-ending-style] { opacity: 0; translate: 0 -4px; }
+  .backdrop { transition: opacity .18s ease; }
+  .backdrop[data-starting-style],
+  .backdrop[data-ending-style] { opacity: 0; }
+  .dialogSurface {
+    --plate-keyline: var(--color-socket-item);
+    --plate-keyline-width: 1.5px;
+    --plate-fill: var(--color-card);
   }
-}
 
-/* Item Search Dialog */
-.dialogBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--layer-scrim, 100);
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  animation: fadeIn 150ms ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.dialogPopup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: calc(var(--layer-scrim, 100) + 1);
-  width: calc(100vw - 32px);
-  max-width: 480px;
-  max-height: calc(100vh - 64px);
-  display: flex;
-  flex-direction: column;
-  outline: none;
-  animation: scaleIn 150ms ease-out;
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
+  @media (prefers-reduced-motion: reduce) {
+    .popup, .backdrop { transition: none; }
   }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+
+  @media (forced-colors: active) {
+    .ring { border: 0; }
+    .surface { --plate-fill: Canvas; --plate-keyline: CanvasText; }
+    .fill { background: Canvas; }
+    .selected .ring,
+    .node:focus-within .ring,
+    :global(.react-flow__node:focus-visible) .node .ring {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
   }
-}
-
-.dialogSurface {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  --plate-fill: var(--color-card);
-  --plate-keyline: var(--socket-item, var(--color-info));
-  --plate-keyline-width: 1.5px;
-  padding: 18px 20px 14px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-}
-
-.dialogHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.dialogTitle {
-  font-family: var(--font-heading);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-foreground);
-}
-
-.dialogDescription {
-  font-size: 0.75rem;
-  color: var(--color-muted);
-  margin-top: 2px;
-}
-
-.dialogCloseBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  background: transparent;
-  border: 1px solid var(--color-line);
-  color: var(--color-muted);
-  font-size: 0.8125rem;
-  cursor: pointer;
-  transition: color 120ms ease, border-color 120ms ease;
-}
-
-.dialogCloseBtn:hover {
-  color: var(--color-foreground);
-  border-color: var(--color-foreground);
-}
-
-.dialogSearchWrapper {
-  margin-bottom: 10px;
-}
-
-.dialogSearchInput {
-  width: 100%;
-  background: var(--color-background);
-  color: var(--color-foreground);
-  border: 1px solid var(--socket-item, var(--color-info));
-  padding: 8px 12px;
-  font-family: var(--font-heading);
-  font-size: 0.8125rem;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.dialogSearchInput:focus {
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--socket-item) 35%, transparent);
-}
-
-.dialogList {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 260px;
-  overflow-y: auto;
-  border: 1px solid var(--color-line);
-  background: color-mix(in oklab, var(--color-foreground) 2%, var(--color-card));
-  padding: 4px;
-}
-
-.dialogItemBtn {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--color-foreground);
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 100ms ease, border-color 100ms ease;
-}
-
-.dialogItemBtn:hover {
-  background: color-mix(in oklab, var(--socket-item) 12%, var(--color-background));
-  border-color: var(--socket-item);
-}
-
-.dialogItemActive {
-  background: color-mix(in oklab, var(--socket-item) 18%, var(--color-background));
-  border-color: var(--socket-item);
-}
-
-.dialogItemMain {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.dialogItemId {
-  font-family: var(--font-heading);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--socket-item, var(--color-info));
-  letter-spacing: 0.04em;
-}
-
-.itemGlyph {
-  font-size: 0.6875rem;
-  margin-right: 2px;
-}
-
-.dialogItemName {
-  font-weight: 600;
-  font-size: 0.8125rem;
-}
-
-.dialogItemMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.6875rem;
-  color: var(--color-muted);
-}
-
-.dialogItemCategory {
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 600;
-  color: var(--color-muted);
-}
-
-.dialogItemDesc {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.dialogEmpty {
-  padding: 20px 16px;
-  text-align: center;
-  font-size: 0.8125rem;
-  color: var(--color-muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.dialogCustomBtn {
-  background: var(--socket-item, var(--color-info));
-  color: var(--color-background);
-  border: none;
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.dialogCustomBtn:hover {
-  filter: brightness(1.15);
-}
-
-.dialogFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-size: 0.6875rem;
-  color: var(--color-muted);
-}
-
-.dialogTip kbd {
-  font-family: var(--font-heading);
-  padding: 1px 4px;
-  border: 1px solid var(--color-line);
-  background: var(--color-background);
-  border-radius: 2px;
 }

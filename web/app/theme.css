@@ -35,6 +35,13 @@
   --color-warning: #8a5a00;
   --color-danger: #c20046;
 
+  /* low-code sockets: a wire and its port share a colour, so both modules read these */
+  --color-socket-execution: var(--color-accent-text);
+  --color-socket-execution-fill: var(--color-accent);
+  --color-socket-u64: #086352;
+  --color-socket-item: var(--color-info);
+  --color-socket-boolean: var(--color-warning);
+
   /* artwork */
   --color-illustration-paper:     #efe9d6;
   --color-illustration-ink:       #0d0c0b;
@@ -157,6 +164,7 @@
     --color-info: #6b80ff;
     --color-danger: #ff5c8f;
     --color-warning: #ffb651;
+    --color-socket-u64: #2dd4bf;
     --color-illustration-paper:     #181714;
     --color-illustration-ink:       #030303;
     --color-illustration-line:      #ebe6d2;
@@ -185,6 +193,7 @@
   --color-info: #6b80ff;
   --color-danger: #ff5c8f;
   --color-warning: #ffb651;
+  --color-socket-u64: #2dd4bf;
   --color-illustration-paper:     #181714;
   --color-illustration-ink:       #030303;
   --color-illustration-line:      #ebe6d2;

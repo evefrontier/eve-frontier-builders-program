@@ -1,246 +1,78 @@
-.preview {
-  --socket-execution: var(--color-accent-text);
-  --socket-u64: #086352;
-  --socket-item: var(--color-info);
-  --socket-boolean: var(--color-warning);
-
-  display: grid;
-  gap: 20px;
-  color: var(--color-foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :global(:root:not([data-theme="light"])) .preview {
-    --socket-u64: #2dd4bf;
-  }
-}
-
-:global(:root[data-theme="dark"]) .preview {
-  --socket-u64: #2dd4bf;
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 20px;
-  padding: 10px 14px;
-  border: 1px solid var(--color-line);
-  background: var(--color-card);
-  font-size: 0.8125rem;
-}
-
-.legendItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.legendSwatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 6px;
-  border: 1px solid currentColor;
-  font-family: var(--font-heading);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.swatchExecution { color: var(--socket-execution); }
-.swatchU64 { color: var(--socket-u64); }
-.swatchItem { color: var(--socket-item); }
-.swatchBoolean { color: var(--socket-boolean); }
-
-.canvas {
-  position: relative;
-  height: 680px;
-  min-width: 0;
-  border: 1px solid var(--color-control-line);
-  background: var(--color-background);
-  --xy-background-color: var(--color-background);
-  --xy-edge-stroke: var(--socket-u64);
-  --xy-handle-background-color: var(--color-background);
-  --xy-handle-border-color: var(--color-foreground);
-  --xy-attribution-background-color: var(--color-card);
-}
-
-/* Node selection and focus follow the chamfered Plate contour inside NodeShell, not a rectangular wrapper outline. */
-.canvas :global(.react-flow__node:focus),
-.canvas :global(.react-flow__node:focus-visible) {
-  outline: none;
-}
-
-.canvas :global(.react-flow__attribution a) {
-  color: var(--color-foreground);
-}
-
-.canvas :global(.react-flow__controls) {
-  border: 1px solid var(--color-control-line);
-  background: var(--color-card);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-}
-
-.canvas :global(.react-flow__controls-button) {
-  border-bottom: 1px solid var(--color-line);
-  background: transparent;
-  color: var(--color-foreground);
-  fill: var(--color-foreground);
-}
-
-.canvas :global(.react-flow__controls-button:hover) {
-  background: var(--color-card-secondary);
-  color: var(--color-accent-text);
-  fill: var(--color-accent-text);
-}
-
-.canvas :global(.react-flow__minimap) {
-  border: 1px solid var(--color-control-line);
-  background: var(--color-card);
-}
-
-.canvasBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border: 1px solid var(--color-line);
-  background: var(--color-card);
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-foreground);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-.canvasPulse {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  background: var(--socket-u64);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--socket-u64) 30%, transparent);
-}
-
-.executionEdge :global(.react-flow__edge-path) {
-  stroke: var(--socket-execution) !important;
-  stroke-width: 2.5 !important;
-  stroke-dasharray: 7 5;
-}
-
-.u64Edge :global(.react-flow__edge-path) {
-  stroke: var(--socket-u64) !important;
-  stroke-width: 3 !important;
-}
-
-.itemEdge :global(.react-flow__edge-path) {
-  stroke: var(--socket-item) !important;
-  stroke-width: 2.5 !important;
-}
-
-.booleanEdge :global(.react-flow__edge-path) {
-  stroke: var(--socket-boolean) !important;
-  stroke-width: 2.5 !important;
-}
-
-.canvas :global(.react-flow__edge.selected .react-flow__edge-path),
-.tracedEdge :global(.react-flow__edge-path) {
-  stroke-width: 4.5px !important;
-  filter: drop-shadow(0 0 8px currentColor);
-}
-
-.executionEdge.tracedEdge :global(.react-flow__edge-path) {
-  stroke: var(--socket-execution) !important;
-  stroke-width: 4px !important;
-  stroke-dasharray: 8 5;
-  filter: drop-shadow(0 0 10px rgba(255, 120, 40, 0.75));
-}
-
-.u64Edge.tracedEdge :global(.react-flow__edge-path) {
-  stroke: var(--socket-u64) !important;
-  stroke-width: 4.5px !important;
-  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--socket-u64) 85%, white));
-}
-
-.canvas :global(.react-flow__edge.animated.u64Edge .react-flow__edge-path) {
-  stroke-dasharray: 10 6;
-  animation: tracePulse 1.2s linear infinite;
-}
-
-@keyframes tracePulse {
-  from {
-    stroke-dashoffset: 32;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.controlGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 16px;
-  border: 1px solid var(--color-line);
-  padding: 16px;
-}
-
-.controls legend {
-  font-family: var(--font-heading);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  padding-inline: 6px;
-}
-
-.controls label {
-  display: grid;
-  gap: 8px;
-  font-size: 0.875rem;
-}
-
-.controls select {
-  padding: 8px;
-  border: 1px solid var(--color-control-line);
-  background: var(--color-card);
-  color: var(--color-foreground);
-}
-
-.controls select:focus-visible {
-  outline: 3px solid var(--color-foreground);
-  outline-offset: 3px;
-}
-
-@media (forced-colors: active) {
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in wiring-preview.tsx; this file
+  holds React Flow's theme variables, the wire strokes and the motion. */
+@layer components {
   .canvas {
-    --xy-handle-background-color: Canvas;
-    --xy-handle-border-color: CanvasText;
-    background: Canvas;
+    --xy-background-color: var(--color-background);
+    --xy-edge-stroke: var(--color-socket-u64);
+    --xy-handle-background-color: var(--color-background);
+    --xy-handle-border-color: var(--color-foreground);
+    --xy-attribution-background-color: var(--color-card);
+    --xy-minimap-background-color: var(--color-card);
+    --xy-minimap-mask-background-color: color-mix(in oklab, var(--color-foreground) 20%, transparent);
+    --xy-controls-button-background-color: var(--color-card);
+    --xy-controls-button-background-color-hover: var(--color-card-secondary);
+    --xy-controls-button-color: var(--color-foreground);
+    --xy-controls-button-color-hover: var(--color-accent-text);
+    --xy-controls-button-border-color: var(--color-line);
+    --xy-controls-box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
   }
-  .executionEdge :global(.react-flow__edge-path),
-  .u64Edge :global(.react-flow__edge-path),
-  .itemEdge :global(.react-flow__edge-path),
-  .booleanEdge :global(.react-flow__edge-path) {
-    stroke: CanvasText !important;
-  }
-  .controls select {
-    background: Canvas;
-    color: CanvasText;
-    border-color: CanvasText;
-  }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .preview *,
-  .preview *::before,
-  .preview *::after {
-    animation: none !important;
-    transition: none !important;
+  /* Focus draws on the node's own plate ring, not a rectangle round the wrapper */
+  .canvas :global(.react-flow__node:focus),
+  .canvas :global(.react-flow__node:focus-visible) { outline: none; }
+
+  .canvas :global(.react-flow__attribution a) { color: var(--color-foreground); }
+  .canvas :global(.react-flow__minimap) { border: 1px solid var(--color-control-line); }
+  .canvas :global(.react-flow__controls) { border: 1px solid var(--color-control-line); }
+
+  .executionEdge :global(.react-flow__edge-path) {
+    stroke: var(--color-socket-execution);
+    stroke-width: 2.5;
+    stroke-dasharray: 7 5;
+  }
+  .u64Edge :global(.react-flow__edge-path) {
+    stroke: var(--color-socket-u64);
+    stroke-width: 3;
+  }
+
+  /* A selected wire is the one the delete key removes; keyboard focus adds
+    the ink halo the node ring uses, so it reads apart from type tracing */
+  .canvas :global(.react-flow__edge.selected .react-flow__edge-path) { stroke-width: 4.5; }
+  .canvas :global(.react-flow__edge:focus-visible .react-flow__edge-path) {
+    stroke-width: 4.5;
+    filter: drop-shadow(0 0 6px var(--color-foreground));
+  }
+
+  .tracedEdge :global(.react-flow__edge-path) { stroke-width: 4.5; }
+  .executionEdge.tracedEdge :global(.react-flow__edge-path) {
+    stroke-dasharray: 8 5;
+    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-socket-execution) 75%, transparent));
+  }
+  .u64Edge.tracedEdge :global(.react-flow__edge-path) {
+    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-socket-u64) 85%, white));
+  }
+
+  .u64Edge:global(.animated) :global(.react-flow__edge-path) {
+    stroke-dasharray: 10 6;
+    animation: tracePulse 1.2s linear infinite;
+  }
+  @keyframes tracePulse {
+    from { stroke-dashoffset: 32; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .canvas :global(.react-flow__edge.animated .react-flow__edge-path) { animation: none; }
+  }
+
+  @media (forced-colors: active) {
+    .canvas {
+      --xy-handle-background-color: Canvas;
+      --xy-handle-border-color: CanvasText;
+    }
+    .executionEdge :global(.react-flow__edge-path),
+    .u64Edge :global(.react-flow__edge-path) { stroke: CanvasText; }
+    .canvas :global(.react-flow__edge:focus-visible .react-flow__edge-path) { stroke: Highlight; filter: none; }
   }
 }
