@@ -1,0 +1,15 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it */
+@layer components {
+  /* A hatched, dashed box, at least its height in the design */
+  .placeholder {
+    min-width: 0;
+    min-height: var(--placeholder-height, 120px);
+    border: 1px dashed var(--color-trim);
+    background: repeating-linear-gradient(-45deg, var(--color-line) 0 1px, transparent 1px 10px);
+  }
+
+  /* Forced colours keep background images; the hatch would sit under the text */
+  @media (forced-colors: active) {
+    .placeholder { background: none; }
+  }
+}

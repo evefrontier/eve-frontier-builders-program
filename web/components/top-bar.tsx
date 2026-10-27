@@ -133,7 +133,7 @@ export function TopBar({ brand, tabs, secondary = [], search = SEARCH_ROUTE }: T
       <Suspense fallback={null}>
         <SearchQuery name={name} active={samePath(pathname, search.action)} onQuery={setQuery} />
       </Suspense>
-      <div className="mx-auto flex min-h-(--bar-height) max-w-grid items-center gap-s px-s-l">
+      <div className="wrap flex min-h-(--bar-height) items-center gap-s">
         <Brand {...brand} />
 
         <div ref={deckRef} className="relative hidden min-w-0 flex-1 items-center md:flex">
