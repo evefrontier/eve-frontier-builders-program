@@ -121,11 +121,11 @@ export function getSearchEntries(): SearchEntry[] {
   for (const course of getCourses()) {
     add(course.slug, { kind: "Course", title: course.title, description: course.description, href: `/courses/${course.slug}/` });
     for (const { slug, title, description, lessons: names } of course.modules) {
-      const href = `/courses/${course.slug}/${slug}/`;
-      add(slug, { kind: "Module", title, description, href });
+      // A module opens in its course's syllabus; its own page exists but nothing links to it
+      add(slug, { kind: "Module", title, description, href: `/courses/${course.slug}/#${slug}` });
       for (const lesson of names) {
         const content = readLesson(lesson, lessons, `curriculum/modules/${slug}.yaml`);
-        add(lesson, { kind: "Lesson", ...content, href: `${href}${lesson}/` });
+        add(lesson, { kind: "Lesson", ...content, href: `/courses/${course.slug}/${slug}/${lesson}/` });
       }
     }
   }
