@@ -69,7 +69,8 @@
 
   /* Hover is gated so it can't stick after a tap */
   @media (hover: hover) {
-    .chip:hover { --plate-fill: var(--color-card); }
+    /* A selected chip keeps its fill: the hover fill would sit under its background-coloured text */
+    .chip:not([aria-pressed="true"]):hover { --plate-fill: var(--color-card); }
     .chip:hover .lamp {
       --nav-lamp: var(--nav-lamp-lit);
       filter: var(--nav-lamp-glow);
