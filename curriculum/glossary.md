@@ -26,6 +26,24 @@ An AI that does the work, not just chats about it: it can write files, run them 
 
 A save point an AI agent can go back to if a change goes wrong.
 
+## E
+
+### Epoch
+
+*Sui & Move*
+
+A fixed period of about 24 hours on Sui during which the set of validators, and the reference gas price, stays the same. When an epoch ends, the network moves to the next one, updating validators, staking rewards and gas pricing.
+
+[Read more in the Sui Docs →](https://docs.sui.io/develop/sui-architecture/epochs)
+
+### Equivocation
+
+*Sui & Move*
+
+Giving conflicting information for the same message or state, such as inconsistent or duplicate voting by a validator, or submitting competing transactions that spend the same version of an owned object (which locks the object until the next epoch).
+
+[Read more in the Sui Docs →](https://docs.sui.io/references/sui-glossary#equivocation)
+
 ## M
 
 ### Move

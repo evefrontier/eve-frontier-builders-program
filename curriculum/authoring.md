@@ -25,7 +25,8 @@ An in-game structure that lives onchain as an object. Anyone can read it, and it
 - **Aliases** go on the same line after ` · also: `, separated by commas: other names, not plurals.
 - **`no highlight`** on the same line keeps the term in the glossary but out of automatic highlighting, for words the site uses all the time: `*Game & economy · no highlight*`.
 - **Definition:** one to three short sentences, plain text.
-- **Article link:** optional and always last, exactly `[Read the article →](glossary/<slug>.md)`.
+- **Article link:** optional, after the definition, exactly `[Read the article →](glossary/<slug>.md)`.
+- **Docs link:** optional, after the definition, for a term the official docs already explain: `[Read more in the Sui Docs →](https://docs.sui.io/...)`. It has to start `Read more in the` and end `Docs`, and the URL has to be `https://`. It can sit alongside an article link.
 
 The site build fails on an unknown topic, a missing definition, a duplicate slug, or an article that isn't named after its term or isn't in `SUMMARY.md`.
 

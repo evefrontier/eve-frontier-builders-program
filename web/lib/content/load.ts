@@ -102,6 +102,8 @@ export interface Term {
   definition: string;
   /** The term's article, when it has one. */
   article?: string;
+  /** Link to the official docs, from a `Read more in the … Docs` line. */
+  docs?: { label: string; url: string };
   /** The article, or the term's row in the index. */
   href: string;
 }
@@ -129,7 +131,13 @@ export function getGlossary(): Term[] {
     if (node.type !== "heading" || node.depth !== 3) return;
     const title = textOf(node).trim();
     const where = `${file}: "${title}"`;
-    const [line, definition, more] = root.children.slice(i + 1, i + 4);
+    const [line, definition] = root.children.slice(i + 1, i + 3);
+    const links: { text: string; url: string }[] = [];
+    for (let j = i + 3; root.children[j]?.type === "paragraph"; j++) {
+      const para = root.children[j];
+      const found = para.type === "paragraph" ? para.children.find((child) => child.type === "link") : undefined;
+      if (found?.type === "link") links.push({ text: textOf(found).trim(), url: found.url });
+    }
 
     const emphasis = line?.type === "paragraph" && line.children.length === 1 && line.children[0].type === "emphasis" ? line.children[0] : undefined;
     if (!emphasis) throw new Error(`${where} needs an italic topics line under its heading`);
@@ -141,8 +149,11 @@ export function getGlossary(): Term[] {
     const also = flags.find((flag) => flag.startsWith("also:"));
 
     if (definition?.type !== "paragraph" || /^Read the article/.test(textOf(definition))) throw new Error(`${where} needs a definition`);
-    const link = more?.type === "paragraph" ? more.children.find((child) => child.type === "link") : undefined;
-    const article = link && /^Read the article/.test(textOf(link)) ? posix.normalize(link.url) : undefined;
+    const articleLink = links.find((link) => /^Read the article/.test(link.text));
+    const article = articleLink ? posix.normalize(articleLink.url) : undefined;
+    const docsLink = links.find((link) => /^Read more in the .+ Docs/.test(link.text));
+    if (docsLink && !/^https:\/\//.test(docsLink.url)) throw new Error(`${where}: the docs link has to start with https://`);
+    const docs = docsLink ? { label: docsLink.text.replace(/\s*→$/, ""), url: docsLink.url } : undefined;
     const slug = slugify(title);
     if (article && article !== `glossary/${slug}.md`) throw new Error(`${where}: its article has to be glossary/${slug}.md`);
     if (article && !spacePages().some((item) => item.file === article)) throw new Error(`${where}: article ${article} isn't in SUMMARY.md`);
@@ -157,6 +168,7 @@ export function getGlossary(): Term[] {
       highlight: !flags.includes("no highlight"),
       definition: textOf(definition).trim(),
       article,
+      docs,
       href: article ? `/glossary/${slug}` : `/glossary#${slug}`,
     });
   });

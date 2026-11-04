@@ -159,6 +159,15 @@ export function GlossaryIndex({ terms, topics }: { terms: Term[]; topics: readon
                   </p>
                   <div className="text-step--1">
                     <p className="max-w-[68ch] text-muted"><Marked text={term.definition} query={q} /></p>
+                    {term.docs && (
+                      <p className="mt-3xs text-step--2">
+                        <a href={term.docs.url} target="_blank" rel="noopener noreferrer" className="font-bold text-accent-text underline underline-offset-2 hover:decoration-2">
+                          {term.docs.label}
+                          <span aria-hidden="true"> ↗</span>
+                          <span className="sr-only"> (opens in a new tab)</span>
+                        </a>
+                      </p>
+                    )}
                     {term.aliases.length > 0 && (
                       <p className="mt-3xs text-step--2 text-muted">Also: <Marked text={term.aliases.join(", ")} query={q} /></p>
                     )}
