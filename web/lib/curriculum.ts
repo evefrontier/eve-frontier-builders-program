@@ -87,7 +87,7 @@ function glossaryTerms(): SearchEntry[] {
       const lines = rest.map((line) => line.trim()).filter((line) => line && !line.startsWith("#"));
       const meta = lines[0]?.match(/^\*(.+)\*$/)?.[1];
       const [topics = "", also = ""] = meta?.split(" · also: ") ?? [];
-      const definition = lines.slice(meta ? 1 : 0).filter((line) => !line.startsWith("[Read the article"));
+      const definition = lines.slice(meta ? 1 : 0).filter((line) => !/^\[Read (the article|more in the .+ Docs)/.test(line));
       return {
         kind: "Term",
         title: heading.trim(),
