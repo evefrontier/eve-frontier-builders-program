@@ -11,8 +11,8 @@ export type SearchEntry = {
   keywords?: string[];
 };
 
-/* Lowercase without accents, so a query matches however either side is written */
-const fold = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+/** Lowercase without accents, so a query matches however either side is written. */
+export const fold = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 
 /**
  * A search over `entries`, folded once. It returns the entries that match every
