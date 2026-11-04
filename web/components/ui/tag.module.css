@@ -1,0 +1,47 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout and type are utilities in tag.tsx; this file holds the silhouette
+  and the mark in front of the label. */
+@layer components {
+  /* Four 6px chamfers, with the edge under the mark stepped up 3px */
+  .tag {
+    --plate-clip: polygon(
+      6px 0,
+      calc(100% - 6px) 0,
+      100% 6px,
+      100% calc(100% - 6px),
+      calc(100% - 6px) 100%,
+      24px 100%,
+      21px calc(100% - 3px),
+      3px calc(100% - 3px),
+      0 calc(100% - 6px),
+      0 6px
+    );
+    --plate-clip-inner: polygon(
+      6.414px 1px,
+      calc(100% - 6.414px) 1px,
+      calc(100% - 1px) 6.414px,
+      calc(100% - 1px) calc(100% - 6.414px),
+      calc(100% - 6.414px) calc(100% - 1px),
+      24.414px calc(100% - 1px),
+      21.414px calc(100% - 4px),
+      3.414px calc(100% - 4px),
+      1px calc(100% - 6.414px),
+      1px 6.414px
+    );
+    --plate-fill: var(--color-card-secondary);
+  }
+
+  /* A 3px square and a hairline, in the text colour */
+  .tag::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    bottom: 6px;
+    width: 10px;
+    opacity: 0.55;
+    background:
+      linear-gradient(currentColor, currentColor) 0 50% / 3px 3px no-repeat,
+      linear-gradient(currentColor, currentColor) 100% 0 / 1px 100% no-repeat;
+  }
+}

@@ -12,4 +12,5 @@ export { Field, claimsShortcut, fieldTypes, type FieldProps, type FieldType } fr
 export { Icon, iconNames, type IconName, type IconProps } from "./icon";
 export { LinkRow, Menu, MenuLink, MenuSeparator, type LinkRowProps, type MenuProps, type MenuLinkProps } from "./menu";
 export { Sheet, type SheetProps } from "./sheet";
+export { Tag, type TagProps } from "./tag";
 export { ThemeToggle, type ThemeToggleProps } from "./theme-toggle";
