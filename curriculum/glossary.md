@@ -10,6 +10,30 @@ A player who makes things for the Frontier beyond flying in it: structures, the 
 
 ## C
 
+### Capability
+
+*Sui & Move · also: capabilities, capability pattern, AdminCap, OwnerCap*
+
+A Sui Move access control pattern where permission to perform an action is represented by an owned object. Passing a capability struct (such as an `AdminCap` or Frontier's `OwnerCap`) into a function cryptographically proves the caller has authority to execute privileged operations.
+
+[Read more in the Sui Docs →](https://docs.sui.io/concepts/cryptography/transaction-auth/signatures)
+
+### Clock
+
+*Sui & Move · also: clock, sui::clock::Clock*
+
+A singleton shared object on Sui (`0x6`) that provides access to the current network timestamp in milliseconds. Move smart contracts use it to enforce time-dependent logic, such as cooldowns, auction deadlines, and resource regeneration.
+
+[Read more in the Sui Docs →](https://docs.sui.io/references/framework/sui-framework/clock)
+
+### Coin
+
+*Sui & Move, Game & economy · also: coins, sui::coin::Coin*
+
+The standard Sui fungible token type (`sui::coin::Coin<T>`) representing a specific balance of a coin type `T`. It provides built-in primitives for splitting, merging, transferring, and managing token supply with a `TreasuryCap`.
+
+[Read more in the Sui Docs →](https://docs.sui.io/standards/coin)
+
 ### Continuous Delivery
 
 *dApps & tools · also: CD*
@@ -76,7 +100,43 @@ Giving conflicting information for the same message or state, such as inconsiste
 
 The official standalone wallet client for EVE Frontier. It integrates zkLogin and local key custody to let players manage assets, authenticate sessions, and sign transactions in the Frontier ecosystem.
 
+### Event
+
+*Sui & Move, dApps & tools · also: events, Move event, emit*
+
+An onchain notification emitted by a Move function using `sui::event::emit` to signal that an action or state change occurred. Events do not persist in Move object storage, but are indexed and queried offchain by frontends, explorers, and indexers.
+
+[Read more in the Sui Docs →](https://docs.sui.io/concepts/sui-architecture/events)
+
+## F
+
+### Feral Data
+
+*Game & economy, Smart Assemblies · also: feral data, FeralData*
+
+A core in-game digital resource and micro-currency in EVE Frontier. Used extensively by pilots to pay for Smart Assembly services, such as purchasing goods from storage unit vending machines or paying gate transit fees.
+
+### Frontier Flow
+
+*dApps & tools, Smart Assemblies · also: frontier-flow*
+
+A low-code visual builder for EVE Frontier that lets creators configure Smart Assembly rules and behavior by connecting logic nodes. It compiles visual workflows directly into verified Move code that can be deployed to Smart Storage Units and gates without writing smart contracts from scratch.
+
+### Fuel
+
+*Game & economy, Smart Assemblies · also: fuel, assembly fuel*
+
+The operational energy resource required by Smart Assemblies to maintain power and remain active in space. If an assembly runs out of fuel, its defenses, gates, or storage services shut down until replenished.
+
 ## G
+
+### Gas
+
+*Sui & Move · also: gas fee, gas budget, gas fees*
+
+The computational and storage fee paid in SUI to execute transactions and store objects onchain. Every transaction specifies a gas budget, and unspent computational gas is refunded while storage fees enter the Sui storage fund.
+
+[Read more in the Sui Docs →](https://docs.sui.io/concepts/tokenomics/gas-in-sui)
 
 ### GraphQL
 
@@ -120,6 +180,14 @@ A component that maintains a searchable index of objects and transactions within
 
 [Read more in the Sui Docs →](https://docs.sui.io/develop/accessing-data/custom-indexer/custom-indexers)
 
+## K
+
+### Killmail
+
+*Game & economy, dApps & tools · also: killmails, Killmails, killboard, proof of destruction*
+
+An immutable record generated when a ship or structure is destroyed in EVE Frontier. Contains verifiable combat telemetry including the victim, final blow attacker, location, damage dealt, and items dropped or lost, powering community killboards and bounties.
+
 ## L
 
 ### Localnet
@@ -129,6 +197,18 @@ A component that maintains a searchable index of objects and transactions within
 A local, single-validator Sui network instance running on a developer's machine (e.g. via `sui start`). Provides instantaneous transaction finality and free local gas tokens for rapid testing and smart contract debugging.
 
 [Read more in the Sui Docs →](https://docs.sui.io/getting-started/onboarding/local-network)
+
+### Low-code
+
+*dApps & tools · also: low-code platform, low-code platforms, low code*
+
+A visual approach to software development that minimizes manual programming through graphical interfaces, pre-built components, and drag-and-drop connectors while allowing developers to add custom code when needed. In EVE Frontier, tools like Frontier Flow provide a low-code environment to configure Smart Assembly logic and generate Move smart contracts visually.
+
+### LUX
+
+*Game & economy · also: Lux, lux, LUX token*
+
+The primary macroeconomic currency of EVE Frontier. Used for high-value trade, market settlement, ship acquisition, and large-scale industrial transactions across the Frontier universe.
 
 ## M
 
@@ -148,6 +228,14 @@ The Move Registry on Sui: an onchain registry that gives published Move packages
 
 [Read more in the Sui Docs →](https://docs.sui.io/sui-stack/mvr/move-registry)
 
+### Mysticeti
+
+*Sui & Move · also: mysticeti, consensus*
+
+Sui's DAG-based Byzantine Fault Tolerant (BFT) consensus protocol. It orders transactions involving shared objects in as few as three message rounds, achieving sub-second commit latency without requiring consensus on single-owner transactions.
+
+[Read more in the Sui Docs →](https://docs.sui.io/concepts/sui-architecture/consensus)
+
 ## N
 
 ### Nautilus
@@ -157,6 +245,12 @@ The Move Registry on Sui: an onchain registry that gives published Move packages
 A framework and ecosystem toolkit for verifiable offchain computing and oracle services on Sui. Leverages Trusted Execution Environments (TEEs) to execute complex, gas-intensive logic offchain and attest cryptographic results back onchain.
 
 [Read more in the Sui Docs →](https://docs.sui.io/sui-stack/nautilus/nautilus-overview)
+
+### No-code
+
+*dApps & tools · also: no-code platform, no-code platforms, no code*
+
+A visual development and automation approach that enables users to design applications, databases, and automated workflows entirely through graphical interfaces and configuration forms without writing any code. Unlike low-code tools that support custom scripting, no-code platforms (such as Zapier, Make, Airtable, or the codeless visual builders within tools like Power Automate and n8n) are designed for non-programmers to assemble complete solutions using modular blocks.
 
 ## O
 
@@ -244,6 +338,14 @@ A mechanism where a sponsor account pays the gas fees for another user's transac
 
 A web development build method where HTML, JavaScript, and CSS assets are pre-rendered at build time rather than dynamically on each request. Produces fast, secure, and cacheable sites easily hosted on CDNs or decentralized storage like Walrus Sites.
 
+### Sui CLI
+
+*dApps & tools, Sui & Move · also: sui cli, sui client*
+
+The primary command-line toolsuite for developers building on Sui. Used to compile Move packages (`sui move build`), run unit tests (`sui move test`), publish contracts, manage keys, and execute programmable transaction blocks.
+
+[Read more in the Sui Docs →](https://docs.sui.io/references/cli)
+
 ### SuiScan
 
 *dApps & tools*
@@ -272,11 +374,35 @@ The primary public testing network for Sui that mirrors mainnet topology and fea
 
 [Read more in the Sui Docs →](https://docs.sui.io/develop/sui-architecture/networks)
 
+### Transaction Digest
+
+*Sui & Move, dApps & tools · also: transaction digests, txn digest, digest*
+
+A 32-byte Base58 cryptographic hash that uniquely identifies an executed transaction on Sui. Used by dApps, explorers, and indexers to look up transaction effects, gas costs, and emitted events.
+
+[Read more in the Sui Docs →](https://docs.sui.io/references/sui-glossary#transaction-digest)
+
+### Tribe
+
+*Game & economy · also: tribes, corporation, alliance*
+
+A player-run organization and alliance structure in EVE Frontier. Smart Assemblies frequently check tribal membership onchain to grant free gate transit, shared storage unit access, and coordinated turret defense permissions.
+
 ### Typed Witness
 
 *Sui & Move · also: witness, witness pattern*
 
 A Move design pattern where a function requires an instance of an ephemeral struct to prove authority or type ownership. Because only the module defining a struct can instantiate it, passing a witness confirms that the caller operates with that module's permission.
+
+## U
+
+### UpgradeCap
+
+*Sui & Move · also: upgrade capability, package upgrade, upgradecap*
+
+An owned capability object minted when a Move package is first published to Sui. Passing the `UpgradeCap` authorizes publishing upgraded code while preserving the package's existing onchain state and address linkage.
+
+[Read more in the Sui Docs →](https://docs.sui.io/concepts/sui-architecture/package-upgrades)
 
 ## V
 
