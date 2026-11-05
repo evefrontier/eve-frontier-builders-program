@@ -110,6 +110,7 @@ export function getGlossary(): GlossaryTerm[] {
 
     for (const section of sections) {
       const [title, ...paragraphs] = section.split(/\r?\n\s*\r?\n/).map((part) => part.trim());
+      if (!title) throw new Error(`${file}: a ### heading under ## ${letter} is empty`);
       const where = `${file}: "${title}"`;
       const first = title[0].toUpperCase();
       if (letter !== (/[A-Z]/.test(first) ? first : "#")) throw new Error(`${where} is under ## ${letter}`);
@@ -121,13 +122,17 @@ export function getGlossary(): GlossaryTerm[] {
       const notTopic = topics.find((topic) => !isTopic(topic));
       if (notTopic) throw new Error(`${where}: "${notTopic}" isn't one of ${glossaryTopics.join(", ")}`);
       const also = flags.find((flag) => flag.startsWith("also:"));
-      const unknown = flags.find((flag) => flag !== also && flag !== "no highlight");
-      if (unknown) throw new Error(`${where}: "${unknown}" isn't a topic flag`);
+      const unknown = flags.find((flag) => flag !== also);
+      if (unknown) throw new Error(`${where}: "${unknown}" can't follow the topics; only "also:" can`);
 
       const definition = paragraphs.shift();
       if (!definition || definition.startsWith("[")) throw new Error(`${where} needs a definition`);
 
       const slug = termSlug(title);
+      const aliases = also ? also.slice(5).split(",").map((alias) => alias.trim()).filter(Boolean) : [];
+      const spelling = aliases.find((alias) => termSlug(alias) === slug);
+      if (spelling) throw new Error(`${where}: "${spelling}" is the term in another spelling, not another name`);
+
       let docs: GlossaryTerm["docs"];
       for (const paragraph of paragraphs) {
         const [, text = "", url = ""] = paragraph.match(/^\[(.+)\]\((.+)\)$/) ?? [];
@@ -148,7 +153,7 @@ export function getGlossary(): GlossaryTerm[] {
         title,
         letter,
         topics: topics.filter(isTopic),
-        aliases: also ? also.slice(5).split(",").map((alias) => alias.trim()).filter(Boolean) : [],
+        aliases,
         // Definitions are plain text; a code span keeps its words and loses its backticks
         definition: definition.replace(/`([^`]*)`/g, "$1"),
         docs,

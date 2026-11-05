@@ -57,7 +57,7 @@ A Sui sign-in that turns an ordinary account login into a blockchain identity, s
 
 - **Heading:** the term as it should appear. Its name in links is the heading in lowercase, with spaces as hyphens and punctuation dropped, so renaming a term breaks links to it.
 - **Topics,** in italics, main topic first. Each has to be one of `Game & economy`, `Sui & Move`, `Smart Assemblies`, `Wallet & identity` and `dApps & tools`, spelled exactly.
-- **Other names,** if the term has any, go on the same line after ` · also: `, separated by commas, not plurals: `*Wallet & identity · also: zero-knowledge login*`.
+- **Other names,** if the term has any, go on the same line after ` · also: `, separated by commas: not plurals, and not the term itself in another spelling: `*Wallet & identity · also: zero-knowledge login*`.
 - **Definition:** one to three short sentences, plain text.
 - **Article,** if the term needs one: write it as `glossary/<term>.md`, named after the term, and add `[Read the article →](glossary/<term>.md)`.
 - **Docs link,** for a term the official docs already explain: `[Read more in the Sui Docs →](https://docs.sui.io/...)`, after the definition. It starts `Read more in the`, ends `Docs`, and links to an `https://` address. It can sit alongside an article link.

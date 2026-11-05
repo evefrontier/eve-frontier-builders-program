@@ -12,7 +12,7 @@ A player who makes things for the Frontier beyond flying in it: structures, the 
 
 ### Continuous Delivery
 
-*dApps & tools · also: CD, Continuous Deployment*
+*dApps & tools · also: CD*
 
 A software engineering practice where code changes are automatically built, tested, and prepared for release to production. Ensures that applications and smart contract packages can be reliably deployed at any time.
 
@@ -32,7 +32,7 @@ A decentralized application built to interact with EVE Frontier onchain state an
 
 ### Devnet
 
-*Sui & Move · also: devnet*
+*Sui & Move*
 
 A Sui test network intended for early-stage development and experimentation. It is wiped and reset frequently, typically with 1-hour epochs, making it unsuitable for persistent deployments.
 
@@ -42,7 +42,7 @@ A Sui test network intended for early-stage development and experimentation. It 
 
 ### Ed25519
 
-*Sui & Move · also: ed25519*
+*Sui & Move*
 
 A high-performance elliptic curve signature scheme using Curve25519. It is the default signing scheme on Sui for user accounts and transactions, offering fast verification and compact signatures verified natively onchain via `sui::ed25519`.
 
@@ -50,7 +50,7 @@ A high-performance elliptic curve signature scheme using Curve25519. It is the d
 
 ### Entity
 
-*Smart Assemblies, Sui & Move · also: entities*
+*Smart Assemblies, Sui & Move*
 
 An onchain representation of an in-game character or structure in EVE Frontier world contracts. Components and actions attach to it as dynamic fields, allowing dynamic behavior extensions without altering the underlying Move type.
 
@@ -72,7 +72,7 @@ Giving conflicting information for the same message or state, such as inconsiste
 
 ### EVE Vault
 
-*Wallet & identity, dApps & tools · also: eve-vault, Eve Vault*
+*Wallet & identity, dApps & tools*
 
 The official standalone wallet client for EVE Frontier. It integrates zkLogin and local key custody to let players manage assets, authenticate sessions, and sign transactions in the Frontier ecosystem.
 
@@ -80,7 +80,7 @@ The official standalone wallet client for EVE Frontier. It integrates zkLogin an
 
 ### GraphQL
 
-*Sui & Move, dApps & tools · also: graphql*
+*Sui & Move, dApps & tools*
 
 A query language and schema-driven RPC service used in Sui to fetch structured blockchain data. Replaces legacy JSON-RPC with granular, typed queries that let frontends and indexers request exactly the fields and nested objects they need in a single call.
 
@@ -96,7 +96,7 @@ A pairing-based zero-knowledge proof system (zk-SNARK) with succinct proof sizes
 
 ### gRPC
 
-*Sui & Move, dApps & tools · also: grpc*
+*Sui & Move, dApps & tools*
 
 A high-performance remote procedure call framework powered by Protocol Buffers and HTTP/2. In Sui, it provides low-latency, streaming access to real-time network events, transactions, and state changes for custom indexers and full-node operators.
 
@@ -124,7 +124,7 @@ A component that maintains a searchable index of objects and transactions within
 
 ### Localnet
 
-*Sui & Move, dApps & tools · also: localnet, local network*
+*Sui & Move, dApps & tools · also: local network*
 
 A local, single-validator Sui network instance running on a developer's machine (e.g. via `sui start`). Provides instantaneous transaction finality and free local gas tokens for rapid testing and smart contract debugging.
 
@@ -134,7 +134,7 @@ A local, single-validator Sui network instance running on a developer's machine 
 
 ### Mainnet
 
-*Sui & Move · also: mainnet*
+*Sui & Move*
 
 The primary production Sui blockchain network where transactions incur real financial value and state persists permanently across real validator nodes.
 
@@ -142,9 +142,9 @@ The primary production Sui blockchain network where transactions incur real fina
 
 ### MVR
 
-*Sui & Move, dApps & tools · also: Move Verification Registry, Move Registry*
+*Sui & Move, dApps & tools · also: Move Registry*
 
-The Move Verification Registry on Sui. An onchain registry and package indexing system providing human-readable names, package discovery, and cryptographic source-code verification for published Move packages.
+The Move Registry on Sui: an onchain registry that gives published Move packages human-readable names, so dApps and tools can find a package by name and resolve it to its address and version.
 
 [Read more in the Sui Docs →](https://docs.sui.io/sui-stack/mvr/move-registry)
 
@@ -152,7 +152,7 @@ The Move Verification Registry on Sui. An onchain registry and package indexing 
 
 ### Nautilus
 
-*Sui & Move, dApps & tools · also: nautilus*
+*Sui & Move, dApps & tools*
 
 A framework and ecosystem toolkit for verifiable offchain computing and oracle services on Sui. Leverages Trusted Execution Environments (TEEs) to execute complex, gas-intensive logic offchain and attest cryptographic results back onchain.
 
@@ -162,7 +162,7 @@ A framework and ecosystem toolkit for verifiable offchain computing and oracle s
 
 ### Object Registry
 
-*Smart Assemblies, Sui & Move · also: object-registry, ObjectRegistry*
+*Smart Assemblies, Sui & Move · also: ObjectRegistry*
 
 A core shared registry in EVE Frontier world contracts that deterministically maps in-game entity keys (`id + tenant`) to onchain derived object IDs, ensuring each game asset has exactly one canonical address on Sui.
 
@@ -176,7 +176,7 @@ An identity authentication standard built on OAuth 2.0 that allows third-party a
 
 ### Package
 
-*Sui & Move · also: packages, Move package*
+*Sui & Move · also: Move package*
 
 The fundamental deployment unit of smart contract code on Sui, consisting of a set of Move modules defined in a `Move.toml` project. When compiled and published, a package becomes an immutable onchain object with a unique package ID.
 
@@ -190,7 +190,7 @@ A secret cryptographic key used to authorize transactions and prove ownership of
 
 ### Programmable Transaction Block
 
-*Sui & Move · also: PTB, Programmable Transaction Blocks*
+*Sui & Move · also: PTB*
 
 A sequence of commands executed together in a single atomic transaction on Sui. Outputs from earlier commands can feed into later ones, allowing developers to chain operations and manage objects or coins without deploying a dedicated smart contract.
 
@@ -200,15 +200,15 @@ A sequence of commands executed together in a single atomic transaction on Sui. 
 
 ### Seal
 
-*Sui & Move, dApps & tools · also: seal, Sui Stack Seal*
+*Sui & Move, dApps & tools*
 
-A secure key management and access delegation service on Sui that uses threshold encryption and key servers to manage secret keys, automate transaction signing, and protect sensitive application operations.
+A decentralized secrets management service on Sui. Data is encrypted under an access policy written onchain, and a set of key servers release the decryption keys only to callers the policy allows.
 
 [Read more in the Sui Docs →](https://docs.sui.io/sui-stack/seal/sui-stack-seal)
 
 ### Secp256k1
 
-*Sui & Move · also: secp256k1*
+*Sui & Move*
 
 The Koblitz elliptic curve signature algorithm popularized by Bitcoin and Ethereum. Sui natively supports both recoverable and non-recoverable Secp256k1 signature verification in Move via `sui::ecdsa_k1`, enabling compatibility with EVM wallets and keys.
 
@@ -216,7 +216,7 @@ The Koblitz elliptic curve signature algorithm popularized by Bitcoin and Ethere
 
 ### Secp256r1
 
-*Sui & Move · also: secp256r1, NIST P-256, p256*
+*Sui & Move · also: NIST P-256*
 
 A NIST-standardized elliptic curve signature scheme widely implemented in modern hardware security modules, Apple Secure Enclave, Android Keystore, and WebAuthn/passkeys. Sui verifies Secp256r1 onchain via `sui::ecdsa_r1`, allowing passkeys to sign transactions directly.
 
@@ -224,7 +224,7 @@ A NIST-standardized elliptic curve signature scheme widely implemented in modern
 
 ### Shared Object
 
-*Sui & Move · also: shared objects*
+*Sui & Move*
 
 A mutable onchain object accessible by any transaction or caller rather than owned by a single address. Modifying shared objects requires ordering through Sui's global consensus layer to sequence competing interactions.
 
@@ -232,7 +232,7 @@ A mutable onchain object accessible by any transaction or caller rather than own
 
 ### Sponsorship
 
-*Sui & Move, Wallet & identity · also: sponsored transaction, sponsored transactions*
+*Sui & Move, Wallet & identity · also: sponsored transaction*
 
 A mechanism where a sponsor account pays the gas fees for another user's transaction. Enables onboarding users and subsidizing player interactions without requiring them to hold native SUI tokens first.
 
@@ -246,13 +246,13 @@ A web development build method where HTML, JavaScript, and CSS assets are pre-re
 
 ### SuiScan
 
-*dApps & tools · also: suiscan, explorer*
+*dApps & tools*
 
 A community-popular block explorer and analytics platform for the Sui network, providing detailed views into transactions, packages, object states, validators, and metrics across mainnet and testnets.
 
 ### SuiVision
 
-*dApps & tools · also: suivision, explorer*
+*dApps & tools*
 
 A comprehensive Sui blockchain explorer and analytics dashboard that tracks onchain activity, token transfers, package source code, and DeFi protocol statistics.
 
@@ -260,13 +260,13 @@ A comprehensive Sui blockchain explorer and analytics dashboard that tracks onch
 
 ### Tenant
 
-*Game & economy, Sui & Move · also: tenants*
+*Game & economy, Sui & Move*
 
 An isolated environment or server namespace within EVE Frontier world contracts, combined with an in-game ID to uniquely scope entities and registries. The primary live game tenant is `stillness`.
 
 ### Testnet
 
-*Sui & Move · also: testnet*
+*Sui & Move*
 
 The primary public testing network for Sui that mirrors mainnet topology and features. Maintained with stable validator sets and free testnet faucet tokens to validate applications and smart contracts before mainnet launch.
 
@@ -274,7 +274,7 @@ The primary public testing network for Sui that mirrors mainnet topology and fea
 
 ### Typed Witness
 
-*Sui & Move · also: witness, witness pattern, one-time witness*
+*Sui & Move · also: witness, witness pattern*
 
 A Move design pattern where a function requires an instance of an ephemeral struct to prove authority or type ownership. Because only the module defining a struct can instantiate it, passing a witness confirms that the caller operates with that module's permission.
 
@@ -282,7 +282,7 @@ A Move design pattern where a function requires an instance of an ephemeral stru
 
 ### Validator
 
-*Sui & Move · also: validators*
+*Sui & Move*
 
 A node operator securing the Sui network by verifying transactions, voting on certificates, and participating in consensus. Unlike continuous miners, Sui validators are invoked directly by incoming transactions and certificates.
 
@@ -290,7 +290,7 @@ A node operator securing the Sui network by verifying transactions, voting on ce
 
 ### Verifiable Random Function
 
-*Sui & Move · also: VRF, Verifiably Random Function*
+*Sui & Move · also: VRF*
 
 A cryptographic primitive that generates unpredictable random outputs along with a proof of correctness that anyone can verify. Used in gaming and onchain logic (such as ECVRF in Sui) to ensure provably fair randomness.
 
@@ -314,7 +314,7 @@ A malicious smart contract or phishing script designed to trick users into signi
 
 ### Walrus
 
-*Sui & Move, dApps & tools · also: walrus, Walrus Protocol, Walrus Sites*
+*Sui & Move, dApps & tools · also: Walrus Protocol, Walrus Sites*
 
 A decentralized blob storage protocol and network optimized for large binary data and media files, coordinated by smart contracts on Sui. Often paired with Walrus Sites to host decentralized web applications directly from onchain references.
 
@@ -322,7 +322,7 @@ A decentralized blob storage protocol and network optimized for large binary dat
 
 ### World Contracts
 
-*Smart Assemblies, Sui & Move · also: world-contracts*
+*Smart Assemblies, Sui & Move*
 
 The core smart contracts deployed on Sui that define the rules, objects, and physics of EVE Frontier. Maintained by Fenris Creations, they provide the baseline types and extension points that builder applications build upon.
 
