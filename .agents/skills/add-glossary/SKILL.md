@@ -5,7 +5,7 @@ description: Guide and procedure for adding a new term to the EVE Frontier Build
 
 # Add Glossary Item
 
-This skill guides adding a new term to the curriculum glossary located at [curriculum/glossary.md](file:///home/scetrov/source/eve-frontier-builders-program/curriculum/glossary.md).
+This skill guides adding a new term to the curriculum glossary located at [curriculum/glossary.md](../../../curriculum/glossary.md). The authoring rules in [curriculum/README.md](../../../curriculum/README.md) are the reference; the site's build checks every entry against them.
 
 ## Required Fields
 
@@ -22,9 +22,7 @@ Every glossary entry requires three core fields:
      - `Wallet & identity`
      - `dApps & tools`
    - Multiple topics are separated by commas, with the primary topic first.
-   - **Optional modifiers** on this line:
-     - Aliases: ` · also: alias1, alias2`
-     - Suppression of auto-highlighting in lessons: ` · no highlight`
+   - **Optional** on this line, other names the term goes by: ` · also: name1, name2`. Not plurals, and not the term itself in another spelling or case.
 3. **Description (Definition)**: A 1–3 sentence plain text paragraph explaining the concept in builder-facing terms.
    - Per repository guidelines, keep definitions plain and concise. Avoid duplicate copy by linking to canonical sources.
 
@@ -39,7 +37,7 @@ Every glossary entry requires three core fields:
   ```markdown
   [Read the article →](glossary/<slug>.md)
   ```
-  *(Requires corresponding article at `curriculum/glossary/<slug>.md` and an entry in `curriculum/SUMMARY.md`)*
+  *(Requires the article to exist at `curriculum/glossary/<slug>.md`)*
 
 ---
 
@@ -67,9 +65,7 @@ A fixed period of about 24 hours on Sui during which the set of validators, and 
 2. **Insert Alphabetically**: Place the new `### <Key>` block in alphabetical order within that letter section.
 3. **Format Topics & Modifiers**: Add the `*Tags*` line with one or more valid topic names.
 4. **Draft Description**: Provide the 1–3 sentence description.
-5. **Verify**:
-   - Run type checks and linter:
-     ```bash
-     cd web && ./node_modules/.bin/oxlint && ./node_modules/.bin/tsc --noEmit
-     ```
-   - Ensure the definition parses correctly and references valid topics.
+5. **Verify**: build the site, which reads the glossary and fails on an entry that breaks the rules (wrong letter, unknown topic, missing definition, a name that is the term respelled, a duplicate slug, a bad link):
+   ```bash
+   cd web && pnpm build
+   ```
