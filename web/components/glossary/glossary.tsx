@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { Placeholder } from "@/components/placeholder";
 import { Button, Field, Icon, Plate, Tag } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -16,13 +17,19 @@ const groupId = (letter: string) => (letter === "#" ? "letter-symbols" : `letter
 const letterName = (letter: string) => (letter === "#" ? "Symbols" : letter);
 const count = (n: number) => `${n} ${n === 1 ? "term" : "terms"}`;
 
-/* Anchors, and links that take focus, clear the top bar and the index bar pinned under it. The index
-  bar's height is measured once the page runs; before that, its usual height. */
-/* The filter the page was opened with, from ?q=. The address is only known in
-  the browser, so the prerendered page starts unfiltered. */
+/* The filter the page was opened with and the row it points at, from ?q= and the
+  hash, as one string. The address is only known in the browser, so the prerendered
+  page starts unfiltered. On a soft navigation the first render still sees the
+  address of the page we came from, which Next replaces once the page is on screen,
+  so until the browser's path is the page's the address isn't read. */
 const noChanges = () => () => {};
-const addressQuery = () => new URLSearchParams(location.search).get("q") ?? "";
-const noQuery = () => "";
+const noAddress = () => "";
+const trimPath = (path: string) => path.replace(/\/+$/, "");
+const addressSlug = () => decodeURIComponent(location.hash.slice(1));
+function readAddress(pathname: string) {
+  if (trimPath(location.pathname) !== trimPath(pathname)) return "";
+  return `${new URLSearchParams(location.search).get("q") ?? ""}\n${addressSlug()}`;
+}
 
 /* The address keeps the filter, so a filtered list can be shared or reloaded */
 function keepInAddress(query: string) {
@@ -32,9 +39,17 @@ function keepInAddress(query: string) {
   history.replaceState(history.state, "", url);
 }
 
+/* Typing settles before the address and the announcement change: Safari
+  refuses more than 100 history writes in 30 seconds */
+const SETTLE = 450;
+
+const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 /* The index bar's topic toggles */
 const chip = "inline-flex min-h-7 cursor-pointer items-center gap-2 py-1 pr-3 pl-2.5 text-step--2 font-bold whitespace-nowrap text-foreground";
 
+/* Anchors, and links that take focus, clear the top bar and the index bar pinned under it. The index
+  bar's height is measured once the page runs; before that, its usual height. */
 const clearBars = "scroll-mt-[calc(var(--bar-height)+var(--index-bar-height,7rem)+var(--spacing-xs))]";
 
 /** `text` with every place a query word falls in it marked. */
@@ -76,10 +91,15 @@ function Marked({ text, words }: { text: string; words: string[] }) {
  * filtered list can be shared, and every row is an anchor of its own.
  */
 export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: readonly GlossaryTopic[] }) {
-  const opened = useSyncExternalStore(noChanges, addressQuery, noQuery);
+  const pathname = usePathname();
+  const opened = useSyncExternalStore(noChanges, () => readAddress(pathname), noAddress);
+  const [openedQuery = "", openedSlug = ""] = opened.split("\n");
   const [typed, setQuery] = useState<string | null>(null);
-  const query = typed ?? opened;
+  const query = typed ?? openedQuery;
   const [on, setOn] = useState<GlossaryTopic[]>([]);
+  /* The row the address points at, once the hash changes or a link is copied */
+  const [chosen, setCurrent] = useState<string | null>(null);
+  const current = (chosen ?? openedSlug) || null;
   const [here, setHere] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [live, setLive] = useState("");
@@ -90,6 +110,9 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
   const lettersRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const copiedTimer = useRef(0);
+  const addressTimer = useRef(0);
+  /* A row the filters hid, to scroll to once it shows */
+  const revealing = useRef<string | null>(null);
 
   const haystacks = useMemo(() => terms.map((term) => fold([term.title, ...term.aliases, term.definition].join(" "))), [terms]);
   const words = useMemo(() => fold(query).split(/\s+/).filter(Boolean), [query]);
@@ -115,7 +138,8 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
 
   const filter = (value: string) => {
     setQuery(value);
-    keepInAddress(value);
+    clearTimeout(addressTimer.current);
+    addressTimer.current = window.setTimeout(() => keepInAddress(value), SETTLE);
   };
 
   const clear = () => {
@@ -127,19 +151,30 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
   const toggle = (topic: GlossaryTopic) =>
     setOn((current) => (current.includes(topic) ? current.filter((t) => t !== topic) : [...current, topic]));
 
-  // An address that points at a row the filters hide shows it
+  // An address that points at a row the filters hide shows it. The browser's own
+  // scroll to the row ran while it was hidden, so the row is scrolled to once it shows.
   useEffect(() => {
-    const reveal = () => {
-      const row = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-      if (row?.hidden) {
+    const follow = () => {
+      const slug = addressSlug();
+      setCurrent(slug);
+      if (slug && document.getElementById(slug)?.hidden) {
+        revealing.current = slug;
         setQuery("");
         setOn([]);
+        clearTimeout(addressTimer.current);
         keepInAddress("");
       }
     };
-    addEventListener("hashchange", reveal);
-    return () => removeEventListener("hashchange", reveal);
+    addEventListener("hashchange", follow);
+    return () => removeEventListener("hashchange", follow);
   }, []);
+
+  useEffect(() => {
+    const slug = revealing.current;
+    if (!slug || !shown.has(slug)) return;
+    revealing.current = null;
+    document.getElementById(slug)?.scrollIntoView({ block: "start", behavior: reducedMotion() ? "auto" : "smooth" });
+  }, [shown]);
 
   useEffect(() => {
     const bar = barRef.current;
@@ -192,11 +227,17 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
   useEffect(() => {
     if (filters === announcedFor.current) return;
     announcedFor.current = filters;
-    const timer = setTimeout(() => setLive(shown.size ? `Showing ${shown.size} of ${terms.length} terms` : "No terms match"), 450);
+    const timer = setTimeout(() => setLive(shown.size ? `Showing ${shown.size} of ${terms.length} terms` : "No terms match"), SETTLE);
     return () => clearTimeout(timer);
   }, [filters, shown, terms.length]);
 
-  useEffect(() => () => clearTimeout(copiedTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(copiedTimer.current);
+      clearTimeout(addressTimer.current);
+    },
+    [],
+  );
 
   // Enter goes to the first match rather than submitting the form
   const jump = (event: FormEvent) => {
@@ -205,7 +246,7 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
     const row = first && document.getElementById(first.slug);
     if (!row) return;
     row.focus({ preventScroll: true });
-    row.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    row.scrollIntoView({ block: "start", behavior: reducedMotion() ? "auto" : "smooth" });
   };
 
   // Copies the row's address; with no clipboard the link still works as a link
@@ -221,6 +262,7 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
       return;
     }
     history.replaceState(history.state, "", url.hash);
+    setCurrent(term.slug);
     setCopied(term.slug);
     setLive(`Link to ${term.title} copied`);
     clearTimeout(copiedTimer.current);
@@ -355,86 +397,94 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
                   <span className="ml-auto pb-0.5 text-step--2 font-bold tracking-[0.08em] text-muted uppercase">{count(group.shown)}</span>
                 </div>
                 <ul role="list">
-                  {group.terms.map((term) => (
-                    <li
-                      key={term.slug}
-                      id={term.slug}
-                      hidden={!shown.has(term.slug)}
-                      tabIndex={-1}
-                      className={cn(
-                        "group/row grid gap-2xs border-b border-line px-xs py-s hover:bg-card md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] md:gap-x-m",
-                        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground",
-                        "target:bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] target:shadow-[inset_3px_0_0_var(--color-accent)]",
-                        "forced-colors:target:outline-2 forced-colors:target:outline-[Highlight]",
-                        clearBars,
-                      )}
-                    >
-                      <p className="flex items-center gap-1 self-start">
-                        <b className="text-step--1 [overflow-wrap:anywhere] group-target/row:text-accent-text">
-                          <Marked text={term.title} words={words} />
-                        </b>
-                        <a
-                          href={`#${term.slug}`}
-                          aria-label={`Copy link to ${term.title}`}
-                          onClick={(event) => copy(event, term)}
-                          className={cn(
-                            "relative -my-1 grid size-6 flex-none place-items-center text-muted hover:text-foreground motion-safe:transition-opacity",
-                            "opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 group-target/row:opacity-100 pointer-coarse:opacity-60",
-                            "focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-foreground",
-                            copied === term.slug && "text-accent-text opacity-100",
-                            clearBars,
-                          )}
-                        >
-                          <Icon name="link" className="size-3" />
-                          {copied === term.slug && (
-                            <span
-                              aria-hidden="true"
-                              className="absolute top-1/2 left-full ml-1.5 -translate-y-1/2 bg-foreground px-1.5 py-0.5 text-step--2 leading-none font-bold whitespace-nowrap text-background"
-                            >
-                              Link copied
-                            </span>
-                          )}
-                        </a>
-                      </p>
-                      <div className="grid min-w-0 justify-items-start gap-2xs">
-                        <p className="max-w-[68ch] text-step--1 text-muted">
-                          <Marked text={term.definition} words={words} />
-                        </p>
-                        {term.docs && (
-                          // The definition's taller line adds space above the link that the tags' boxes don't
-                          // add below, and the underline sits in the gap, so mb-2.5 evens the two out
+                  {group.terms.map((term) => {
+                    /* State rather than :target, which a soft navigation or the copy control never sets */
+                    const isCurrent = current === term.slug;
+                    return (
+                      <li
+                        key={term.slug}
+                        id={term.slug}
+                        hidden={!shown.has(term.slug)}
+                        tabIndex={-1}
+                        aria-current={isCurrent ? "location" : undefined}
+                        className={cn(
+                          "group/row grid gap-2xs border-b border-line px-xs py-s hover:bg-card md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] md:gap-x-m",
+                          "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground",
+                          isCurrent &&
+                            "bg-[color-mix(in_srgb,var(--color-accent)_9%,transparent)] shadow-[inset_3px_0_0_var(--color-accent)] forced-colors:outline-2 forced-colors:outline-[Highlight]",
+                          clearBars,
+                        )}
+                      >
+                        <p className="flex items-center gap-1 self-start">
+                          <b className={cn("text-step--1 [overflow-wrap:anywhere]", isCurrent && "text-accent-text")}>
+                            <Marked text={term.title} words={words} />
+                          </b>
                           <a
-                            href={term.docs.url}
-                            {...EXTERNAL}
+                            href={`#${term.slug}`}
+                            aria-label={`Copy link to ${term.title}`}
+                            onClick={(event) => copy(event, term)}
                             className={cn(
-                              "mb-2.5 inline-flex items-center gap-1 text-step--2 font-bold text-muted underline underline-offset-2 hover:text-foreground hover:decoration-2",
-                              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground",
+                              "relative -my-1 grid size-6 flex-none place-items-center text-muted hover:text-foreground motion-safe:transition-opacity",
+                              "opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 pointer-coarse:opacity-60",
+                              "focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-foreground",
+                              (isCurrent || copied === term.slug) && "opacity-100",
+                              copied === term.slug && "text-accent-text",
                               clearBars,
                             )}
                           >
-                            {term.docs.label}
-                            <Icon name="external" className="size-2.5" />
-                            <span className="sr-only"> (opens in a new tab)</span>
-                          </a>
-                        )}
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-2xs">
-                          <p className="flex flex-wrap gap-x-1.5 gap-y-1">
-                            {term.topics.map((topic) => (
-                              <Tag key={topic}>{topic}</Tag>
-                            ))}
-                          </p>
-                          {term.aliases.length > 0 && (
-                            <p className="text-step--2 text-muted">
-                              Also:{" "}
-                              <span className="text-foreground">
-                                <Marked text={term.aliases.join(", ")} words={words} />
+                            <Icon name="link" className="size-3" />
+                            {copied === term.slug && (
+                              <span
+                                aria-hidden="true"
+                                className="absolute top-1/2 left-full ml-1.5 -translate-y-1/2 bg-foreground px-1.5 py-0.5 text-step--2 leading-none font-bold whitespace-nowrap text-background"
+                              >
+                                Link copied
                               </span>
-                            </p>
+                            )}
+                          </a>
+                        </p>
+                        <div className="grid min-w-0 justify-items-start gap-2xs">
+                          <p className="max-w-[68ch] text-step--1 text-muted">
+                            <Marked text={term.definition} words={words} />
+                          </p>
+                          {term.docs && (
+                            // Padded to a 24px target, with the top margin taking that back. The
+                            // definition's taller line adds space above the link that the tags' boxes
+                            // don't add below, and the underline sits in the gap, so the bottom
+                            // margin and padding together even the two out
+                            <a
+                              href={term.docs.url}
+                              {...EXTERNAL}
+                              className={cn(
+                                "-mt-0.75 mb-1.75 inline-flex min-h-6 items-center gap-1 text-step--2 font-bold text-muted underline underline-offset-2 hover:text-foreground hover:decoration-2",
+                                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground",
+                                clearBars,
+                              )}
+                            >
+                              {term.docs.label}
+                              <Icon name="external" className="size-2.5" />
+                              <span className="sr-only"> (opens in a new tab)</span>
+                            </a>
                           )}
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-2xs">
+                            <p className="flex flex-wrap gap-x-1.5 gap-y-1">
+                              {term.topics.map((topic) => (
+                                <Tag key={topic}>{topic}</Tag>
+                              ))}
+                            </p>
+                            {term.aliases.length > 0 && (
+                              <p className="text-step--2 text-muted">
+                                Also:{" "}
+                                <span className="text-foreground">
+                                  <Marked text={term.aliases.join(", ")} words={words} />
+                                </span>
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             );
