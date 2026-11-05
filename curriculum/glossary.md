@@ -12,15 +12,15 @@ A player who makes things for the Frontier beyond flying in it: structures, the 
 
 ### Capability
 
-*Sui & Move · also: capabilities, capability pattern, AdminCap, OwnerCap*
+*Sui & Move · also: capability pattern, AdminCap, OwnerCap*
 
 A Sui Move access control pattern where permission to perform an action is represented by an owned object. Passing a capability struct (such as an `AdminCap` or Frontier's `OwnerCap`) into a function cryptographically proves the caller has authority to execute privileged operations.
 
-[Read more in the Sui Docs →](https://docs.sui.io/concepts/cryptography/transaction-auth/signatures)
+[Read more in the Move Book Docs →](https://move-book.com/programmability/capability)
 
 ### Clock
 
-*Sui & Move · also: clock, sui::clock::Clock*
+*Sui & Move · also: sui::clock::Clock*
 
 A singleton shared object on Sui (`0x6`) that provides access to the current network timestamp in milliseconds. Move smart contracts use it to enforce time-dependent logic, such as cooldowns, auction deadlines, and resource regeneration.
 
@@ -28,7 +28,7 @@ A singleton shared object on Sui (`0x6`) that provides access to the current net
 
 ### Coin
 
-*Sui & Move, Game & economy · also: coins, sui::coin::Coin*
+*Sui & Move, Game & economy · also: sui::coin::Coin*
 
 The standard Sui fungible token type (`sui::coin::Coin<T>`) representing a specific balance of a coin type `T`. It provides built-in primitives for splitting, merging, transferring, and managing token supply with a `TreasuryCap`.
 
@@ -102,29 +102,29 @@ The official standalone wallet client for EVE Frontier. It integrates zkLogin an
 
 ### Event
 
-*Sui & Move, dApps & tools · also: events, Move event, emit*
+*Sui & Move, dApps & tools · also: Move event, emit*
 
 An onchain notification emitted by a Move function using `sui::event::emit` to signal that an action or state change occurred. Events do not persist in Move object storage, but are indexed and queried offchain by frontends, explorers, and indexers.
 
-[Read more in the Sui Docs →](https://docs.sui.io/concepts/sui-architecture/events)
+[Read more in the Sui Docs →](https://docs.sui.io/develop/accessing-data/using-events)
 
 ## F
 
 ### Feral Data
 
-*Game & economy, Smart Assemblies · also: feral data, FeralData*
+*Game & economy, Smart Assemblies*
 
 A core in-game digital resource and micro-currency in EVE Frontier. Used extensively by pilots to pay for Smart Assembly services, such as purchasing goods from storage unit vending machines or paying gate transit fees.
 
 ### Frontier Flow
 
-*dApps & tools, Smart Assemblies · also: frontier-flow*
+*dApps & tools, Smart Assemblies*
 
 A low-code visual builder for EVE Frontier that lets creators configure Smart Assembly rules and behavior by connecting logic nodes. It compiles visual workflows directly into verified Move code that can be deployed to Smart Storage Units and gates without writing smart contracts from scratch.
 
 ### Fuel
 
-*Game & economy, Smart Assemblies · also: fuel, assembly fuel*
+*Game & economy, Smart Assemblies · also: assembly fuel*
 
 The operational energy resource required by Smart Assemblies to maintain power and remain active in space. If an assembly runs out of fuel, its defenses, gates, or storage services shut down until replenished.
 
@@ -132,7 +132,7 @@ The operational energy resource required by Smart Assemblies to maintain power a
 
 ### Gas
 
-*Sui & Move · also: gas fee, gas budget, gas fees*
+*Sui & Move · also: gas fee, gas budget*
 
 The computational and storage fee paid in SUI to execute transactions and store objects onchain. Every transaction specifies a gas budget, and unspent computational gas is refunded while storage fees enter the Sui storage fund.
 
@@ -184,7 +184,7 @@ A component that maintains a searchable index of objects and transactions within
 
 ### Killmail
 
-*Game & economy, dApps & tools · also: killmails, Killmails, killboard, proof of destruction*
+*Game & economy, dApps & tools · also: killboard, proof of destruction*
 
 An immutable record generated when a ship or structure is destroyed in EVE Frontier. Contains verifiable combat telemetry including the victim, final blow attacker, location, damage dealt, and items dropped or lost, powering community killboards and bounties.
 
@@ -200,13 +200,13 @@ A local, single-validator Sui network instance running on a developer's machine 
 
 ### Low-code
 
-*dApps & tools · also: low-code platform, low-code platforms, low code*
+*dApps & tools · also: low-code platform*
 
 A visual approach to software development that minimizes manual programming through graphical interfaces, pre-built components, and drag-and-drop connectors while allowing developers to add custom code when needed. In EVE Frontier, tools like Frontier Flow provide a low-code environment to configure Smart Assembly logic and generate Move smart contracts visually.
 
 ### LUX
 
-*Game & economy · also: Lux, lux, LUX token*
+*Game & economy · also: LUX token*
 
 The primary macroeconomic currency of EVE Frontier. Used for high-value trade, market settlement, ship acquisition, and large-scale industrial transactions across the Frontier universe.
 
@@ -230,7 +230,7 @@ The Move Registry on Sui: an onchain registry that gives published Move packages
 
 ### Mysticeti
 
-*Sui & Move · also: mysticeti, consensus*
+*Sui & Move · also: consensus*
 
 Sui's DAG-based Byzantine Fault Tolerant (BFT) consensus protocol. It orders transactions involving shared objects in as few as three message rounds, achieving sub-second commit latency without requiring consensus on single-owner transactions.
 
@@ -248,7 +248,7 @@ A framework and ecosystem toolkit for verifiable offchain computing and oracle s
 
 ### No-code
 
-*dApps & tools · also: no-code platform, no-code platforms, no code*
+*dApps & tools · also: no-code platform*
 
 A visual development and automation approach that enables users to design applications, databases, and automated workflows entirely through graphical interfaces and configuration forms without writing any code. Unlike low-code tools that support custom scripting, no-code platforms (such as Zapier, Make, Airtable, or the codeless visual builders within tools like Power Automate and n8n) are designed for non-programmers to assemble complete solutions using modular blocks.
 
@@ -340,7 +340,7 @@ A web development build method where HTML, JavaScript, and CSS assets are pre-re
 
 ### Sui CLI
 
-*dApps & tools, Sui & Move · also: sui cli, sui client*
+*dApps & tools, Sui & Move · also: sui client*
 
 The primary command-line toolsuite for developers building on Sui. Used to compile Move packages (`sui move build`), run unit tests (`sui move test`), publish contracts, manage keys, and execute programmable transaction blocks.
 
@@ -376,7 +376,7 @@ The primary public testing network for Sui that mirrors mainnet topology and fea
 
 ### Transaction Digest
 
-*Sui & Move, dApps & tools · also: transaction digests, txn digest, digest*
+*Sui & Move, dApps & tools · also: txn digest, digest*
 
 A 32-byte Base58 cryptographic hash that uniquely identifies an executed transaction on Sui. Used by dApps, explorers, and indexers to look up transaction effects, gas costs, and emitted events.
 
@@ -384,7 +384,7 @@ A 32-byte Base58 cryptographic hash that uniquely identifies an executed transac
 
 ### Tribe
 
-*Game & economy · also: tribes, corporation, alliance*
+*Game & economy · also: corporation, alliance*
 
 A player-run organization and alliance structure in EVE Frontier. Smart Assemblies frequently check tribal membership onchain to grant free gate transit, shared storage unit access, and coordinated turret defense permissions.
 
@@ -398,11 +398,11 @@ A Move design pattern where a function requires an instance of an ephemeral stru
 
 ### UpgradeCap
 
-*Sui & Move · also: upgrade capability, package upgrade, upgradecap*
+*Sui & Move · also: upgrade capability, package upgrade*
 
 An owned capability object minted when a Move package is first published to Sui. Passing the `UpgradeCap` authorizes publishing upgraded code while preserving the package's existing onchain state and address linkage.
 
-[Read more in the Sui Docs →](https://docs.sui.io/concepts/sui-architecture/package-upgrades)
+[Read more in the Sui Docs →](https://docs.sui.io/develop/publish-upgrade-packages/upgrade)
 
 ## V
 
