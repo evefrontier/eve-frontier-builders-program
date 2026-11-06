@@ -1,0 +1,90 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout and type are utilities in glossary.tsx; this file holds the topic
+  chip's silhouette and states and the letters' hover underline. */
+@layer components {
+  /* The small diagonal: 12px cuts top left and bottom right, 4px on the others */
+  .chip {
+    --cut-tl: 12px;
+    --cut-br: 12px;
+    --cut-tr: 4px;
+    --cut-bl: 4px;
+    --plate-keyline: var(--color-control-line);
+    --plate-fill: var(--color-background);
+  }
+
+  .chip[aria-pressed="true"] {
+    --plate-keyline: var(--color-foreground);
+    --plate-fill: var(--color-foreground);
+  }
+
+  /* The chip's keyboard focus ring, drawn as Button draws its own: a 2px plate
+    tracing the chip 4px out with a 2px gap. Each cut grows by 4px × (2 − √2)
+    so the edges stay parallel, and the wrapper's negative margin keeps the ring
+    out of the layout. */
+  .ring {
+    --cut-tl: calc(12px + 2.343px);
+    --cut-br: calc(12px + 2.343px);
+    --cut-tr: calc(4px + 2.343px);
+    --cut-bl: calc(4px + 2.343px);
+    --plate-keyline: transparent;
+    --plate-keyline-width: 2px;
+    --plate-fill: transparent;
+  }
+  .ring:has(> .chip:focus-visible) {
+    --plate-keyline: var(--color-foreground);
+    --plate-fill: var(--color-background);
+  }
+
+  /* The ring replaces the browser's outline. It is turned off here rather than
+    with a utility so the forced-colours outline below can still win. */
+  .chip:focus-visible { outline: none; }
+
+  /* The plate clips anything outside its polygon, so without :has() the ring is drawn inset */
+  @supports not selector(:has(*)) {
+    .chip:focus-visible { outline: 2px solid var(--color-foreground); outline-offset: -5px; }
+  }
+
+  /* The chip's lamp is the top bar's cut to a square of 2 × 2 pixels, lit
+    the same way. The two-class selectors outrank the lamp's own unlit colour. */
+  .chip[aria-pressed="true"] .lamp,
+  .chip:focus-visible .lamp {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+
+  /* A letter's hover underline: 2px squares on a 3px pitch, the lamp's
+    pixels laid in a row, spaced so only whole squares show */
+  .letter::after {
+    content: "";
+    position: absolute;
+    inset-inline: 4px;
+    bottom: 2px;
+    height: 2px;
+    background: conic-gradient(at 2px 2px, transparent 75%, var(--color-accent) 0) center 0 / 3px 3px space no-repeat;
+    filter:
+      drop-shadow(0 0 1px color-mix(in srgb, var(--color-accent) 85%, transparent))
+      drop-shadow(0 0 2px color-mix(in srgb, var(--color-accent) 55%, transparent));
+    opacity: 0;
+  }
+
+  /* Hover is gated so it can't stick after a tap */
+  @media (hover: hover) {
+    /* A selected chip keeps its fill: the hover fill would sit under its background-coloured text */
+    .chip:not([aria-pressed="true"]):hover { --plate-fill: var(--color-card); }
+    .chip:hover .lamp {
+      --nav-lamp: var(--nav-lamp-lit);
+      filter: var(--nav-lamp-glow);
+    }
+    .letter:hover::after { opacity: 1; }
+  }
+
+  @media (forced-colors: active) {
+    .chip[aria-pressed="true"] { outline: 2px solid Highlight; }
+    /* Forced colours drop the clip-path and draw every plate's border, so the
+      ring wrapper loses its border and focus is a system outline instead */
+    .ring { border: 0; }
+    .chip:focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
+    /* Forced colours drop gradients, so the underline is a solid line */
+    .letter::after { background: Highlight; filter: none; }
+  }
+}

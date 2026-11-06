@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import styles from "./button.module.css";
 
 export const buttonVariants = ["primary", "secondary"] as const;
-export const buttonSizes = ["sm", "md", "lg"] as const;
+export const buttonSizes = ["xs", "sm", "md", "lg"] as const;
 
 export type ButtonVariant = (typeof buttonVariants)[number];
 export type ButtonSize = (typeof buttonSizes)[number];
@@ -17,8 +17,10 @@ export type ButtonProps = {
   loading?: boolean;
 } & Omit<ComponentPropsWithRef<"button">, "style">;
 
-/* Medium is floored at the 44px WCAG 2.5.5 touch target; Small is a dense desktop size. */
+/* Medium is floored at the 44px WCAG 2.5.5 touch target; Small is a dense
+  desktop size, and Extra small matches the 28px body-type chips it sits among. */
 const sizes: Record<ButtonSize, string> = {
+  xs: "min-h-7 px-3 py-1 font-body text-step--2 leading-none",
   sm: "px-s py-2xs text-step--1 leading-none",
   md: "px-m py-xs text-step--1 leading-none min-h-[2.75rem]",
   lg: "px-m py-s text-step-0 leading-none",
@@ -77,7 +79,7 @@ export function Button({
       className={cn(
         "inline-flex p-1 -m-1 transition-transform duration-[120ms] motion-reduce:transition-none",
         styles.focus,
-        size === "sm" && styles.sm,
+        (size === "xs" || size === "sm") && styles.sm,
       )}
     >
       <Plate

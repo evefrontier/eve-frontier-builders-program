@@ -8,7 +8,7 @@
   Layout, type, colour and cursors are utilities in button.tsx; this file
   holds the plate geometry, the state variables and the motion. */
 @layer components {
-  /* Base button — the 17/5 octagon, 12/4 at Small (see .sm) */
+  /* Base button — the 17/5 octagon, 12/4 at Small and Extra small (see .sm) */
   .button {
     --plate-keyline-width: var(--btn-key, 1px);
     --plate-keyline: conic-gradient(from -90deg, var(--btn-sweep-color) 0 var(--btn-sweep, 0deg), var(--btn-edge) var(--btn-sweep, 0deg) 360deg);

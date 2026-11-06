@@ -1,14 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Section } from "@/stories/section";
-import { Icon, iconNames } from "./icon";
+import { Icon, iconGrids, iconNames } from "./icon";
 
-/* Whole multiples of the 5 × 5 grid, so every cell stays crisp */
-const sizes = [
-  { label: "10px", className: "size-2.5" },
-  { label: "15px", className: "size-[15px]" },
-  { label: "20px", className: "size-5" },
-  { label: "40px", className: "size-10" },
-];
+/* Whole multiples of each icon's own grid, so every cell stays crisp: a 5 × 5
+  glyph at 10, 15, 20 and 40px, a 6 × 6 one at 12, 18, 24 and 48px */
+const multiples = [2, 3, 4, 8];
 
 const meta = {
   title: "Foundation/Icons",
@@ -35,7 +31,7 @@ export const All: Story = {
         <div className="flex flex-wrap gap-m">
           {iconNames.map((name) => (
             <div key={name} className="grid w-28 justify-items-start gap-xs">
-              <Icon name={name} className="size-10 text-foreground" />
+              <Icon name={name} className="text-foreground" style={{ width: iconGrids[name] * 8, height: iconGrids[name] * 8 }} />
               <code className="text-step--2 text-muted">{name}</code>
             </div>
           ))}
@@ -43,11 +39,16 @@ export const All: Story = {
       </Section>
       <Section title="sizes">
         <div className="grid gap-s">
-          {sizes.map(({ label, className }) => (
-            <div key={label} className="flex items-center gap-m">
-              <code className="w-12 text-step--2 text-muted">{label}</code>
+          {multiples.map((multiple) => (
+            <div key={multiple} className="flex items-center gap-m">
+              <code className="w-12 text-step--2 text-muted">{multiple}× grid</code>
               {iconNames.map((name) => (
-                <Icon key={name} name={name} className={`${className} text-accent`} />
+                <Icon
+                  key={name}
+                  name={name}
+                  className="text-accent"
+                  style={{ width: iconGrids[name] * multiple, height: iconGrids[name] * multiple }}
+                />
               ))}
             </div>
           ))}

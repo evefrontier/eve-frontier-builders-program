@@ -70,6 +70,23 @@ function readLesson(name: string, files: Map<string, string>, from: string) {
   };
 }
 
+export const glossaryTopics = ["Game & economy", "Sui & Move", "Smart Assemblies", "Wallet & identity", "dApps & tools"] as const;
+
+export type GlossaryTopic = (typeof glossaryTopics)[number];
+
+export interface GlossaryTerm {
+  slug: string;
+  title: string;
+  /** Its letter group in glossary.md, `#` for terms that start with a symbol */
+  letter: string;
+  /** Main topic first */
+  topics: GlossaryTopic[];
+  aliases: string[];
+  definition: string;
+  /** From a `Read more in the … Docs →` line */
+  docs?: { label: string; url: string };
+}
+
 /* A term's name in links: lowercase, spaces as hyphens, punctuation dropped */
 const termSlug = (term: string) =>
   term
@@ -77,25 +94,74 @@ const termSlug = (term: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
 
-/* Each term in glossary.md is a ### heading, an italic line of topics and other names, then its definition */
-function glossaryTerms(): SearchEntry[] {
-  return read("glossary.md", "web/lib/curriculum.ts")
-    .split(/^### /m)
-    .slice(1)
-    .map((section): SearchEntry => {
-      const [heading, ...rest] = section.split(/\r?\n/);
-      const lines = rest.map((line) => line.trim()).filter((line) => line && !line.startsWith("#"));
-      const meta = lines[0]?.match(/^\*(.+)\*$/)?.[1];
-      const [topics = "", also = ""] = meta?.split(" · also: ") ?? [];
-      const definition = lines.slice(meta ? 1 : 0).filter((line) => !line.startsWith("[Read the article"));
-      return {
-        kind: "Term",
-        title: heading.trim(),
-        description: definition.join(" "),
-        href: `/glossary/#${termSlug(heading.trim())}`,
-        keywords: [...topics.split(","), ...also.split(",")].map((word) => word.trim()).filter(Boolean),
-      };
-    });
+const isTopic = (topic: string): topic is GlossaryTopic => (glossaryTopics as readonly string[]).includes(topic);
+
+/**
+ * Every term in glossary.md, in file order. The build fails on anything the
+ * authoring rules in curriculum/README.md don't allow, so a bad entry never
+ * reaches the page or search.
+ */
+export function getGlossary(): GlossaryTerm[] {
+  const file = "curriculum/glossary.md";
+  const terms: GlossaryTerm[] = [];
+
+  for (const group of read("glossary.md", "web/lib/curriculum.ts").split(/^## /m).slice(1)) {
+    const [letter, ...sections] = group.split(/^### /m).map((part) => part.trim());
+
+    for (const section of sections) {
+      const [title, ...paragraphs] = section.split(/\r?\n\s*\r?\n/).map((part) => part.trim());
+      if (!title) throw new Error(`${file}: a ### heading under ## ${letter} is empty`);
+      const where = `${file}: "${title}"`;
+      const first = title[0].toUpperCase();
+      if (letter !== (/[A-Z]/.test(first) ? first : "#")) throw new Error(`${where} is under ## ${letter}`);
+
+      const meta = paragraphs.shift()?.match(/^\*(.+)\*$/)?.[1];
+      if (!meta) throw new Error(`${where} needs an italic topics line under its heading`);
+      const [topicList, ...flags] = meta.split(" · ").map((part) => part.trim());
+      const topics = topicList.split(",").map((topic) => topic.trim());
+      const notTopic = topics.find((topic) => !isTopic(topic));
+      if (notTopic) throw new Error(`${where}: "${notTopic}" isn't one of ${glossaryTopics.join(", ")}`);
+      const also = flags.find((flag) => flag.startsWith("also:"));
+      const unknown = flags.find((flag) => flag !== also);
+      if (unknown) throw new Error(`${where}: "${unknown}" can't follow the topics; only "also:" can`);
+
+      const definition = paragraphs.shift();
+      if (!definition || definition.startsWith("[")) throw new Error(`${where} needs a definition`);
+
+      const slug = termSlug(title);
+      const aliases = also ? also.slice(5).split(",").map((alias) => alias.trim()).filter(Boolean) : [];
+      const spelling = aliases.find((alias) => termSlug(alias) === slug);
+      if (spelling) throw new Error(`${where}: "${spelling}" is the term in another spelling, not another name`);
+
+      let docs: GlossaryTerm["docs"];
+      for (const paragraph of paragraphs) {
+        const [, text = "", url = ""] = paragraph.match(/^\[(.+)\]\((.+)\)$/) ?? [];
+        if (/^Read the article/.test(text)) {
+          if (url !== `glossary/${slug}.md`) throw new Error(`${where}: its article has to be glossary/${slug}.md`);
+          read(url, where);
+        } else if (/^Read more in the .+ Docs/.test(text)) {
+          if (!url.startsWith("https://")) throw new Error(`${where}: its docs link has to start with https://`);
+          docs = { label: text.replace(/\s*→$/, ""), url };
+        } else {
+          throw new Error(`${where}: only a Read the article or Read more in the … Docs link can follow the definition`);
+        }
+      }
+
+      if (terms.some((term) => term.slug === slug)) throw new Error(`${where}: another term already has the slug "${slug}"`);
+      terms.push({
+        slug,
+        title,
+        letter,
+        topics: topics.filter(isTopic),
+        aliases,
+        // Definitions are plain text; a code span keeps its words and loses its backticks
+        definition: definition.replace(/`([^`]*)`/g, "$1"),
+        docs,
+      });
+    }
+  }
+
+  return terms;
 }
 
 /**
@@ -130,5 +196,14 @@ export function getSearchEntries(): SearchEntry[] {
     }
   }
 
-  return [...entries, ...glossaryTerms()];
+  const terms = getGlossary().map(
+    (term): SearchEntry => ({
+      kind: "Term",
+      title: term.title,
+      description: term.definition,
+      href: `/glossary/#${term.slug}`,
+      keywords: [...term.topics, ...term.aliases],
+    }),
+  );
+  return [...entries, ...terms];
 }

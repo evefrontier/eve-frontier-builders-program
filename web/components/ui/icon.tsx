@@ -4,8 +4,8 @@ import { cn } from "@/lib/cn";
 /*
  * Icons are drawn on a grid of square cells, "#" filled and "." empty, the
  * same language as the site's pixel artwork. Size them at a whole multiple
- * of the grid (a 5 × 5 glyph at 10, 15 or 20px) so every cell lands on whole
- * pixels and stays crisp.
+ * of their grid (a 5 × 5 glyph at 10, 15 or 20px, a 6 × 6 one at 12, 18 or
+ * 24px) so every cell lands on whole pixels and stays crisp.
  */
 const glyphs = {
   cross: ["#...#", ".#.#.", "..#..", ".#.#.", "#...#"],
@@ -14,11 +14,18 @@ const glyphs = {
   caret: [".....", "#...#", ".#.#.", "..#..", "....."],
   /* Up and to the right, after a link that opens in a new tab */
   external: ["..###", "...##", "..#.#", ".#...", "#...."],
+  /* Two links of a chain, for copying a link to part of a page */
+  link: ["..####", "..#..#", "####.#", "#.####", "#..#..", "####.."],
 } satisfies Record<string, string[]>;
 
 export type IconName = keyof typeof glyphs;
 
 export const iconNames = Object.keys(glyphs) as IconName[];
+
+/** Each icon's grid in cells; it stays crisp at whole multiples of it. */
+export const iconGrids = Object.fromEntries(
+  Object.entries(glyphs).map(([name, rows]) => [name, rows.length]),
+) as Record<IconName, number>;
 
 const icons = Object.fromEntries(
   Object.entries(glyphs).map(([name, rows]) => [
