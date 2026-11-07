@@ -26,6 +26,8 @@
     --plate-keyline: var(--color-control-line);
     --plate-fill: var(--select-grain), var(--color-card);
     outline: none;
+    /* The keyline is the plate's own background; it crosses to the open colour as the list fades in */
+    transition: background .2s;
   }
 
   @media (hover: hover) {
@@ -87,6 +89,7 @@
   .popup {
     --_n: var(--plate-keyline-width, 1px);
     --plate-fill: var(--color-card);
+    transition: translate .3s cubic-bezier(.2,.7,.2,1);
     --plate-clip-inner: polygon(
       var(--_n) 0,
       calc(100% - var(--_n)) 0,
@@ -99,6 +102,15 @@
     --cut-bl: 0px;
     --cut-tr: var(--cut-sm);
   }
+
+  /* The list slides out from under the field like a drawer: the positioner
+    clips it, so it starts wholly behind the field and comes down into place.
+    Standing on top, it rises from behind the field instead. */
+  .popup[data-starting-style],
+  .popup[data-ending-style] {
+    translate: 0 -100%;
+  }
+  .popup[data-side="top"]:is([data-starting-style], [data-ending-style]) { translate: 0 100%; }
 
   /* Base UI places the list below before flipping it up, so Plate's
     clip-path transition would slide the fill from one cut to the other.
@@ -154,6 +166,10 @@
   .row:is([data-highlighted], [data-selected]):not([data-disabled]) .lamp {
     --nav-lamp: var(--nav-lamp-lit);
     filter: var(--nav-lamp-glow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trigger, .popup { transition: none; }
   }
 
   @media (forced-colors: active) {

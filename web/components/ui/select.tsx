@@ -215,7 +215,7 @@ export function Select({
           <BaseSelect.Positioner
             alignItemWithTrigger={false}
             align="start"
-            className="z-(--layer-menu) w-(--anchor-width) outline-none data-[side=top]:w-[calc(var(--anchor-width)-var(--cut-sm))]"
+            className="z-(--layer-menu) w-(--anchor-width) overflow-clip outline-none data-[side=top]:w-[calc(var(--anchor-width)-var(--cut-sm))]"
           >
             <BaseSelect.Popup
               data-input={input}
