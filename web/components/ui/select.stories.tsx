@@ -87,6 +87,8 @@ const meta = {
   },
   argTypes: {
     label: { control: "text" },
+    name: { control: "text" },
+    required: { control: "boolean" },
     placeholder: { control: "text" },
     error: { control: "text" },
     numbered: { control: "boolean" },

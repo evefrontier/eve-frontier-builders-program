@@ -22,6 +22,8 @@
   .trigger {
     /* The grain over the fill, as on other surfaces; the list is a popup and has none */
     --select-grain: var(--grain);
+    /* The control line, as on Field: the hairline alone is too faint to bound a control */
+    --plate-keyline: var(--color-control-line);
     --plate-fill: var(--select-grain), var(--color-card);
     outline: none;
   }
@@ -29,7 +31,6 @@
   @media (hover: hover) {
     .trigger:not([data-popup-open], [data-disabled], [data-readonly]):hover { --plate-fill: var(--select-grain), var(--color-card-secondary); }
   }
-  .trigger[data-popup-open] { --plate-fill: var(--select-grain), var(--color-card); }
   .plain { --select-grain: none; }
   .trigger[aria-invalid="true"] { --plate-keyline: var(--color-danger); }
 
@@ -41,6 +42,7 @@
     --plate-keyline: var(--color-foreground);
   }
   .trigger[data-disabled] {
+    --plate-keyline: var(--color-line);
     --plate-fill: repeating-linear-gradient(-45deg, var(--color-line) 0 1px, transparent 1px 6px), var(--color-background);
   }
 
@@ -157,7 +159,6 @@
   @media (forced-colors: active) {
     /* Plate borders every plate here; only the field and the popup keep one */
     .focus, .popup .list, .popup .row { border: 0; }
-    .trigger .rail { --nav-lamp: ButtonText; }
     .focus:has(> .trigger:focus-visible) { outline: 2px solid Highlight; outline-offset: 2px; }
     .row[data-highlighted] { outline: 2px solid Highlight; outline-offset: -2px; }
     .row[data-selected] { forced-color-adjust: none; background: Highlight; color: HighlightText; }

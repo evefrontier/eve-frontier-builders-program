@@ -165,7 +165,7 @@ export function Select({
             aria-describedby={describedBy}
             aria-busy={busy || undefined}
             className={cn(
-              "group flex min-h-13 w-full min-w-0 cursor-pointer items-center gap-3 px-4 text-left text-step--1 leading-none text-foreground",
+              "group flex min-h-[2.75rem] w-full min-w-0 cursor-pointer items-center gap-3 px-4 text-left text-step--1 leading-none text-foreground",
               "aria-busy:cursor-progress data-disabled:cursor-not-allowed data-disabled:text-muted data-readonly:cursor-default",
               styles.trigger,
               !grain && styles.plain,
