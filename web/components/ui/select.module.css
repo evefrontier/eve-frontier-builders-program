@@ -25,8 +25,7 @@
     /* The control line, as on Field: the hairline alone is too faint to bound a control */
     --plate-keyline: var(--color-control-line);
     --plate-fill: var(--select-grain), var(--color-card);
-    outline: none;
-    /* The keyline is the plate's own background; it crosses to the open colour as the list fades in */
+    /* The keyline is the plate's own background, so this carries it to the open colour as the list slides out */
     transition: background .2s;
   }
 
@@ -48,9 +47,8 @@
     --plate-fill: repeating-linear-gradient(-45deg, var(--color-line) 0 1px, transparent 1px 6px), var(--color-background);
   }
 
-  /* The rail is the nav lamp laid along the field's foot, one square deep:
-    grey at rest, lit on hover and while open, the alert colour on error */
-  /* Two classes deep, so the nav module's own lamp colour can't win on load order */
+  /* The nav lamp laid along the field's foot, one square deep. Two classes
+    deep, so the nav module's own lamp colour can't win on load order. */
   .trigger .rail {
     --nav-lamp: color-mix(in srgb, var(--color-foreground) 45%, transparent);
     /* Inset by the outline, and its glow cut at the ends, so the squares
@@ -84,8 +82,7 @@
     --plate-fill: var(--color-background);
   }
 
-  /* The list hangs from the rail with no top hairline, and takes the
-    bottom-left cut. Opening upward, it stands on the field instead. */
+  /* No top hairline: the list hangs from the rail. Opening upward, it stands on the field. */
   .popup {
     --_n: var(--plate-keyline-width, 1px);
     --plate-fill: var(--color-card);
@@ -131,8 +128,7 @@
     --cut-tr: var(--select-cut);
   }
 
-  /* Rows are plates too: fills run edge to edge, and the keyboard's 2px
-    keyline follows the list's cut on the row in its corner */
+  /* Rows are plates: the ring is a keyline that follows the list's cut on the corner row */
   .row {
     --cut-tr: 0px;
     --cut-bl: 0px;
@@ -151,8 +147,7 @@
     the ring through the row. The element selector outranks Plate's rule. */
   div.row::before { transition: none; }
 
-  /* Base UI keeps disabled rows in arrow-key travel so they can be found;
-    they take the keyboard ring but never fill or light */
+  /* Disabled rows stay in arrow travel so they can be found: ring, never fill */
   .row:is([data-highlighted], [data-selected]):not([data-disabled]) { --plate-fill: var(--color-card-secondary); }
   /* The ring is a keyline under the fill, so a disabled row keeps the list's own */
   .row[data-disabled] { --plate-fill: var(--color-card); }

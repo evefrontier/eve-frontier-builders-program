@@ -27,12 +27,19 @@ type RootProps = BaseSelect.Root.Props<string>;
 export type SelectProps = {
   label: ReactNode;
   options: readonly SelectOption[] | readonly SelectOptionGroup[];
+  /** Shown in the field until a value is picked */
   placeholder?: string;
+  /** Put each option's place in the list before it, where the order means something */
   numbered?: boolean;
+  /** Lay the page's grain over the field's fill; off where the field sits on a plain panel */
   grain?: boolean;
+  /** Show the button's cells in place of the value and keep the list shut */
   loading?: boolean;
+  /** Sits under the field, linked to it, such as why a value is locked */
   description?: ReactNode;
+  /** Marks the field invalid and shows the message under it */
   error?: ReactNode;
+  /** Styles the wrapper round the label, field and message */
   className?: string;
 } & Pick<RootProps, "value" | "defaultValue" | "onValueChange" | "name" | "required" | "disabled" | "readOnly">;
 
@@ -41,24 +48,14 @@ const grouped = (
 ): options is readonly SelectOptionGroup[] => options.length > 0 && "options" in options[0];
 
 /**
- * A dropdown that picks one value from a list, with a rail of pixel squares
- * along the field's foot that lights on hover and while open. The list
- * portals to the body, so a clipped panel can't cut it off, and hangs flush
- * under the field at its width, or over it when there's no room below.
+ * A dropdown that picks one value from a list. The field and its list are
+ * one plate split by the rail along the field's foot: the list portals to
+ * the body and hangs flush under the field at its width, or stands on it
+ * when there's no room below.
  *
- * `numbered` puts each option's place in the list before it, in the rows and
- * before the value in the field. Use it where the order means something,
- * such as a course's modules; elsewhere the numbers point at nothing.
- * `grain` lays the page's grain over the field's fill, as on other surfaces;
- * turn it off where the field sits on a plain panel.
- * `readOnly` shows a value that can't be changed: the field stays focusable
- * and its list can be opened to see the choices, but nothing can be picked.
- * Prefer it to `disabled` for a locked value, since a disabled field drops
- * out of the tab order. `description` sits under the field, linked to it, to
- * say why. A disabled option can say why on its row with `note`.
- * `error` marks the field invalid and shows the message under it. `loading`
- * shows the button's cells in place of the value and keeps the list shut.
- * `className` styles the wrapper round the label, field and message.
+ * `readOnly` shows a value that can't be changed: the field stays in the tab
+ * order and its list opens to show the choices, but nothing can be picked.
+ * Prefer it to `disabled` for a locked value.
  *
  * @example
  * ```tsx
@@ -165,7 +162,7 @@ export function Select({
             aria-describedby={describedBy}
             aria-busy={busy || undefined}
             className={cn(
-              "group flex min-h-[2.75rem] w-full min-w-0 cursor-pointer items-center gap-3 px-4 text-left text-step--1 leading-none text-foreground",
+              "group flex min-h-[2.75rem] w-full min-w-0 cursor-pointer items-center gap-3 px-4 text-left text-step--1 leading-none text-foreground outline-none",
               "aria-busy:cursor-progress data-disabled:cursor-not-allowed data-disabled:text-muted data-readonly:cursor-default",
               styles.trigger,
               !grain && styles.plain,
