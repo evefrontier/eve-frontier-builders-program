@@ -16,6 +16,8 @@ const glyphs = {
   external: ["..###", "...##", "..#.#", ".#...", "#...."],
   /* Two links of a chain, for copying a link to part of a page */
   link: ["..####", "..#..#", "####.#", "#.####", "#..#..", "####.."],
+  /* Before an error message */
+  bang: ["..#..", "..#..", "..#..", ".....", "..#.."],
 } satisfies Record<string, string[]>;
 
 export type IconName = keyof typeof glyphs;

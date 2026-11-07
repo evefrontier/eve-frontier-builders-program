@@ -17,7 +17,7 @@
     cuts shortened by 1 − (√2 − 1) trace the keyline's inner edge. Links
     clip to it, so highlights take the corners without covering the line. */
   .list {
-    --menu-cut: calc(var(--cut-md) - 0.58579px);
+    --menu-cut: calc(var(--cut-sm) - 0.58579px);
     --cut-tr: var(--menu-cut);
     --cut-bl: var(--menu-cut);
     --plate-keyline: transparent;
