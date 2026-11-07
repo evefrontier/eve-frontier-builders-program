@@ -8,6 +8,7 @@ import {
 } from "@xyflow/react";
 import "./canvas.css";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/cn";
 import {
   PrimitiveConstant,
@@ -501,21 +502,25 @@ export function WiringPreview({
         <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
           <fieldset className="flex flex-wrap items-end gap-4 border border-line p-4">
             <legend className="px-1.5 font-heading text-step--2 font-bold">u64 Value connections · keyboard or pointer</legend>
-            <label className="grid gap-2 text-step--1">
-              Primitive Constant
-              <select className={SELECT} value={source} onChange={event => setSource(event.target.value)}>
-                {constantNames.map(name => (
-                  <option key={name} value={name}>{displayName(name)}</option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-step--1">
-              Quantity input
-              <select className={SELECT} value={target} onChange={event => setTarget(event.target.value)}>
-                <option value="require">Require Item (FERAL_DATA) · u64 in</option>
-                <option value="transfer">Transfer Item (EU_40) · u64 in</option>
-              </select>
-            </label>
+            <Select
+              label="Primitive Constant"
+              className={SELECT}
+              grain={false}
+              options={constantNames.map(name => ({ value: name, label: displayName(name) }))}
+              value={source}
+              onValueChange={value => value && setSource(value)}
+            />
+            <Select
+              label="Quantity input"
+              className={SELECT}
+              grain={false}
+              options={[
+                { value: "require", label: "Require Item (FERAL_DATA) · u64 in" },
+                { value: "transfer", label: "Transfer Item (EU_40) · u64 in" },
+              ]}
+              value={target}
+              onValueChange={value => value && setTarget(value)}
+            />
             <Button onClick={() => connect(valueConnection(source, target))}>Connect u64</Button>
             <Button variant="secondary" onClick={() => disconnect(target, "quantity")}>
               Disconnect u64
@@ -524,22 +529,22 @@ export function WiringPreview({
 
           <fieldset className="flex flex-wrap items-end gap-4 border border-line p-4">
             <legend className="px-1.5 font-heading text-step--2 font-bold">Execution flow · linear Request order</legend>
-            <label className="grid gap-2 text-step--1">
-              Request out
-              <select className={SELECT} value={execSource} onChange={event => setExecSource(event.target.value)}>
-                {executionSourceIds.map(id => (
-                  <option key={id} value={id}>{displayName(id)} ({id})</option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-2 text-step--1">
-              Request in
-              <select className={SELECT} value={execTarget} onChange={event => setExecTarget(event.target.value)}>
-                {executionTargetIds.map(id => (
-                  <option key={id} value={id}>{displayName(id)} ({id})</option>
-                ))}
-              </select>
-            </label>
+            <Select
+              label="Request out"
+              className={SELECT}
+              grain={false}
+              options={executionSourceIds.map(id => ({ value: id, label: `${displayName(id)} (${id})` }))}
+              value={execSource}
+              onValueChange={value => value && setExecSource(value)}
+            />
+            <Select
+              label="Request in"
+              className={SELECT}
+              grain={false}
+              options={executionTargetIds.map(id => ({ value: id, label: `${displayName(id)} (${id})` }))}
+              value={execTarget}
+              onValueChange={value => value && setExecTarget(value)}
+            />
             <Button onClick={() => connect(executionConnection(execSource, execTarget))}>Connect exec</Button>
             <Button variant="secondary" onClick={() => disconnect(execTarget, "exec-in")}>
               Disconnect exec
@@ -584,8 +589,5 @@ export function WiringPreview({
   );
 }
 
-const SELECT = cn(
-  "border border-control-line bg-card p-2 text-foreground",
-  "focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-foreground",
-  "forced-colors:border-[CanvasText] forced-colors:bg-[Canvas] forced-colors:text-[CanvasText]",
-);
+/* A row of its own in the wrapping fieldset, so long options have room */
+const SELECT = "w-full";

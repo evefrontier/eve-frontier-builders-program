@@ -85,7 +85,7 @@ export function Menu({ label, children }: MenuProps) {
             <BaseMenu.Popup
               data-input={input}
               onPointerMove={pointer}
-              render={<Plate className={cn("min-w-60 p-px outline-none", styles.popup)} />}
+              render={<Plate cut="sm" className={cn("min-w-60 p-px outline-none", styles.popup)} />}
             >
               <Plate className={cn("grid", styles.list)}>{children}</Plate>
             </BaseMenu.Popup>

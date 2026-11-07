@@ -1,0 +1,177 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in select.tsx; this file holds the
+  plate states, the rail, the row states and the focus ring. */
+@layer components {
+  /* Field and list are one plate split by the rail: the field takes the top
+    and sides of the hairline, the list the sides and bottom. So the field's
+    fill runs to its foot, and an open-ended polygon is shared with the list
+    when it opens upward and takes the field's top-right cut. --_n is the
+    keyline width, and each diagonal vertex moves by n·(√2 − 1). */
+  .trigger,
+  .popup[data-side="top"] {
+    --_n: var(--plate-keyline-width, 1px);
+    --plate-clip-inner: polygon(
+      var(--_n) var(--_n),
+      calc(100% - var(--cut-tr) - var(--_n) * 0.41421) var(--_n),
+      calc(100% - var(--_n)) calc(var(--cut-tr) + var(--_n) * 0.41421),
+      calc(100% - var(--_n)) 100%,
+      var(--_n) 100%
+    );
+  }
+
+  .trigger {
+    /* The grain over the fill, as on other surfaces; the list is a popup and has none */
+    --select-grain: var(--grain);
+    /* The control line, as on Field: the hairline alone is too faint to bound a control */
+    --plate-keyline: var(--color-control-line);
+    --plate-fill: var(--select-grain), var(--color-card);
+    /* The keyline is the plate's own background, so this carries it to the open colour as the list slides out */
+    transition: background .2s;
+  }
+
+  @media (hover: hover) {
+    .trigger:not([data-popup-open], [data-disabled], [data-readonly]):hover { --plate-fill: var(--select-grain), var(--color-card-secondary); }
+  }
+  .plain { --select-grain: none; }
+  .trigger[aria-invalid="true"] { --plate-keyline: var(--color-danger); }
+
+  /* Open, the list lies over whatever is below it, where the translucent line
+    colour would stack on other hairlines. Field and list take a solid
+    outline in the foreground colour instead, error or not, as one plate. */
+  .trigger[data-popup-open],
+  .popup {
+    --plate-keyline: var(--color-foreground);
+  }
+  .trigger[data-disabled] {
+    --plate-keyline: var(--color-line);
+    --plate-fill: repeating-linear-gradient(-45deg, var(--color-line) 0 1px, transparent 1px 6px), var(--color-background);
+  }
+
+  /* The nav lamp laid along the field's foot, one square deep. Two classes
+    deep, so the nav module's own lamp colour can't win on load order. */
+  .trigger .rail {
+    --nav-lamp: color-mix(in srgb, var(--color-foreground) 45%, transparent);
+    /* Inset by the outline, and its glow cut at the ends, so the squares
+      never paint over the side lines; the glow still rises into the field */
+    clip-path: inset(-4px 0 0 0);
+  }
+  .trigger[aria-invalid="true"] .rail { --nav-lamp: var(--color-danger); }
+  @media (hover: hover) {
+    .trigger:hover:not([data-disabled], [data-readonly]) .rail {
+      --nav-lamp: var(--nav-lamp-lit);
+      filter: var(--nav-lamp-glow);
+    }
+  }
+  .trigger[data-popup-open] .rail {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+  .trigger[data-disabled] .rail { --nav-lamp: var(--color-line); }
+
+  /* Keyboard focus: the button's ring, a 2px plate tracing the field 4px
+    out with a 2px gap. The cut grows by 4px × (2 − √2) so the edges stay
+    parallel, and the negative margin keeps the ring out of the layout. */
+  .focus {
+    --cut-tr: calc(var(--cut-sm) + 2.343px);
+    --plate-keyline: transparent;
+    --plate-keyline-width: 2px;
+    --plate-fill: transparent;
+  }
+  .focus:has(> .trigger:focus-visible) {
+    --plate-keyline: var(--color-foreground);
+    --plate-fill: var(--color-background);
+  }
+
+  /* No top hairline: the list hangs from the rail. Opening upward, it stands on the field. */
+  .popup {
+    --_n: var(--plate-keyline-width, 1px);
+    --plate-fill: var(--color-card);
+    transition: translate .3s cubic-bezier(.2,.7,.2,1);
+    --plate-clip-inner: polygon(
+      var(--_n) 0,
+      calc(100% - var(--_n)) 0,
+      calc(100% - var(--_n)) calc(100% - var(--_n)),
+      calc(var(--cut-bl) + var(--_n) * 0.41421) calc(100% - var(--_n)),
+      var(--_n) calc(100% - var(--cut-bl) - var(--_n) * 0.41421)
+    );
+  }
+  .popup[data-side="top"] {
+    --cut-bl: 0px;
+    --cut-tr: var(--cut-sm);
+  }
+
+  /* The list slides out from under the field like a drawer: the positioner
+    clips it, so it starts wholly behind the field and comes down into place.
+    Standing on top, it rises from behind the field instead. */
+  .popup[data-starting-style],
+  .popup[data-ending-style] {
+    translate: 0 -100%;
+  }
+  .popup[data-side="top"]:is([data-starting-style], [data-ending-style]) { translate: 0 100%; }
+
+  /* Base UI places the list below before flipping it up, so Plate's
+    clip-path transition would slide the fill from one cut to the other.
+    The element selectors outrank Plate's rule. */
+  div:is(.popup, .list)::before { transition: none; }
+
+  /* The popup's 1px padding puts the list just inside its keyline, so the
+    cut shortened by 1 − (√2 − 1) traces the keyline's inner edge. Rows
+    clip to it, so fills take the corner without covering the line. */
+  .list {
+    --select-cut: calc(var(--cut-sm) - 0.58579px);
+    --cut-bl: var(--select-cut);
+    --plate-keyline: transparent;
+    --plate-fill: transparent;
+  }
+  .popup[data-side="top"] .list {
+    --cut-bl: 0px;
+    --cut-tr: var(--select-cut);
+  }
+
+  /* Rows are plates: the ring is a keyline that follows the list's cut on the corner row */
+  .row {
+    --cut-tr: 0px;
+    --cut-bl: 0px;
+    --plate-keyline: transparent;
+    --plate-keyline-width: 0px;
+    --plate-fill: transparent;
+    /* Here rather than a utility, which would beat the forced-colours ring below */
+    outline: none;
+  }
+  .popup:not([data-side="top"]) :is(.list > .row:last-child, .list > :last-child > .row:last-child) {
+    --cut-bl: var(--select-cut);
+  }
+  .popup[data-side="top"] .list > .row:first-child { --cut-tr: var(--select-cut); }
+
+  /* Plate paints the keyline under the fill, so a fading fill would show
+    the ring through the row. The element selector outranks Plate's rule. */
+  div.row::before { transition: none; }
+
+  /* Disabled rows stay in arrow travel so they can be found: ring, never fill */
+  .row:is([data-highlighted], [data-selected]):not([data-disabled]) { --plate-fill: var(--color-card-secondary); }
+  /* The ring is a keyline under the fill, so a disabled row keeps the list's own */
+  .row[data-disabled] { --plate-fill: var(--color-card); }
+  .popup[data-input="keyboard"] .row[data-highlighted] {
+    --plate-keyline: var(--color-foreground);
+    --plate-keyline-width: 2px;
+  }
+
+  /* The nav lamp cut to 2 × 2 squares */
+  .row .lamp { height: 5px; }
+  .row:is([data-highlighted], [data-selected]):not([data-disabled]) .lamp {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trigger, .popup { transition: none; }
+  }
+
+  @media (forced-colors: active) {
+    /* Plate borders every plate here; only the field and the popup keep one */
+    .focus, .popup .list, .popup .row { border: 0; }
+    .focus:has(> .trigger:focus-visible) { outline: 2px solid Highlight; outline-offset: 2px; }
+    .row[data-highlighted] { outline: 2px solid Highlight; outline-offset: -2px; }
+    .row[data-selected] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  }
+}
