@@ -187,9 +187,9 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
 
   // The letter you are reading is lit in the index bar
   useEffect(() => {
-    let frame = 0;
+    const pending = { frame: 0 };
     const update = () => {
-      frame = 0;
+      pending.frame = 0;
       const line = (barRef.current?.getBoundingClientRect().bottom ?? 0) + 24;
       let current: string | null = null;
       for (const group of listRef.current?.querySelectorAll<HTMLElement>("section[data-letter]:not([hidden])") ?? []) {
@@ -199,13 +199,13 @@ export function Glossary({ terms, topics }: { terms: GlossaryTerm[]; topics: rea
       setHere(current);
     };
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+      if (!pending.frame) pending.frame = requestAnimationFrame(update);
     };
     update();
     addEventListener("scroll", onScroll, { passive: true });
     return () => {
       removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(pending.frame);
     };
   }, [shown]);
 
