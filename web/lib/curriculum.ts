@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { cache } from "react";
 import { parse } from "yaml";
 import type { SearchEntry } from "./search";
 
@@ -68,16 +69,16 @@ function readLesson(name: string, files: Map<string, string>, from: string) {
   return {
     title: body.match(/^# (.+)$/m)?.[1].trim() ?? name,
     description: String(meta?.description ?? ""),
-    duration: String(meta?.duration ?? ""),
+    duration: meta?.duration ? String(meta.duration) : undefined,
   };
 }
 
 export interface CourseOutline extends Omit<Course, "modules"> {
-  modules: { slug: string; title: string; lessons: { slug: string; title: string; duration: string }[] }[];
+  modules: { slug: string; title: string; lessons: { slug: string; title: string; duration?: string }[] }[];
 }
 
-/** A course with its lessons' titles and lengths, for the lesson view's contents. */
-export function getCourseOutline(slug: string): CourseOutline {
+/** A course with its lessons' titles and lengths, for the lesson view. Read once a render, for the layout and the page's metadata. */
+export const getCourseOutline = cache((slug: string): CourseOutline => {
   const course = getCourses().find((course) => course.slug === slug);
   if (!course) throw new Error(`web/lib/curriculum.ts: curriculum/index.yaml has no course named ${slug}`);
   const files = lessonFiles();
@@ -92,7 +93,7 @@ export function getCourseOutline(slug: string): CourseOutline {
       }),
     })),
   };
-}
+});
 
 export const glossaryTopics = ["Game & economy", "Sui & Move", "Smart Assemblies", "Wallet & identity", "dApps & tools"] as const;
 

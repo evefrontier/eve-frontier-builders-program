@@ -29,7 +29,7 @@ export const course: CourseOutline = {
       title: "Smart Assemblies in the world",
       lessons: [
         { slug: "gates-storage-and-turrets", title: "Gates, storage and turrets", duration: "11 min" },
-        { slug: "fuel-decay-and-who-owns-what", title: "Fuel, decay and who owns what", duration: "" },
+        { slug: "fuel-decay-and-who-owns-what", title: "Fuel, decay and who owns what" },
       ],
     },
     {
