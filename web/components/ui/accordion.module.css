@@ -3,8 +3,18 @@
   slide, the rows and what the item adds to the Select's field and list. */
 @layer components {
   /* The item, its heading and its list are the Select's ring, field and list,
-    styled in select.module.css. Open, the ring follows the list's cut too. */
-  .item[data-open] { --cut-bl: calc(var(--cut-sm) + 2.343px); }
+    styled in select.module.css. Open, the ring follows the list's cut too, but
+    only once the list is out: the ring clips the whole item, so on a panel
+    still shorter than the cut it would take the corner off the field. */
+  .item[data-open] {
+    --cut-bl: calc(var(--cut-sm) + 2.343px);
+    animation: ring-cut .3s step-end;
+  }
+  @keyframes ring-cut {
+    from { --cut-bl: 0px; }
+  }
+  /* Closing, the field keeps the list's outline until the list is back under it */
+  .item:has(.panel[data-ending-style]) [aria-expanded] { --plate-keyline: var(--color-foreground); }
   /* The ring's shape changes with the item; it should not morph while the list slides */
   div.item::before { transition: none; }
 
@@ -82,6 +92,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .panel { transition: none; }
+    .item[data-open] { animation: none; }
   }
 
   @media (forced-colors: active) {

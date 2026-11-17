@@ -98,6 +98,11 @@ export function Select({
   const pointer = () => setInput("pointer");
   const keyboard = () => setInput("keyboard");
 
+  // Base UI drops the field's open state as the list starts to close, so the
+  // field would shed the outline it shares with the list while the list is
+  // still sliding back under it
+  const [listOut, setListOut] = useState(false);
+
   const row = (option: SelectOption) => (
     <BaseSelect.Item
       key={option.value}
@@ -151,6 +156,10 @@ export function Select({
         modal={false}
         onOpenChange={(open, details) => {
           if (open && busy) details.cancel();
+          else if (open) setListOut(true);
+        }}
+        onOpenChangeComplete={(open) => {
+          if (!open) setListOut(false);
         }}
       >
         <BaseSelect.Label className="text-step--2 leading-none font-bold tracking-[0.08em] text-muted uppercase">
@@ -163,6 +172,7 @@ export function Select({
             aria-invalid={error ? true : undefined}
             aria-describedby={describedBy}
             aria-busy={busy || undefined}
+            data-list-out={listOut || undefined}
             className={cn(
               "group flex min-h-[2.75rem] w-full min-w-0 cursor-pointer items-center gap-3 px-4 text-left text-step--1 leading-none text-foreground outline-none",
               "aria-busy:cursor-progress data-disabled:cursor-not-allowed data-disabled:text-muted data-readonly:cursor-default",

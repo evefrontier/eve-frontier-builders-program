@@ -41,7 +41,7 @@
   /* Open, the list lies over whatever is below it, where the translucent line
     colour would stack on other hairlines. Field and list take a solid
     outline in the foreground colour instead, error or not, as one plate. */
-  .trigger:is([data-popup-open], [data-panel-open]),
+  .trigger:is([data-popup-open], [data-panel-open], [data-list-out]),
   .popup {
     --plate-keyline: var(--color-foreground);
   }
