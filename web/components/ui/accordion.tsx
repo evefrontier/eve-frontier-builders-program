@@ -7,6 +7,7 @@ import { Icon } from "./icon";
 import { Plate } from "./plate";
 import navStyles from "./nav-item.module.css";
 import { cn } from "@/lib/cn";
+import selectStyles from "./select.module.css";
 import styles from "./accordion.module.css";
 
 export type AccordionProps = {
@@ -63,13 +64,13 @@ export type AccordionItemProps = {
 export function AccordionItem({ value, title, number, children }: AccordionItemProps) {
   return (
     // The focus ring sits outside the clipped field, as on the Select
-    <BaseAccordion.Item value={value} render={<Plate corners="tr" cut="sm" />} className={cn("-m-1 grid p-1", styles.item)}>
+    <BaseAccordion.Item value={value} render={<Plate corners="tr" cut="sm" />} className={cn("-m-1 grid p-1", selectStyles.focus, styles.item)}>
       <BaseAccordion.Header className="text-step--2 leading-4">
         <BaseAccordion.Trigger
           render={<Plate as="button" corners="tr" cut="sm" />}
           className={cn(
             "group flex min-h-11 w-full cursor-pointer items-center gap-3 px-4 py-2 text-left outline-none select-none",
-            styles.trigger,
+            selectStyles.trigger,
           )}
         >
           {number && (
@@ -85,11 +86,11 @@ export function AccordionItem({ value, title, number, children }: AccordionItemP
               "group-hover:text-accent group-focus-visible:text-accent group-data-panel-open:rotate-180 group-data-panel-open:text-accent",
             )}
           />
-          <span className={cn("absolute inset-x-px bottom-0 h-0.5 w-auto", navStyles.lamp, styles.rail)} aria-hidden="true" />
+          <span className={cn("absolute inset-x-px bottom-0 h-0.5 w-auto", navStyles.lamp, selectStyles.rail)} aria-hidden="true" />
         </BaseAccordion.Trigger>
       </BaseAccordion.Header>
       <BaseAccordion.Panel className={styles.panel}>
-        <Plate corners="bl" cut="sm" className={cn("px-px pb-px", styles.list)}>
+        <Plate corners="bl" cut="sm" className={cn("px-px pb-px", selectStyles.popup, styles.list)}>
           {children}
         </Plate>
       </BaseAccordion.Panel>
