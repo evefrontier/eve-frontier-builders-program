@@ -64,9 +64,33 @@ function readLesson(name: string, files: Map<string, string>, from: string) {
   if (!file) throw new Error(`${from}: no lesson in curriculum/lessons/ is named ${name}`);
   const text = read(`lessons/${file}`, from);
   const [, front = "", body = text] = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/) ?? [];
+  const meta = parse(front);
   return {
     title: body.match(/^# (.+)$/m)?.[1].trim() ?? name,
-    description: String(parse(front)?.description ?? ""),
+    description: String(meta?.description ?? ""),
+    duration: String(meta?.duration ?? ""),
+  };
+}
+
+export interface CourseOutline extends Omit<Course, "modules"> {
+  modules: { slug: string; title: string; lessons: { slug: string; title: string; duration: string }[] }[];
+}
+
+/** A course with its lessons' titles and lengths, for the lesson view's contents. */
+export function getCourseOutline(slug: string): CourseOutline {
+  const course = getCourses().find((course) => course.slug === slug);
+  if (!course) throw new Error(`web/lib/curriculum.ts: curriculum/index.yaml has no course named ${slug}`);
+  const files = lessonFiles();
+  return {
+    ...course,
+    modules: course.modules.map((module) => ({
+      slug: module.slug,
+      title: module.title,
+      lessons: module.lessons.map((lesson) => {
+        const { title, duration } = readLesson(lesson, files, `curriculum/modules/${module.slug}.yaml`);
+        return { slug: lesson, title, duration };
+      }),
+    })),
   };
 }
 
@@ -190,8 +214,8 @@ export function getSearchEntries(): SearchEntry[] {
       // A module opens in its course's syllabus; its own page exists but nothing links to it
       add(slug, { kind: "Module", title, description, href: `/courses/${course.slug}/#${slug}` });
       for (const lesson of names) {
-        const content = readLesson(lesson, lessons, `curriculum/modules/${slug}.yaml`);
-        add(lesson, { kind: "Lesson", ...content, href: `/courses/${course.slug}/${slug}/${lesson}/` });
+        const { title, description } = readLesson(lesson, lessons, `curriculum/modules/${slug}.yaml`);
+        add(lesson, { kind: "Lesson", title, description, href: `/courses/${course.slug}/${slug}/${lesson}/` });
       }
     }
   }
