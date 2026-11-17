@@ -4,7 +4,7 @@ import { course } from "@/stories/course";
 import { Section } from "@/stories/section";
 import { LessonView } from "./lesson-view";
 
-/* A course of one module, where the contents fit without scrolling */
+/* A course of one module, where the lessons fit without scrolling */
 const short = { ...course, title: "A first look at the World API", modules: course.modules.slice(1, 2) };
 
 const meta = {
@@ -39,7 +39,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The contents on the left open to the module on screen and mark its lesson.
+ * The lessons on the left open to the module on screen and mark its lesson.
  * The blocks in the bar fold either side pane, and the divider resizes the
  * workbench, which is a placeholder for now. Each copy is held at 560px.
  */

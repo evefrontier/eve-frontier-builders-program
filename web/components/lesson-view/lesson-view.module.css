@@ -1,24 +1,7 @@
 /* Layered so Tailwind utilities (in @layer utilities) can override it.
   Layout, type and colour are utilities in lesson-view.tsx; this file holds
-  the bar's geometry, the divider, the scrollbars and the sheet buttons' lamps. */
+  the divider, the scrollbars and the sheet buttons' lamps. */
 @layer components {
-  .view {
-    /* The lesson's line length, which the bar needs too */
-    --lesson-measure: 55rem;
-
-    /* The bar's first column at lg, sized so its title starts where the lesson's
-      heading starts: past the rail, the lesson's centring and its gutter, less
-      the bar's own padding and gap. The percentage is the bar's content width,
-      so adding its padding back gives the window's. The link in the column
-      keeps it from closing further than its own width. */
-    --lesson-title-column: calc(
-      var(--lesson-rail)
-      + max(0px, (100% + 2 * var(--spacing-s) - var(--lesson-rail) - var(--lesson-grip) - var(--lesson-bench) - var(--lesson-measure)) / 2)
-      + var(--spacing-s-m)
-      - 2 * var(--spacing-s)
-    );
-  }
-
   /* The divider: a hairline band you can pull, with a wider grab area either
     side so it doesn't demand a steady hand. Only the grip's ticks change,
     orange while it is being dragged. */

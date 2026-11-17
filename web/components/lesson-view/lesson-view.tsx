@@ -4,7 +4,6 @@ import {
   useEffect,
   useId,
   useState,
-  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent,
@@ -29,10 +28,10 @@ export type LessonViewProps = {
 
 type Panel = "rail" | "bench";
 
-const LABELS: Record<Panel, string> = { rail: "Contents", bench: "Workbench" };
+const LABELS: Record<Panel, string> = { rail: "Lessons", bench: "Workbench" };
 
-/* The side panes' surface: the page's colour a shade darker, with the grain */
-const SIDE = "bg-[color-mix(in_srgb,var(--color-foreground)_3%,var(--color-background))] bg-grain";
+/* The side panes' surface */
+const SIDE = "bg-card bg-grain";
 
 /* Pane widths at lg, in px. The workbench gives way so the lesson keeps a readable measure. */
 const RAIL = 312;
@@ -50,11 +49,6 @@ function numbered(course: CourseOutline) {
     lessons: entry.lessons.map((item, j) => ({ ...item, number: `${i + 1}.${j + 1}` })),
   }));
 }
-
-const subscribeWidth = (onChange: () => void) => {
-  window.addEventListener("resize", onChange);
-  return () => window.removeEventListener("resize", onChange);
-};
 
 /**
  * The lesson view: an app bar over three panes, the course's contents, the
@@ -81,7 +75,7 @@ export function LessonView({ course, children }: LessonViewProps) {
 
   const [shown, setShown] = useState<Record<Panel, boolean>>({ rail: true, bench: true });
   const [sheet, setSheet] = useState<Panel | null>(null);
-  const [benchAsked, setBenchAsked] = useState(BENCH);
+  const [bench, setBench] = useState(BENCH);
   const [dragging, setDragging] = useState(false);
 
   // The module on screen starts open, and opens again when the route moves to another
@@ -92,13 +86,13 @@ export function LessonView({ course, children }: LessonViewProps) {
     if (!open.includes(module)) setOpen([...open, module]);
   }
 
-  // The workbench stays inside what the window leaves once the lesson has its
-  // measure. Derived rather than stored, so a smaller window or an opened rail
-  // pulls it back. The server has no window, and renders the width as asked.
-  const windowWidth = useSyncExternalStore(subscribeWidth, () => window.innerWidth, () => 0);
-  const benchMax = windowWidth ? Math.max(BENCH_MIN, windowWidth - (shown.rail ? RAIL : 0) - GRIP - LESSON_MIN) : undefined;
-  const fit = (px: number) => Math.round(Math.min(benchMax ?? px, Math.max(BENCH_MIN, px)));
-  const bench = fit(benchAsked);
+  // A width the grip asks for, held to what the panes leave once the lesson has its
+  // measure. The grid holds the same limits, so a smaller window or an opened rail
+  // pulls the workbench back without a render.
+  const fit = (px: number, panes: HTMLElement) => {
+    const most = panes.clientWidth - (shown.rail ? RAIL : 0) - GRIP - LESSON_MIN;
+    return Math.round(Math.max(BENCH_MIN, Math.min(most, px)));
+  };
 
   // A sheet takes focus as it opens; Escape shuts it and hands focus back to its button
   useEffect(() => {
@@ -126,54 +120,67 @@ export function LessonView({ course, children }: LessonViewProps) {
     setDragging(true);
   };
 
-  const onGripKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    const step = event.key === "ArrowLeft" ? STEP : event.key === "ArrowRight" ? -STEP : 0;
-    if (!step) return;
-    event.preventDefault();
-    setBenchAsked(fit(bench + step));
+  const onGripMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const panes = event.currentTarget.parentElement;
+    if (dragging && panes) setBench(fit(panes.getBoundingClientRect().right - event.clientX, panes));
   };
 
-  const pane = (panel: Panel, open: boolean) =>
+  const onGripKey = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const panes = event.currentTarget.parentElement;
+    // From the width on screen, which the grid may have pulled in since it was last set
+    const width = document.getElementById(ids.bench)?.offsetWidth;
+    if (!panes || !width) return;
+    const asked = { ArrowLeft: width + STEP, ArrowRight: width - STEP, Home: BENCH_MIN, End: panes.clientWidth }[event.key];
+    if (asked === undefined) return;
+    event.preventDefault();
+    setBench(fit(asked, panes));
+  };
+
+  const pane = (panel: Panel, visible: boolean) =>
     cn(
       "min-h-0 min-w-0 outline-none",
       // Folded, the pane keeps its grid slot at no width, so the ones after it don't shift
-      !open && "lg:invisible",
+      !visible && "lg:invisible",
+      // A sheet lies over the lesson, so it takes the solid line an open list does
       sheet === panel
-        ? "max-lg:absolute max-lg:inset-x-0 max-lg:top-[42%] max-lg:bottom-0 max-lg:z-(--layer-raised) max-lg:border-t max-lg:border-line max-lg:shadow-[0_-18px_40px_rgb(11_11_11/0.18)]"
+        ? "max-lg:absolute max-lg:inset-x-0 max-lg:top-[42%] max-lg:bottom-0 max-lg:z-(--layer-raised) max-lg:border-t max-lg:border-foreground"
         : "max-lg:hidden",
     );
 
   return (
     <div
       // One column that can shrink, or the bar's unbroken title would set the page's width
-      className={cn("grid h-dvh w-full grid-cols-1 grid-rows-[auto_1fr_auto] lg:grid-rows-[auto_1fr]", styles.view)}
+      className="grid h-dvh w-full grid-cols-1 grid-rows-[auto_1fr_auto] lg:grid-rows-[auto_1fr]"
       // Widths the pointer and the folds set can only be inline; a folded pane closes to nothing
       style={
         {
           "--lesson-rail": `${shown.rail ? RAIL : 0}px`,
           "--lesson-grip": `${shown.bench ? GRIP : 0}px`,
           "--lesson-bench": `${shown.bench ? bench : 0}px`,
+          "--lesson-bench-min": `${shown.bench ? BENCH_MIN : 0}px`,
+          "--lesson-min": `${LESSON_MIN}px`,
         } as CSSProperties
       }
     >
+      {/* At lg the first column is the rail's, so the title starts over the lesson, a gutter in as its heading is */}
       <header
         className={cn(
           "flex h-16 items-center gap-x-s border-b border-line bg-background bg-grain px-s",
-          "lg:grid lg:grid-cols-[minmax(max-content,var(--lesson-title-column))_minmax(0,1fr)_auto]",
+          "lg:grid lg:grid-cols-[minmax(max-content,var(--lesson-rail))_minmax(0,1fr)_auto] lg:gap-x-0 lg:pl-0",
         )}
       >
         <Link
           href={`/courses/${course.slug}/`}
           className={cn(
-            "flex min-h-11 min-w-6 flex-none items-center gap-3 justify-self-start text-step--2 font-bold tracking-[0.08em] uppercase",
+            "flex min-h-11 min-w-6 flex-none items-center gap-3 justify-self-start text-step--2 font-bold tracking-[0.08em] uppercase lg:ml-s",
             "hover:text-accent-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground",
           )}
         >
           <Icon name="caret" className="size-3 rotate-90" />
           <span className="max-sm:sr-only">Course</span>
         </Link>
-        <p className="min-w-0 truncate font-heading text-step--1 font-bold">{course.title}</p>
-        <div className="flex flex-none items-center gap-s max-lg:ml-auto">
+        <p className="min-w-0 truncate font-heading text-step--1 font-bold lg:pl-s-m">{course.title}</p>
+        <div className="flex flex-none items-center gap-s max-lg:ml-auto lg:pl-s">
           <div className="flex items-center max-lg:hidden" role="group" aria-label="Panels">
             <PanelToggle
               label={LABELS.rail}
@@ -197,11 +204,17 @@ export function LessonView({ course, children }: LessonViewProps) {
         </div>
       </header>
 
-      {/* Positioned, for the sheets below lg */}
-      <div className="relative grid min-h-0 grid-cols-1 lg:grid-cols-[var(--lesson-rail)_minmax(0,1fr)_var(--lesson-grip)_var(--lesson-bench)]">
+      {/* Positioned, for the sheets below lg, and clipped, as a folded pane's contents still have a width.
+          The workbench takes the width asked of it as far as the lesson's own floor allows. */}
+      <div
+        className={cn(
+          "relative grid min-h-0 grid-cols-1 overflow-clip",
+          "lg:grid-cols-[var(--lesson-rail)_minmax(var(--lesson-min),1fr)_var(--lesson-grip)_minmax(var(--lesson-bench-min),var(--lesson-bench))]",
+        )}
+      >
         <nav
           id={ids.rail}
-          aria-label="Course contents"
+          aria-label={LABELS.rail}
           tabIndex={-1}
           className={cn(pane("rail", shown.rail), SIDE, "lg:border-r lg:border-line")}
           onClick={closeOnLink}
@@ -216,7 +229,7 @@ export function LessonView({ course, children }: LessonViewProps) {
                         <AccordionLink
                           href={`/courses/${course.slug}/${entry.slug}/${item.slug}/`}
                           number={item.number}
-                          note={item.duration || undefined}
+                          note={item.duration}
                           current={item.slug === lesson}
                         >
                           {item.title}
@@ -233,7 +246,7 @@ export function LessonView({ course, children }: LessonViewProps) {
         <main className="min-h-0 min-w-0">
           {/* Keyed, so each lesson starts at its top */}
           <Pane key={lesson}>
-            <div className="mx-auto grid max-w-(--lesson-measure) gap-s px-s-m pt-s pb-xl">
+            <div className="mx-auto grid max-w-220 gap-s px-s-m pt-s pb-xl">
               <hgroup className="grid gap-2xs">
                 {current && (
                   <p className="text-step--2 font-bold tracking-[0.08em] text-muted uppercase">
@@ -255,11 +268,10 @@ export function LessonView({ course, children }: LessonViewProps) {
           aria-controls={ids.bench}
           aria-valuenow={bench}
           aria-valuemin={BENCH_MIN}
-          aria-valuemax={benchMax}
           tabIndex={shown.bench ? 0 : -1}
           data-drag={dragging || undefined}
           onPointerDown={onGripDown}
-          onPointerMove={(event) => dragging && setBenchAsked(fit(window.innerWidth - event.clientX))}
+          onPointerMove={onGripMove}
           onPointerUp={() => setDragging(false)}
           onPointerCancel={() => setDragging(false)}
           onLostPointerCapture={() => setDragging(false)}
@@ -282,7 +294,7 @@ export function LessonView({ course, children }: LessonViewProps) {
         </aside>
       </div>
 
-      <nav aria-label="Lesson panels" className="flex gap-1.5 border-t border-line bg-background bg-grain px-2.5 py-1.5 lg:hidden">
+      <div role="group" aria-label="Panels" className="flex gap-1.5 border-t border-line bg-background bg-grain px-2.5 py-1.5 lg:hidden">
         {(["rail", "bench"] as const).map((panel) => (
           <button
             key={panel}
@@ -299,10 +311,10 @@ export function LessonView({ course, children }: LessonViewProps) {
             )}
           >
             <span className={cn(navStyles.lamp, styles.lamp)} aria-hidden="true" />
-            {panel === "rail" ? "Lessons" : LABELS.bench}
+            {LABELS[panel]}
           </button>
         ))}
-      </nav>
+      </div>
     </div>
   );
 }
