@@ -1,0 +1,90 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in lesson-view.tsx; this file holds
+  the bar's geometry, the divider, the scrollbars and the sheet buttons' lamps. */
+@layer components {
+  .view {
+    /* The lesson's line length, which the bar needs too */
+    --lesson-measure: 55rem;
+
+    /* The bar's first column at lg, sized so its title starts where the lesson's
+      heading starts: past the rail, the lesson's centring and its gutter, less
+      the bar's own padding and gap. The percentage is the bar's content width,
+      so adding its padding back gives the window's. The link in the column
+      keeps it from closing further than its own width. */
+    --lesson-title-column: calc(
+      var(--lesson-rail)
+      + max(0px, (100% + 2 * var(--spacing-s) - var(--lesson-rail) - var(--lesson-grip) - var(--lesson-bench) - var(--lesson-measure)) / 2)
+      + var(--spacing-s-m)
+      - 2 * var(--spacing-s)
+    );
+  }
+
+  /* The divider: a hairline band you can pull, with a wider grab area either
+    side so it doesn't demand a steady hand. Only the grip's ticks change,
+    orange while it is being dragged. */
+  .grip {
+    position: relative;
+    cursor: col-resize;
+    touch-action: none;
+  }
+  .grip::before {
+    content: "";
+    position: absolute;
+    inset: 0 -5px;
+  }
+  .grip::after {
+    --_tick: var(--color-muted);
+    content: "";
+    position: absolute;
+    inset: 50% 1px auto;
+    height: 34px;
+    margin-top: -17px;
+    background: repeating-linear-gradient(180deg, var(--_tick) 0 2px, transparent 2px 5px);
+  }
+  .grip[data-drag]::after { --_tick: var(--color-accent); }
+  .grip:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 1px;
+  }
+
+  /* No track, only the block, hidden until the pointer is in the pane or it scrolls */
+  .scrollbar {
+    opacity: 0;
+    transition: opacity .5s .6s;
+  }
+  .scrollbar:is([data-hovering], [data-scrolling]) {
+    opacity: 1;
+    transition: opacity .1s 0s;
+  }
+
+  /* Three columns of the lamps' grain, firming up under the pointer and while dragged */
+  .thumb {
+    --_px: var(--color-control-line);
+    cursor: grab;
+    background: conic-gradient(at 2px 2px, transparent 75%, var(--_px) 0) 0 0 / 3px 3px;
+  }
+  @media (hover: hover) {
+    .thumb:hover { --_px: var(--color-muted); }
+  }
+  .thumb:active {
+    --_px: var(--color-foreground);
+    cursor: grabbing;
+  }
+
+  /* The nav lamp cut to four rows, lit while the button's sheet is open */
+  .tab .lamp { height: 11px; }
+  .tab[aria-expanded="true"] .lamp {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scrollbar { transition: none; }
+  }
+
+  @media (forced-colors: active) {
+    /* Forced colours leave a gradient's own colours alone, so the block and the ticks go solid */
+    .thumb { background: CanvasText; }
+    .grip::after { background: Canvas; }
+  }
+}
