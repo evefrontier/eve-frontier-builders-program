@@ -113,14 +113,16 @@ export function Select({
         styles.row,
       )}
     >
-      <span className={cn(navStyles.lamp, styles.lamp)} aria-hidden="true" />
-      {numbered && (
+      {/* One mark a row: its place when numbered, the lamp otherwise */}
+      {numbered ? (
         <span
           className="font-heading text-muted tabular-nums group-data-selected/row:text-accent-text"
           aria-hidden="true"
         >
           {place(flat.indexOf(option))}
         </span>
+      ) : (
+        <span className={cn(navStyles.lamp, styles.lamp)} aria-hidden="true" />
       )}
       {/* The note sits at the end of the row, and drops under the label when
         there isn't room; a long label wraps rather than hiding behind an ellipsis */}
