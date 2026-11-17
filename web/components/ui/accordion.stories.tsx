@@ -28,7 +28,6 @@ const modules = [
   },
 ];
 
-/* The modules as numbered items of numbered links, `current` marking one lesson as the page on screen */
 function items(current?: string) {
   return modules.map((entry, i) => (
     <AccordionItem key={entry.value} value={entry.value} number={String(i + 1).padStart(2, "0")} title={entry.title}>
@@ -57,7 +56,6 @@ const meta = {
     children: { table: { disable: true } },
     className: { table: { disable: true } },
   },
-  /* As wide as the lesson view's contents pane */
   decorators: [(Story) => <div className="max-w-78"><Story /></div>],
   render: (args) => (
     <Accordion {...args} defaultValue={["graphql"]}>

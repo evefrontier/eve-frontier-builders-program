@@ -43,7 +43,7 @@ export function Accordion({ value, defaultValue, onValueChange, className, child
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
-      // Fixed spacing and leading keep every plate on whole pixels, where a fluid step would blur its 1px keylines
+      // Fixed spacing keeps every plate on whole pixels, where a fluid step would blur its 1px keylines
       className={cn("grid gap-3", className)}
     >
       {children}
@@ -134,7 +134,6 @@ export function AccordionLink({ href, number, note, current = false, className, 
         className,
       )}
     >
-      {/* One mark a row: its place when numbered, the lamp otherwise */}
       {number ? (
         <span
           className="font-heading tracking-normal text-muted tabular-nums group-aria-[current=page]/row:text-accent-text"

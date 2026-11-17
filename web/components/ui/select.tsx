@@ -98,9 +98,7 @@ export function Select({
   const pointer = () => setInput("pointer");
   const keyboard = () => setInput("keyboard");
 
-  // Base UI drops the field's open state as the list starts to close, so the
-  // field would shed the outline it shares with the list while the list is
-  // still sliding back under it
+  // Outlasts Base UI's open state, which drops while the list is still sliding shut
   const [listOut, setListOut] = useState(false);
 
   const row = (option: SelectOption) => (
@@ -118,7 +116,6 @@ export function Select({
         styles.row,
       )}
     >
-      {/* One mark a row: its place when numbered, the lamp otherwise */}
       {numbered ? (
         <span
           className="font-heading text-muted tabular-nums group-data-selected/row:text-accent-text"
