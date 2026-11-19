@@ -2,11 +2,6 @@
   Layout, type and colour are utilities in lesson-view.tsx; this file holds
   the divider, the scrollbars and the sheet buttons' lamps. */
 @layer components {
-  .grip {
-    position: relative;
-    cursor: col-resize;
-    touch-action: none;
-  }
   /* The grab area runs past the hairline either side, so it doesn't demand a steady hand */
   .grip::before {
     content: "";
@@ -14,19 +9,15 @@
     inset: 0 -5px;
   }
   .grip::after {
-    --_tick: var(--color-muted);
+    --lesson-tick: var(--color-muted);
     content: "";
     position: absolute;
     inset: 50% 1px auto;
-    height: 34px;
-    margin-top: -17px;
-    background: repeating-linear-gradient(180deg, var(--_tick) 0 2px, transparent 2px 5px);
+    height: 32px;
+    margin-top: -16px;
+    background: repeating-linear-gradient(180deg, var(--lesson-tick) 0 2px, transparent 2px 5px);
   }
-  .grip[data-drag]::after { --_tick: var(--color-accent); }
-  .grip:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 1px;
-  }
+  .grip[data-drag]::after { --lesson-tick: var(--color-accent); }
 
   .scrollbar {
     opacity: 0;
@@ -38,17 +29,13 @@
   }
 
   .thumb {
-    --_px: var(--color-control-line);
-    cursor: grab;
-    background: conic-gradient(at 2px 2px, transparent 75%, var(--_px) 0) 0 0 / 3px 3px;
+    --lesson-thumb: var(--color-control-line);
+    background: conic-gradient(at 2px 2px, transparent 75%, var(--lesson-thumb) 0) 0 0 / 3px 3px;
   }
   @media (hover: hover) {
-    .thumb:hover { --_px: var(--color-muted); }
+    .thumb:hover { --lesson-thumb: var(--color-muted); }
   }
-  .thumb:active {
-    --_px: var(--color-foreground);
-    cursor: grabbing;
-  }
+  .thumb:active { --lesson-thumb: var(--color-foreground); }
 
   .tab .lamp { height: 11px; }
   .tab[aria-expanded="true"] .lamp {

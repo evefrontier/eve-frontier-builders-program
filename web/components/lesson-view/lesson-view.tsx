@@ -24,6 +24,8 @@ export type LessonViewProps = {
   course: CourseOutline;
   /** The lesson's own content, under its heading */
   children: ReactNode;
+  /** For a height other than the screen's */
+  className?: string;
 };
 
 type Panel = "rail" | "bench";
@@ -62,7 +64,7 @@ function numbered(course: CourseOutline) {
  * <LessonView course={getCourseOutline("example-course")}>{children}</LessonView>
  * ```
  */
-export function LessonView({ course, children }: LessonViewProps) {
+export function LessonView({ course, children, className }: LessonViewProps) {
   const { module, lesson } = useParams<{ module: string; lesson: string }>();
   const modules = numbered(course);
   const current = modules.find((entry) => entry.slug === module);
@@ -87,8 +89,8 @@ export function LessonView({ course, children }: LessonViewProps) {
   // A width the grip asks for, held to what the panes leave once the lesson has its
   // measure. The grid holds the same limits, so a smaller window or an opened rail
   // pulls the workbench back without a render.
-  const fit = (px: number, panes: HTMLElement) => {
-    const most = panes.clientWidth - (shown.rail ? RAIL : 0) - GRIP - LESSON_MIN;
+  const fit = (px: number, panes: HTMLElement, rail = shown.rail) => {
+    const most = panes.clientWidth - (rail ? RAIL : 0) - GRIP - LESSON_MIN;
     return Math.round(Math.max(BENCH_MIN, Math.min(most, px)));
   };
 
@@ -106,7 +108,16 @@ export function LessonView({ course, children }: LessonViewProps) {
   }, [sheet, id]);
 
   const closeOnLink = (event: MouseEvent) => {
-    if ((event.target as Element).closest("a[href]")) setSheet(null);
+    if (!sheet || !(event.target as Element).closest("a[href]")) return;
+    setSheet(null);
+    document.getElementById(`${ids.rail}-toggle`)?.focus();
+  };
+
+  const toggleRail = () => {
+    const panes = document.getElementById(ids.rail)?.parentElement;
+    // Opening, the rail takes its room back, so the divider's value follows the grid in
+    if (!shown.rail && panes) setBench(fit(bench, panes, true));
+    setShown((s) => ({ ...s, rail: !s.rail }));
   };
 
   const onGripDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -146,7 +157,7 @@ export function LessonView({ course, children }: LessonViewProps) {
   return (
     <div
       // One column that can shrink, or the bar's unbroken title would set the page's width
-      className="grid h-dvh w-full grid-cols-1 grid-rows-[auto_1fr_auto] lg:grid-rows-[auto_1fr]"
+      className={cn("grid h-dvh w-full grid-cols-1 grid-rows-[auto_1fr_auto] lg:grid-rows-[auto_1fr]", className)}
       // Widths the pointer and the folds set can only be inline; a folded pane closes to nothing
       style={
         {
@@ -182,12 +193,10 @@ export function LessonView({ course, children }: LessonViewProps) {
               label={LABELS.rail}
               controls={ids.rail}
               expanded={shown.rail}
-              onToggle={() => setShown((s) => ({ ...s, rail: !s.rail }))}
+              onToggle={toggleRail}
               className="pr-0.5 pl-2"
             />
-            <span className="px-0.5 text-muted" aria-hidden="true">
-              <Blocks columns={5} />
-            </span>
+            <Blocks className="mx-0.5 w-3.5 text-muted" />
             <PanelToggle
               label={LABELS.bench}
               controls={ids.bench}
@@ -263,15 +272,21 @@ export function LessonView({ course, children }: LessonViewProps) {
           aria-controls={ids.bench}
           aria-valuenow={bench}
           aria-valuemin={BENCH_MIN}
-          tabIndex={shown.bench ? 0 : -1}
+          // Its most depends on the window, so the width is read out in place of a share of a range
+          aria-valuetext={`${bench} pixels`}
+          tabIndex={0}
           data-drag={dragging || undefined}
           onPointerDown={onGripDown}
           onPointerMove={onGripMove}
-          onPointerUp={() => setDragging(false)}
-          onPointerCancel={() => setDragging(false)}
+          // Fires after the pointer lifts or is cancelled, as the capture goes with it
           onLostPointerCapture={() => setDragging(false)}
           onKeyDown={onGripKey}
-          className={cn("bg-line max-lg:hidden forced-colors:bg-[CanvasText]", !shown.bench && "invisible", styles.grip)}
+          className={cn(
+            "relative cursor-col-resize touch-none bg-line max-lg:hidden forced-colors:bg-[CanvasText]",
+            "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-foreground",
+            !shown.bench && "invisible",
+            styles.grip,
+          )}
         />
 
         <aside
@@ -289,7 +304,7 @@ export function LessonView({ course, children }: LessonViewProps) {
         </aside>
       </div>
 
-      <div role="group" aria-label="Panels" className="flex gap-1.5 border-t border-line bg-background bg-grain px-2.5 py-1.5 lg:hidden">
+      <div role="group" aria-label="Panels" className="flex h-14 items-center gap-2 border-t border-line bg-background bg-grain px-2 lg:hidden">
         {(["rail", "bench"] as const).map((panel) => (
           <button
             key={panel}
@@ -299,7 +314,7 @@ export function LessonView({ course, children }: LessonViewProps) {
             aria-controls={ids[panel]}
             onClick={() => setSheet((open) => (open === panel ? null : panel))}
             className={cn(
-              "flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2.5 text-step--2 font-bold tracking-[0.08em] text-muted uppercase",
+              "flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-3 text-step--2 font-bold tracking-[0.08em] text-muted uppercase",
               "hover:text-foreground aria-expanded:bg-card aria-expanded:text-foreground",
               "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground",
               styles.tab,
@@ -321,7 +336,7 @@ function Pane({ children }: { children: ReactNode }) {
         {children}
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar className={cn("inset-y-0 right-0 flex w-3 justify-center", styles.scrollbar)}>
-        <ScrollArea.Thumb className={cn("w-2", styles.thumb)} />
+        <ScrollArea.Thumb className={cn("w-2 cursor-grab active:cursor-grabbing", styles.thumb)} />
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>
   );
@@ -346,26 +361,18 @@ function PanelToggle({ label, controls, expanded, onToggle, className }: PanelTo
         className,
       )}
     >
-      <Blocks columns={3} />
+      <Blocks className="w-2" />
     </button>
   );
 }
 
-/* A pane, drawn small in the lamps' grain */
-function Blocks({ columns }: { columns: number }) {
-  const rows = 7;
+/* A pane, drawn small as a lamp in the text's colour. Forced colours repaint a
+   background that isn't a system colour, so there the lamp is named one. */
+function Blocks({ className }: { className: string }) {
   return (
-    <svg
-      width={columns * 3 - 1}
-      height={rows * 3 - 1}
-      viewBox={`0 0 ${columns * 3 - 1} ${rows * 3 - 1}`}
-      fill="currentColor"
+    <span
+      className={cn(navStyles.lamp, "h-5 [--nav-lamp:currentColor] forced-colors:[--nav-lamp:ButtonText]", className)}
       aria-hidden="true"
-      className="block flex-none"
-    >
-      {Array.from({ length: columns * rows }, (_, i) => (
-        <rect key={i} x={(i % columns) * 3} y={Math.floor(i / columns) * 3} width="2" height="2" />
-      ))}
-    </svg>
+    />
   );
 }

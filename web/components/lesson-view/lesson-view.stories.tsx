@@ -58,13 +58,13 @@ export const All: Story = {
   render: (args) => (
     <div className="grid gap-l p-s">
       <Section title="a course of several modules">
-        <div className="h-140 border border-line [&>div]:h-full">
-          <LessonView {...args} />
+        <div className="h-140 border border-line">
+          <LessonView {...args} className="h-full" />
         </div>
       </Section>
       <Section title="a course of one module">
-        <div className="h-140 border border-line [&>div]:h-full">
-          <LessonView {...args} course={short} />
+        <div className="h-140 border border-line">
+          <LessonView {...args} course={short} className="h-full" />
         </div>
       </Section>
     </div>
