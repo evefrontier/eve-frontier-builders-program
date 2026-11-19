@@ -136,7 +136,11 @@ export function AccordionLink({ href, number, note, current = false, className, 
     >
       {number ? (
         <span
-          className="font-heading tracking-normal text-muted tabular-nums group-aria-[current=page]/row:text-accent-text"
+          // The current row is Highlight in forced colours, where the accent and the muted tone would not read
+          className={cn(
+            "font-heading tracking-normal text-muted tabular-nums group-aria-[current=page]/row:text-accent-text",
+            "forced-colors:group-aria-[current=page]/row:text-[HighlightText]",
+          )}
           aria-hidden="true"
         >
           <Place number={number} />
@@ -145,7 +149,16 @@ export function AccordionLink({ href, number, note, current = false, className, 
         <span className={cn(navStyles.lamp, styles.lamp)} aria-hidden="true" />
       )}
       <span className="min-w-0 flex-1">{children}</span>
-      {note && <span className="flex-none text-step--3 leading-4 tracking-[0.08em] text-muted tabular-nums">{note}</span>}
+      {note && (
+        <span
+          className={cn(
+            "flex-none text-step--3 leading-4 tracking-[0.08em] text-muted tabular-nums",
+            "forced-colors:group-aria-[current=page]/row:text-[HighlightText]",
+          )}
+        >
+          {note}
+        </span>
+      )}
     </Plate>
   );
 }

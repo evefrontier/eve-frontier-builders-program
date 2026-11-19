@@ -12,6 +12,8 @@ const twMerge = extendTailwindMerge({
         "3xs-2xs", "2xs-xs", "xs-s", "s-m", "m-l", "l-xl", "xl-2xl", "2xl-3xl", "s-l",
       ],
     },
+    // bg-grain is an image laid over a colour, not a colour, so `bg-card bg-grain` keeps both
+    classGroups: { "bg-image": [{ bg: ["grain"] }] },
   },
 });
 
