@@ -2,14 +2,12 @@
   Layout, type and colour are utilities in lesson-view.tsx; this file holds
   the divider, the scrollbars and the sheet buttons' lamps. */
 @layer components {
-  /* The divider: a hairline band you can pull, with a wider grab area either
-    side so it doesn't demand a steady hand. Only the grip's ticks change,
-    orange while it is being dragged. */
   .grip {
     position: relative;
     cursor: col-resize;
     touch-action: none;
   }
+  /* The grab area runs past the hairline either side, so it doesn't demand a steady hand */
   .grip::before {
     content: "";
     position: absolute;
@@ -30,7 +28,6 @@
     outline-offset: 1px;
   }
 
-  /* No track, only the block, hidden until the pointer is in the pane or it scrolls */
   .scrollbar {
     opacity: 0;
     transition: opacity .5s .6s;
@@ -40,7 +37,6 @@
     transition: opacity .1s 0s;
   }
 
-  /* Three columns of the lamps' grain, firming up under the pointer and while dragged */
   .thumb {
     --_px: var(--color-control-line);
     cursor: grab;
@@ -54,7 +50,6 @@
     cursor: grabbing;
   }
 
-  /* The nav lamp cut to four rows, lit while the button's sheet is open */
   .tab .lamp { height: 11px; }
   .tab[aria-expanded="true"] .lamp {
     --nav-lamp: var(--nav-lamp-lit);

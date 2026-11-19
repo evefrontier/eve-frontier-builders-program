@@ -30,7 +30,6 @@ type Panel = "rail" | "bench";
 
 const LABELS: Record<Panel, string> = { rail: "Lessons", bench: "Workbench" };
 
-/* The side panes' surface */
 const SIDE = "bg-card bg-grain";
 
 /* Pane widths at lg, in px. The workbench gives way so the lesson keeps a readable measure. */
@@ -41,7 +40,6 @@ const BENCH_MIN = 280;
 const LESSON_MIN = 360;
 const STEP = 24;
 
-/* Modules numbered 01, 02, and each one's lessons 1.1, 1.2 under it */
 function numbered(course: CourseOutline) {
   return course.modules.map((entry, i) => ({
     ...entry,
@@ -51,7 +49,7 @@ function numbered(course: CourseOutline) {
 }
 
 /**
- * The lesson view: an app bar over three panes, the course's contents, the
+ * The lesson view: an app bar over three panes, the course's lessons, the
  * lesson and a workbench, which is a placeholder until lessons have one.
  * Either side pane folds from the bar and the divider resizes the workbench.
  * Below lg the side panes become sheets, opened from a bar at the foot.
@@ -94,7 +92,6 @@ export function LessonView({ course, children }: LessonViewProps) {
     return Math.round(Math.max(BENCH_MIN, Math.min(most, px)));
   };
 
-  // A sheet takes focus as it opens; Escape shuts it and hands focus back to its button
   useEffect(() => {
     if (!sheet) return;
     const pane = `${id}-${sheet}`;
@@ -108,7 +105,6 @@ export function LessonView({ course, children }: LessonViewProps) {
     return () => document.removeEventListener("keydown", onKey);
   }, [sheet, id]);
 
-  // Following a lesson link leaves the sheet behind
   const closeOnLink = (event: MouseEvent) => {
     if ((event.target as Element).closest("a[href]")) setSheet(null);
   };
@@ -204,8 +200,7 @@ export function LessonView({ course, children }: LessonViewProps) {
         </div>
       </header>
 
-      {/* Positioned, for the sheets below lg, and clipped, as a folded pane's contents still have a width.
-          The workbench takes the width asked of it as far as the lesson's own floor allows. */}
+      {/* Positioned, for the sheets below lg, and clipped, as a folded pane's contents still have a width */}
       <div
         className={cn(
           "relative grid min-h-0 grid-cols-1 overflow-clip",
@@ -319,7 +314,6 @@ export function LessonView({ course, children }: LessonViewProps) {
   );
 }
 
-/* A pane that scrolls on its own, its scrollbar a block in the lamps' grain that shows while the pane is in use */
 function Pane({ children }: { children: ReactNode }) {
   return (
     <ScrollArea.Root className="h-full">
@@ -357,7 +351,7 @@ function PanelToggle({ label, controls, expanded, onToggle, className }: PanelTo
   );
 }
 
-/* A pane drawn small in the lamps' grain: 2px squares on a 3px pitch, seven rows deep */
+/* A pane, drawn small in the lamps' grain */
 function Blocks({ columns }: { columns: number }) {
   const rows = 7;
   return (
