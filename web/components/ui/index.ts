@@ -1,3 +1,11 @@
+export {
+  Accordion,
+  AccordionItem,
+  AccordionLink,
+  type AccordionProps,
+  type AccordionItemProps,
+  type AccordionLinkProps,
+} from "./accordion";
 export { Plate, plateCorners, plateCuts, type PlateProps, type PlateCorners, type PlateCut } from "./plate";
 export {
   Button,

@@ -1,0 +1,102 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in accordion.tsx; this file holds the
+  slide, the rows and what the item adds to the Select's field and list. */
+@layer components {
+  /* The item, its heading and its list are the Select's ring, field and list,
+    styled in select.module.css. Open, the ring follows the list's cut too, but
+    only once the list is out: the ring clips the whole item, so on a panel
+    still shorter than the cut it would take the corner off the field. */
+  .item[data-open] {
+    --cut-bl: calc(var(--cut-sm) + 2.343px);
+    animation: ring-cut .3s step-end;
+  }
+  @keyframes ring-cut {
+    from { --cut-bl: 0px; }
+  }
+  /* Closing, the field keeps the list's outline until the list is back under it */
+  .item:has(.panel[data-ending-style]) [aria-expanded] { --plate-keyline: var(--color-foreground); }
+  /* The ring's shape changes with the item; it should not morph while the list slides */
+  div.item::before { transition: none; }
+
+  /* The list slides out from under the field like a drawer, as the Select's
+    does: the panel grows from nothing and clips the list, which is held to
+    the panel's foot so it comes down with it. */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: var(--accordion-panel-height);
+    overflow: clip;
+    transition: height .3s cubic-bezier(.2,.7,.2,1);
+  }
+  .panel:is([data-starting-style], [data-ending-style]) { height: 0; }
+
+  .list {
+    --accordion-cut: calc(var(--cut-sm) - 0.58579px);
+    /* Its full height while the panel around it is still opening */
+    flex: none;
+  }
+
+  .row {
+    --cut-bl: 0px;
+    --plate-keyline: transparent;
+    --plate-keyline-width: 0px;
+    --plate-fill: transparent;
+    /* Here rather than a utility, which would beat the forced-colours ring below */
+    outline: none;
+  }
+
+  /* The list's 1px padding puts the rows just inside its keyline, so the cut
+    shortened by 1 − (√2 − 1) traces the keyline's inner edge on the last row */
+  .list > .row:last-child,
+  .list > :last-child > li:last-child > .row {
+    --cut-bl: var(--accordion-cut);
+  }
+
+  /* Plate paints the keyline under the fill, so a fading fill would show
+    the ring through the row. The element selector outranks Plate's rule. */
+  a.row::before { transition: none; }
+
+  :is(.row + .row, li + li > .row)::after {
+    content: "";
+    position: absolute;
+    inset: 0 16px auto;
+    height: 1px;
+    background: var(--color-line);
+  }
+
+  .row:is([aria-current], :focus-visible) { --plate-fill: var(--color-card-secondary); }
+  @media (hover: hover) {
+    .row:hover { --plate-fill: var(--color-card-secondary); }
+  }
+  /* The ring is a keyline under the fill, so it needs the fill above to show as a ring */
+  .row:focus-visible {
+    --plate-keyline: var(--color-foreground);
+    --plate-keyline-width: 2px;
+  }
+
+  .row .lamp { height: 5px; }
+  .row:is([aria-current], :focus-visible) .lamp {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+  @media (hover: hover) {
+    .row:hover .lamp {
+      --nav-lamp: var(--nav-lamp-lit);
+      filter: var(--nav-lamp-glow);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel { transition: none; }
+    .item[data-open] { animation: none; }
+  }
+
+  @media (forced-colors: active) {
+    /* Plate borders every plate here; only the field and the list keep one */
+    .list .row { border: 0; }
+    .list { border-top: 0; }
+    .row:focus-visible { outline: 2px solid Highlight; outline-offset: -2px; }
+    .row[aria-current] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  }
+}

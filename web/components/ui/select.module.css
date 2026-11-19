@@ -2,7 +2,10 @@
   Layout, type and colour are utilities in select.tsx; this file holds the
   plate states, the rail, the row states and the focus ring. */
 @layer components {
-  /* Field and list are one plate split by the rail: the field takes the top
+  /* The Accordion's items wear the field, the rail, the ring and the list's
+    outline from here, so the open state reads either attribute.
+
+    Field and list are one plate split by the rail: the field takes the top
     and sides of the hairline, the list the sides and bottom. So the field's
     fill runs to its foot, and an open-ended polygon is shared with the list
     when it opens upward and takes the field's top-right cut. --_n is the
@@ -30,7 +33,7 @@
   }
 
   @media (hover: hover) {
-    .trigger:not([data-popup-open], [data-disabled], [data-readonly]):hover { --plate-fill: var(--select-grain), var(--color-card-secondary); }
+    .trigger:not([data-popup-open], [data-panel-open], [data-disabled], [data-readonly]):hover { --plate-fill: var(--select-grain), var(--color-card-secondary); }
   }
   .plain { --select-grain: none; }
   .trigger[aria-invalid="true"] { --plate-keyline: var(--color-danger); }
@@ -38,7 +41,7 @@
   /* Open, the list lies over whatever is below it, where the translucent line
     colour would stack on other hairlines. Field and list take a solid
     outline in the foreground colour instead, error or not, as one plate. */
-  .trigger[data-popup-open],
+  .trigger:is([data-popup-open], [data-panel-open], [data-list-out]),
   .popup {
     --plate-keyline: var(--color-foreground);
   }
@@ -62,7 +65,7 @@
       filter: var(--nav-lamp-glow);
     }
   }
-  .trigger[data-popup-open] .rail {
+  .trigger:is([data-popup-open], [data-panel-open]) .rail {
     --nav-lamp: var(--nav-lamp-lit);
     filter: var(--nav-lamp-glow);
   }
@@ -77,7 +80,7 @@
     --plate-keyline-width: 2px;
     --plate-fill: transparent;
   }
-  .focus:has(> .trigger:focus-visible) {
+  .focus:has(.trigger:focus-visible) {
     --plate-keyline: var(--color-foreground);
     --plate-fill: var(--color-background);
   }
@@ -170,7 +173,7 @@
   @media (forced-colors: active) {
     /* Plate borders every plate here; only the field and the popup keep one */
     .focus, .popup .list, .popup .row { border: 0; }
-    .focus:has(> .trigger:focus-visible) { outline: 2px solid Highlight; outline-offset: 2px; }
+    .focus:has(.trigger:focus-visible) { outline: 2px solid Highlight; outline-offset: 2px; }
     .row[data-highlighted] { outline: 2px solid Highlight; outline-offset: -2px; }
     .row[data-selected] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
   }
