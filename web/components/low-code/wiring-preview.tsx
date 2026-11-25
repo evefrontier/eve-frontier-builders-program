@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import {
-  ReactFlow, Handle, Position, MarkerType, applyNodeChanges, ConnectionMode,
+  ReactFlow, Handle, Position, MarkerType, ConnectionMode,
   Background, BackgroundVariant, Controls, MiniMap, Panel,
   type Node, type NodeProps, type Edge, type Connection, type ReactFlowInstance,
 } from "@xyflow/react";
@@ -392,9 +392,11 @@ export function WiringPreview({
         minZoom={0.35}
         connectionMode={ConnectionMode.Loose}
         connectionRadius={24}
-        onNodesChange={changes =>
-          setLayout(current => applyNodeChanges(changes.filter(change => change.type !== "remove"), current))
-        }
+        onNodesChange={changes => {
+          // Keep the wiring exercise's nodes fixed in the graph, even if a removal is queued.
+          for (const change of changes.getByType("remove")) changes.remove(change);
+          setLayout(current => changes.applyTo(current));
+        }}
         onNodeMouseEnter={(_, node) => setHovered(node.id)}
         onNodeMouseLeave={() => setHovered(null)}
         onConnect={connect}

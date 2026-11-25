@@ -1,3 +1,2 @@
-/* React Flow's stylesheet is unlayered, so it would beat the component layer.
-  Importing it into base lets the modules restyle handles and edges without !important. */
-@import "@xyflow/react/dist/style.css" layer(base);
+/* React Flow 13 declares its own xyflow layer; theme.css sets the layer order. */
+@import "@xyflow/react/dist/style.css";
