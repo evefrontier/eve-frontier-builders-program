@@ -1,0 +1,55 @@
+/* Layered so Tailwind utilities (in @layer utilities) can override it.
+  Layout, type and colour are utilities in lesson-view.tsx; this file holds
+  the divider, the scrollbars and the sheet buttons' lamps. */
+@layer components {
+  /* The grab area runs past the hairline either side, so it doesn't demand a steady hand */
+  .grip::before {
+    content: "";
+    position: absolute;
+    inset: 0 -5px;
+  }
+  .grip::after {
+    --lesson-tick: var(--color-muted);
+    content: "";
+    position: absolute;
+    inset: 50% 1px auto;
+    height: 32px;
+    margin-top: -16px;
+    background: repeating-linear-gradient(180deg, var(--lesson-tick) 0 2px, transparent 2px 5px);
+  }
+  .grip[data-drag]::after { --lesson-tick: var(--color-accent); }
+
+  .scrollbar {
+    opacity: 0;
+    transition: opacity .5s .6s;
+  }
+  .scrollbar:is([data-hovering], [data-scrolling]) {
+    opacity: 1;
+    transition: opacity .1s 0s;
+  }
+
+  .thumb {
+    --lesson-thumb: var(--color-control-line);
+    background: conic-gradient(at 2px 2px, transparent 75%, var(--lesson-thumb) 0) 0 0 / 3px 3px;
+  }
+  @media (hover: hover) {
+    .thumb:hover { --lesson-thumb: var(--color-muted); }
+  }
+  .thumb:active { --lesson-thumb: var(--color-foreground); }
+
+  .tab .lamp { height: 11px; }
+  .tab[aria-expanded="true"] .lamp {
+    --nav-lamp: var(--nav-lamp-lit);
+    filter: var(--nav-lamp-glow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scrollbar { transition: none; }
+  }
+
+  @media (forced-colors: active) {
+    /* Forced colours leave a gradient's own colours alone, so the block and the ticks go solid */
+    .thumb { background: CanvasText; }
+    .grip::after { background: Canvas; }
+  }
+}
