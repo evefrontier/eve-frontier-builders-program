@@ -1,0 +1,44 @@
+{
+  "dataset_release": "e6c7v1",
+  "dataset_commit": "7e836a676c4c6383fcca6a27392be26f7ae94636",
+  "release_url": "https://github.com/Scetrov/evefrontier_datasets/releases/tag/e6c7v1",
+  "items": {
+    "url": "https://github.com/Scetrov/evefrontier_datasets/releases/download/e6c7v1/items.json",
+    "sha256": "f59c610158f92dc6a12ad0359ad6d12e356583812246755a3886fc27a6cb4c67"
+  },
+  "icons": {
+    "url": "https://github.com/Scetrov/evefrontier_datasets/releases/download/e6c7v1/icons.zip",
+    "sha256": "59fe819da49ded15d8528d4669c18b338d4d24c2121d5456f269d7760c47ddc8"
+  },
+  "selected": [
+    {
+      "id": "88335",
+      "name": "D1 Fuel",
+      "group_id": 4598,
+      "group_name": "Hydrogen Fuel",
+      "category_id": 17,
+      "category_name": "Commodity",
+      "icon_archive_member": "icons/88335.png",
+      "icon_resource": "res:/ui/texture/icons/frontier/keeppixel64/d1.png",
+      "width": 64,
+      "height": 64,
+      "local_path": "/items/88335.png",
+      "sha256": "6ab518751aba21ce71a48abadcdbc2147760da342c6fef7dd9baf308e3441643"
+    },
+    {
+      "id": "88319",
+      "name": "D2 Fuel",
+      "group_id": 4598,
+      "group_name": "Hydrogen Fuel",
+      "category_id": 17,
+      "category_name": "Commodity",
+      "icon_archive_member": "icons/88319.png",
+      "icon_resource": "res:/ui/texture/icons/frontier/keeppixel64/d2.png",
+      "width": 64,
+      "height": 64,
+      "local_path": "/items/88319.png",
+      "sha256": "02ee6f95f63cb98a59b68f69f12986193cd7700061c06d534eb45bff98db8d60"
+    }
+  ],
+  "rights": "Original EVE Frontier game data/artwork; public dataset is not a redistribution licence. Owner-requested local prototype use; confirm applicable rights before distribution."
+}

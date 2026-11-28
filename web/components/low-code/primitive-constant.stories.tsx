@@ -16,7 +16,7 @@ function Editable({ name = "CONSTANT_A", dataType = "u64", value, onChange, onNa
       {...state}
       onChange={text => {
         setState(current => ({ ...current, value: text }));
-        onChange(text);
+        onChange?.(text);
       }}
       onNameChange={next => {
         setState(current => ({ ...current, name: next }));

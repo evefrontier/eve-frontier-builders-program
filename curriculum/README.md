@@ -30,12 +30,13 @@ File names become addresses on the site, so keep them short, lowercase and hyphe
 
 File a lesson under its pillar and the course it was written for: `lessons/pillar-0/example-course/example-lesson.md`. The folders are only for filing. Modules find a lesson by its name wherever it sits, so a lesson can move between folders, but no two lessons anywhere can share a name.
 
-A lesson is Markdown with a `description` and an optional `duration` in its frontmatter, then a `# Title`:
+A lesson is Markdown with a `description` and optional `duration` and `exercise` (a companion `.yaml` filename in the same folder for interactive workbenches) in its frontmatter, then a `# Title`:
 
 ```markdown
 ---
 description: One line on what this lesson teaches.
 duration: 5 min
+exercise: example-lesson.yaml
 ---
 
 # Example lesson

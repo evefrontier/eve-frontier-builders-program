@@ -1,0 +1,14 @@
+{
+  "recorded_on": "2026-11-18",
+  "reported_by": "Project owner",
+  "confirming_party": "Fenris",
+  "scope": "Artwork use for building third-party tools for EVE Frontier.",
+  "assets": [
+    "88335.png",
+    "88319.png"
+  ],
+  "statement": "The owner reports that Fenris confirmed artwork use for building third-party tools for EVE Frontier is acceptable. This closes the selected D1/D2 artwork permission gate within that scope.",
+  "limitations": "Underlying confirmation not independently reviewed; no unrestricted asset redistribution or independent legal opinion is claimed. Retain provenance, attribution and applicable rights-holder terms. Font permissions remain separate.",
+  "historical_provenance": "/items/provenance.json",
+  "historical_provenance_sha256": "5608b602c5750aeccd60e7b5ff75a9f57e530b714cf2aff076ea51ee4e620ae6"
+}

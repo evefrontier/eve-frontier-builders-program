@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
+import { LessonMarkdown } from "@/components/lesson-view/lesson-markdown";
+import { LessonWorkbench } from "@/components/lesson-view/lesson-view";
+import { isInventoryExercise } from "@/components/low-code/inventory-exercise";
+import { InventoryWorkbenchLoader } from "@/components/low-code/inventory-workbench-loader";
 import { Placeholder } from "@/components/placeholder";
-import { getCourseOutline, getCourses } from "@/lib/curriculum";
+import { getCourseOutline, getCourses, getLesson } from "@/lib/curriculum";
 
 export const dynamicParams = false;
 
@@ -18,11 +22,18 @@ export async function generateMetadata({ params }: PageProps<"/courses/[course]/
 }
 
 /* What sits under the lesson's heading. The course's layout supplies the heading and the panes around it. */
-export default function Lesson() {
+export default async function Lesson({ params }: PageProps<"/courses/[course]/[module]/[lesson]">) {
+  const { lesson } = await params;
+  const doc = getLesson(lesson);
+
   return (
     <>
-      <Placeholder name="Player" height={260} />
-      <Placeholder name="Lesson tabs" height={383} note="Overview · Transcript · Resources · Notes" />
+      <LessonMarkdown source={doc.content} />
+      {isInventoryExercise(doc.exercise) && (
+        <LessonWorkbench>
+          <InventoryWorkbenchLoader exercise={doc.exercise} />
+        </LessonWorkbench>
+      )}
       <Placeholder as="nav" name="Previous and next" height={81} />
     </>
   );

@@ -4,6 +4,7 @@ courses:
   description: Every course, in the order we'd suggest if you're starting from zero.
   list:
     - example-course
+    - low-code-smart-assemblies
 
 pathways:
   title: Pathways

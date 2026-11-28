@@ -64,6 +64,10 @@ jobs:
         if: steps.site.outputs.present == 'true'
         run: pnpm lint
 
+      - name: Test
+        if: steps.site.outputs.present == 'true'
+        run: pnpm test
+
       - name: Build static site
         if: steps.site.outputs.present == 'true'
         run: pnpm build

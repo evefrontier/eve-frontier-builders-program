@@ -1,0 +1,120 @@
+# Inventory deposit-rule workbench exercise. Type IDs are strings, not JavaScript numbers.
+schemaVersion: 1
+id: inventory-deposit-rule
+progressVersion: 3
+exercise: inventory-type-rule
+graph:
+  nodes:
+    - id: item-a
+      kind: item-type
+      label: D1 Fuel
+      typeId: "88335"
+      icon: /items/88335.png
+    - id: item-b
+      kind: item-type
+      label: D2 Fuel
+      typeId: "88319"
+      icon: /items/88319.png
+  rule:
+    id: deposit-rule
+    kind: deposit-rule
+  positions:
+    item-a:
+      x: 0
+      y: 0
+    item-b:
+      x: 0
+      y: 210
+    deposit-rule:
+      x: 360
+      y: 105
+  initialSelection: null
+text:
+  eyebrow: Item-type rules
+  recapTitle: One wire sets the rule.
+  recap: The constant sets ALLOWED_TYPE. A matching type passes this check; other requirements still apply.
+  noAnswer: Choose an answer, then check it.
+  caseHeading: A matching type is only one check.
+  casePrompt: Try a case to see what else can block a deposit.
+steps:
+  - id: predict-d1
+    title: Connect D1 Fuel
+    instruction: Wire D1 Fuel into the deposit rule.
+    question: A D2 Fuel item arrives. Does this rule allow it?
+    choices:
+      - id: passes
+        label: Yes, it passes
+      - id: rejects
+        label: No, it is rejected
+    rubric:
+      selection: item-a
+      answer: rejects
+      wrongSelection: Connect D1 Fuel first. The wire chooses the allowed fuel; it does not change the incoming item.
+      incorrect: D2 Fuel does not match D1 Fuel. A wire selects a type; it does not convert the item. Try again.
+      correct: Right — D2 Fuel does not match D1 Fuel. The wire sets ALLOWED_TYPE to 88335 in the code.
+    cases: []
+  - id: repair-d2
+    title: Connect D2 Fuel
+    instruction: Change the wire to allow D2 Fuel instead.
+    question: Someone else deposits D2 Fuel. Does this rule allow it?
+    context: The owner has configured the rule. Docking, power and space are ready.
+    choices:
+      - id: passes
+        label: Yes — the type matches
+      - id: owner-only
+        label: No — the depositor must own the target
+      - id: rejects
+        label: No — it is a different item object
+    rubric:
+      selection: item-b
+      answer: passes
+      wrongSelection: Connect D2 Fuel first. The wire chooses the allowed fuel; it does not change the incoming item.
+      incorrect: The owner configures the rule, but another caller can pass it. Compare the item type with the wired number. Try again.
+      correct: Right — D2 Fuel matches type 88319. Owner authority configures the rule; a different caller can pass its type check.
+    cases:
+      - exact
+      - over
+      - docking
+      - power
+  - id: disconnect
+    title: Disconnect the rule
+    instruction: Remove the wire and watch the code.
+    question: With no wire, what happens to the generated rule?
+    choices:
+      - id: no-rule
+        label: No Move is generated until a type is connected
+      - id: all-types
+        label: It allows every type
+      - id: last-type
+        label: It keeps allowing D2 Fuel
+    rubric:
+      selection: null
+      answer: no-rule
+      wrongSelection: Remove the wire first. With no input, the rule cannot generate code.
+      incorrect: No wire means no selected type, not "allow everything". This lesson needs one connection. Try again.
+      correct: Right — this rule needs exactly one connection. No wire means no generated Move.
+    cases: []
+cases:
+  - id: exact
+    label: Fits exactly
+    itemType: "88319"
+    blockers: []
+    detail: The items fit exactly; capacity does not block them.
+  - id: over
+    label: Too much volume
+    itemType: "88319"
+    blockers:
+      - capacity
+    detail: One extra volume unit does not fit, even with a matching type.
+  - id: docking
+    label: No docking
+    itemType: "88319"
+    blockers:
+      - docking
+    detail: Without docking, items from another entity cannot be deposited here.
+  - id: power
+    label: No power
+    itemType: "88319"
+    blockers:
+      - power
+    detail: The target still needs a power grant.

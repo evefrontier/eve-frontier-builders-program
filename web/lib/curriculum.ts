@@ -1,7 +1,9 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { cache } from "react";
 import { parse } from "yaml";
+import { validateInventoryExercise } from "@/components/low-code/inventory-exercise";
+import { parseMarkdown, type InlineNode, type MarkdownBlock } from "./markdown";
 import type { SearchEntry } from "./search";
 
 /* The curriculum folder, one level up from web/ */
@@ -60,18 +62,96 @@ function lessonFiles() {
   return files;
 }
 
-function readLesson(name: string, files: Map<string, string>, from: string) {
+function collectGlossarySlugs(blocks: MarkdownBlock[], slugs: Set<string>) {
+  const walkInline = (nodes: InlineNode[]) => {
+    for (const node of nodes) {
+      if (node.type === "glossary") slugs.add(node.slug);
+      else if (node.type === "strong" || node.type === "em") walkInline(node.children);
+    }
+  };
+  for (const block of blocks) {
+    if (block.type === "heading" || block.type === "paragraph") walkInline(block.children);
+    else if (block.type === "list") block.items.forEach(walkInline);
+    else if (block.type === "callout") collectGlossarySlugs(block.blocks, slugs);
+  }
+}
+
+function readLessonMeta(name: string, files: Map<string, string>, from: string) {
   const file = files.get(name);
   if (!file) throw new Error(`${from}: no lesson in curriculum/lessons/ is named ${name}`);
   const text = read(`lessons/${file}`, from);
   const [, front = "", body = text] = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/) ?? [];
   const meta = parse(front);
+  const trimmedBody = body.trimStart();
+  const titleMatch = trimmedBody.match(/^# (.+)(?:\r?\n|$)/);
+  const content = titleMatch ? trimmedBody.slice(titleMatch[0].length).trimStart() : trimmedBody;
+  const exerciseFile = meta?.exercise ? String(meta.exercise).trim() : undefined;
   return {
-    title: body.match(/^# (.+)$/m)?.[1].trim() ?? name,
+    file,
+    title: titleMatch?.[1].trim() ?? name,
     description: String(meta?.description ?? ""),
     duration: meta?.duration ? String(meta.duration) : undefined,
+    content,
+    exerciseFile,
   };
 }
+
+function readLesson(name: string, files: Map<string, string>, from: string) {
+  const lesson = readLessonMeta(name, files, from);
+  const sourcePath = `curriculum/lessons/${lesson.file}`;
+
+  const referencedSlugs = new Set<string>();
+  collectGlossarySlugs(parseMarkdown(lesson.content), referencedSlugs);
+  if (referencedSlugs.size > 0) {
+    const validSlugs = new Set(getGlossary().map((term) => term.slug));
+    for (const slug of referencedSlugs) {
+      if (!validSlugs.has(slug)) {
+        throw new Error(`${sourcePath}: glossary link "glossary:${slug}" does not match any term in curriculum/glossary.md`);
+      }
+    }
+  }
+
+  let exercise: unknown;
+  if (lesson.exerciseFile) {
+    if (/[/\\]/.test(lesson.exerciseFile) || lesson.exerciseFile.includes("..") || !lesson.exerciseFile.endsWith(".yaml")) {
+      throw new Error(`${sourcePath}: exercise must be a .yaml filename in the same folder (got "${lesson.exerciseFile}")`);
+    }
+    const exercisePath = `lessons/${join(dirname(lesson.file), lesson.exerciseFile)}`;
+    const parsed: unknown = parse(read(exercisePath, sourcePath));
+    if (parsed !== null && typeof parsed === "object" && "exercise" in parsed && (parsed as { exercise?: unknown }).exercise === "inventory-type-rule") {
+      exercise = validateInventoryExercise(parsed, `curriculum/${exercisePath}`);
+    } else {
+      exercise = parsed;
+    }
+  }
+
+  return {
+    ...lesson,
+    exercise,
+  };
+}
+
+export interface LessonDocument {
+  slug: string;
+  title: string;
+  description: string;
+  duration?: string;
+  content: string;
+  exercise?: unknown;
+}
+
+export const getLesson = cache((slug: string): LessonDocument => {
+  const files = lessonFiles();
+  const lesson = readLesson(slug, files, "web/lib/curriculum.ts");
+  return {
+    slug,
+    title: lesson.title,
+    description: lesson.description,
+    duration: lesson.duration,
+    content: lesson.content,
+    exercise: lesson.exercise,
+  };
+});
 
 export interface CourseOutline extends Omit<Course, "modules"> {
   modules: { slug: string; title: string; lessons: { slug: string; title: string; duration?: string }[] }[];
@@ -88,7 +168,7 @@ export const getCourseOutline = cache((slug: string): CourseOutline => {
       slug: module.slug,
       title: module.title,
       lessons: module.lessons.map((lesson) => {
-        const { title, duration } = readLesson(lesson, files, `curriculum/modules/${module.slug}.yaml`);
+        const { title, duration } = readLessonMeta(lesson, files, `curriculum/modules/${module.slug}.yaml`);
         return { slug: lesson, title, duration };
       }),
     })),
@@ -215,7 +295,7 @@ export function getSearchEntries(): SearchEntry[] {
       // A module opens in its course's syllabus; its own page exists but nothing links to it
       add(slug, { kind: "Module", title, description, href: `/courses/${course.slug}/#${slug}` });
       for (const lesson of names) {
-        const { title, description } = readLesson(lesson, lessons, `curriculum/modules/${slug}.yaml`);
+        const { title, description } = readLessonMeta(lesson, lessons, `curriculum/modules/${slug}.yaml`);
         add(lesson, { kind: "Lesson", title, description, href: `/courses/${course.slug}/${slug}/${lesson}/` });
       }
     }

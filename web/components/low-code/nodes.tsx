@@ -16,6 +16,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import { Icon } from "@/components/ui/icon";
 import { Plate } from "@/components/ui/plate";
 import { cn } from "@/lib/cn";
+import { EXTERNAL } from "@/lib/external";
 import { socketTypeMeta, type SocketType } from "./connections.mjs";
 import { validateU64 } from "./u64.mjs";
 import styles from "./nodes.module.css";
@@ -287,7 +288,7 @@ export function Socket({
   return (
     <div
       className={cn(
-        "relative -mx-5 flex items-center justify-between gap-2 border-t border-line px-5 pt-2 pb-0.5 text-step--2",
+        "relative -mx-5 flex items-center justify-between gap-2 border-t border-line px-5 py-2.5 text-step--2",
         direction === "out" && "flex-row-reverse",
         styles.socket,
         styles[type],
@@ -296,10 +297,10 @@ export function Socket({
       {handle ?? <span aria-hidden="true" className={socketPortClassName({ direction, type, connected })} />}
       <span className={cn("inline-flex min-w-0 items-center gap-1.5", direction === "out" && "flex-row-reverse")}>
         <TypeBadge type={type} />
-        {label && <span className="font-semibold text-foreground">{label}</span>}
+        {label && <span className="truncate font-semibold text-foreground">{label}</span>}
       </span>
       {binding && (
-        <span className="font-heading text-step--2 font-bold whitespace-nowrap text-(--node-socket-color) forced-colors:text-[CanvasText]">
+        <span className="truncate font-heading text-step--2 font-bold whitespace-nowrap text-(--node-socket-color) forced-colors:text-[CanvasText]">
           {binding}
         </span>
       )}
@@ -323,29 +324,37 @@ function TypeBadge({ type }: { type: SocketType }) {
   );
 }
 
-function NodeShell({
-  title,
-  category,
-  accentType = "execution",
-  selected,
-  highlighted,
-  invalid,
-  eyebrow,
-  children,
-}: {
+export type NodeShellProps = {
   title: string;
   category?: string;
+  categoryHref?: string;
   accentType?: SocketType;
   selected?: boolean;
   highlighted?: boolean;
   invalid?: boolean;
   eyebrow?: string;
+  compact?: boolean;
   children: ReactNode;
-}) {
+};
+
+export function NodeShell({
+  title,
+  category,
+  categoryHref,
+  accentType = "execution",
+  selected,
+  highlighted,
+  invalid,
+  eyebrow,
+  compact = false,
+  children,
+}: NodeShellProps) {
+  const headerLabel = eyebrow ?? category;
   return (
     <div
       className={cn(
-        "relative w-76 text-step--1 text-foreground",
+        "relative text-step--1 text-foreground",
+        compact ? "w-68" : "w-76",
         styles.node,
         selected && styles.selected,
         highlighted && !selected && styles.highlighted,
@@ -357,13 +366,33 @@ function NodeShell({
         <Plate className={styles.surface} />
       </Plate>
       <div className={cn("bg-card", styles.fill)} aria-hidden="true" />
-      <div className="relative z-[1] grid gap-2 px-5 pt-4 pb-5 *:min-w-0">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="font-heading text-step--2 tracking-[0.05em] text-muted uppercase forced-colors:text-[CanvasText]">
-              {eyebrow ?? category}
-            </div>
-            <h3 className={cn("truncate font-heading text-step--1 font-bold", eyebrow && "sr-only")}>{title}</h3>
+      <div className="relative z-[1] grid gap-2.5 px-5 pt-4 pb-3 *:min-w-0">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            {headerLabel &&
+              (categoryHref ? (
+                <a
+                  href={categoryHref}
+                  {...EXTERNAL}
+                  title={`View ${headerLabel} in World Contracts`}
+                  onClick={event => event.stopPropagation()}
+                  className="nodrag nopan inline-flex max-w-full items-center gap-1 font-heading text-step--2 tracking-[0.05em] text-muted uppercase underline decoration-control-line underline-offset-2 hover:text-accent-text focus-visible:outline-2 focus-visible:outline-foreground forced-colors:text-[CanvasText]"
+                >
+                  <span className="truncate">{headerLabel}</span>
+                  <Icon name="external" className="size-2.5 flex-none" />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              ) : (
+                <div
+                  title={headerLabel}
+                  className="truncate font-heading text-step--2 tracking-[0.05em] text-muted uppercase forced-colors:text-[CanvasText]"
+                >
+                  {headerLabel}
+                </div>
+              ))}
+            <h3 title={title} className={cn("truncate font-heading text-step--1 font-bold", eyebrow && "sr-only")}>
+              {title}
+            </h3>
           </div>
         </div>
         {children}
@@ -453,9 +482,15 @@ export type PrimitiveConstantProps = {
   name?: string;
   dataType?: SocketType;
   value: string;
-  onChange: (text: string) => void;
+  onChange?: (text: string) => void;
   onNameChange?: (name: string) => void;
   onTypeChange?: (type: SocketType) => void;
+  readOnly?: boolean;
+  eyebrow?: string;
+  label?: string;
+  valueLabel?: string;
+  iconSrc?: string;
+  compact?: boolean;
   selected?: boolean;
   highlighted?: boolean;
   connected?: boolean;
@@ -469,6 +504,12 @@ export function PrimitiveConstant({
   onChange,
   onNameChange,
   onTypeChange,
+  readOnly = false,
+  eyebrow,
+  label,
+  valueLabel,
+  iconSrc,
+  compact = false,
   selected,
   highlighted,
   connected,
@@ -505,7 +546,7 @@ export function PrimitiveConstant({
   }
 
   function commitValue() {
-    onChange(valueDraft);
+    onChange?.(valueDraft);
     setIsEditingValue(false);
   }
 
@@ -533,10 +574,10 @@ export function PrimitiveConstant({
   function selectType(next: SocketType) {
     onTypeChange?.(next);
     if (next === "boolean" && !["true", "false"].includes(value.trim().toLowerCase())) {
-      onChange("true");
+      onChange?.("true");
       setValueDraft("true");
     } else if (next === "item" && !IDENTIFIER.test(value.trim())) {
-      onChange("STORAGE_UNIT");
+      onChange?.("STORAGE_UNIT");
       setValueDraft("STORAGE_UNIT");
     }
     returnToType();
@@ -544,7 +585,7 @@ export function PrimitiveConstant({
   }
 
   function setBoolean(next: "true" | "false") {
-    onChange(next);
+    onChange?.(next);
     setValueDraft(next);
     returnToValue();
     setIsEditingValue(false);
@@ -556,15 +597,56 @@ export function PrimitiveConstant({
     : dataType === "item" ? "Item ID (e.g. EU_40)"
     : "Value";
 
-  return (
-    <>
+  if (readOnly) {
+    return (
       <NodeShell
-        title={name}
-        eyebrow="Primitive Constant"
+        title={label ?? name}
+        category={eyebrow ?? "Primitive Constant"}
         accentType={dataType}
         selected={selected}
         highlighted={highlighted}
         invalid={Boolean(error)}
+        compact={compact}
+      >
+        <div className="flex items-center gap-3 pt-0.5 pb-1">
+          {iconSrc && (
+            // eslint-disable-next-line nextjs/no-img-element
+            <img
+              src={iconSrc}
+              alt=""
+              width={40}
+              height={40}
+              className="size-10 flex-none border border-line bg-background object-contain"
+            />
+          )}
+          <div className="grid min-w-0 gap-0.5">
+            <span className="font-heading text-step--2 text-muted">{valueLabel ?? value}</span>
+          </div>
+        </div>
+
+        {error && (
+          <p id={errorId} className="text-step--2 font-semibold text-danger forced-colors:text-[CanvasText]">
+            Error: {error}
+          </p>
+        )}
+
+        <div className="grid gap-1.5">
+          <Socket direction="out" type={dataType} label={name} connected={connected} handle={handle} />
+        </div>
+      </NodeShell>
+    );
+  }
+
+  return (
+    <>
+      <NodeShell
+        title={name}
+        eyebrow={eyebrow ?? "Primitive Constant"}
+        accentType={dataType}
+        selected={selected}
+        highlighted={highlighted}
+        invalid={Boolean(error)}
+        compact={compact}
       >
         <div className="nodrag nopan flex flex-col gap-2 pt-0.5 pb-1.5">
           <PropRow label="Name">
@@ -801,7 +883,7 @@ export function PrimitiveConstant({
         onOpenChange={setIsItemDialogOpen}
         currentValue={value}
         onSelect={itemId => {
-          onChange(itemId);
+          onChange?.(itemId);
           setValueDraft(itemId);
         }}
       />
@@ -809,37 +891,97 @@ export function PrimitiveConstant({
   );
 }
 
+export type OperationInputSocket = {
+  id: string;
+  type: SocketType;
+  label: string;
+  binding?: string;
+  connected?: boolean;
+};
+
+export type CustomOperationSpec = {
+  title: string;
+  symbol: string;
+  symbolHref?: string;
+  summary: string;
+  accent: SocketType;
+  hasExecIn?: boolean;
+  hasExecOut?: boolean;
+  inputs?: OperationInputSocket[];
+};
+
 export type OperationNodeProps = {
-  role: OperationRole;
+  role?: OperationRole;
+  spec?: CustomOperationSpec;
   item?: string;
   connected?: boolean;
   execInConnected?: boolean;
   execOutConnected?: boolean;
+  compact?: boolean;
   selected?: boolean;
   highlighted?: boolean;
-  handles?: Partial<Record<OperationHandleId, ReactNode>>;
+  handles?: Partial<Record<string, ReactNode>>;
 };
 
 export function OperationNode({
   role,
+  spec: customSpec,
   item,
   connected = false,
   execInConnected = true,
   execOutConnected = true,
+  compact = false,
   selected,
   highlighted,
   handles,
 }: OperationNodeProps) {
-  const spec = primitiveSpec[role];
+  if (customSpec) {
+    return (
+      <NodeShell
+        title={customSpec.title}
+        category={customSpec.symbol}
+        categoryHref={customSpec.symbolHref}
+        accentType={customSpec.accent}
+        selected={selected}
+        highlighted={highlighted}
+        compact={compact}
+      >
+        <p className="text-step--2 text-muted forced-colors:text-[CanvasText]">{customSpec.summary}</p>
+        <div className="grid gap-1.5">
+          {customSpec.inputs?.map(input => (
+            <Socket
+              key={input.id}
+              direction="in"
+              type={input.type}
+              label={input.label}
+              binding={input.binding}
+              connected={input.connected ?? connected}
+              handle={handles?.[input.id]}
+            />
+          ))}
+          {customSpec.hasExecIn && (
+            <Socket direction="in" type="execution" label="Request in" connected={execInConnected} handle={handles?.["exec-in"]} />
+          )}
+          {customSpec.hasExecOut && (
+            <Socket direction="out" type="execution" label="Request out" connected={execOutConnected} handle={handles?.["exec-out"]} />
+          )}
+        </div>
+      </NodeShell>
+    );
+  }
+
+  const resolvedRole = role ?? "Start Request";
+  const spec = primitiveSpec[resolvedRole];
   const resolvedItem = item ?? spec.defaultItem;
 
   return (
     <NodeShell
-      title={role}
+      title={resolvedRole}
       category={spec.symbol}
       accentType={spec.accent}
       selected={selected}
       highlighted={highlighted}
+      compact={compact}
     >
       <p className="text-step--2 text-muted forced-colors:text-[CanvasText]">{spec.summary}</p>
       <div className="grid gap-1.5">
@@ -852,7 +994,7 @@ export function OperationNode({
             handle={handles?.[spec.valueInput.id]}
           />
         )}
-        {resolvedItem && role !== "Start Request" && (
+        {resolvedItem && resolvedRole !== "Start Request" && (
           <Socket direction="in" type="item" label="Item type" binding={resolvedItem} connected handle={handles?.item} />
         )}
         {spec.hasExecIn && (
