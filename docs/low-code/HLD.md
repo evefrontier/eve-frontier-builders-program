@@ -1,6 +1,6 @@
 # Low-Code Learning — High-Level Design
 
-**Status:** Full exercise proposed; the UI-only Storybook increment is implemented and locally checked, not a verified full exercise.
+**Status:** Full vending-machine exercise proposed; the UI-only Storybook increment is implemented and locally checked, and the first Pillar 1 curriculum simulation lesson ([inventory-deposit-rule](../../curriculum/lessons/pillar-1/low-code-smart-assemblies/inventory-deposit-rule.md), uncompiled `world-contracts/dev` `e1eff82e` Move generation) is delivered separately from the zktx-compiled vending exercise below.
 
 **Representative exercise:** [Feral Data vending machine](EXAMPLE_EXERCISE.md).
 

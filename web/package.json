@@ -8,11 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "oxlint",
+    "test": "node --test components/low-code/*.test.mjs lib/*.test.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
+    "@shikijs/engine-javascript": "4.6.0",
+    "@shikijs/langs": "4.6.0",
+    "@shikijs/primitive": "4.6.0",
     "@xyflow/react": "13.0.2",
     "clsx": "2.1.1",
     "next": "16.4.6",

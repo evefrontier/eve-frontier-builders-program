@@ -108,7 +108,7 @@
     handle rules sit in the base layer, so these win without !important. */
   .port {
     position: absolute;
-    top: calc(50% + 3px);
+    top: 50%;
     width: 20px;
     height: 20px;
     min-width: 20px;

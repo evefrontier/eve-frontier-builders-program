@@ -1,0 +1,5 @@
+title: Low-Code Smart Assemblies
+description: Learn how EVE Frontier smart assembly rules work in Sui Move by wiring constrained visual flows.
+pillar: 1
+modules:
+  - inventory-rules

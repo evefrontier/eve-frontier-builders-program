@@ -67,6 +67,21 @@ export const All: Story = {
           <LessonView {...args} course={short} className="h-full" />
         </div>
       </Section>
+      <Section title="with custom workbench content">
+        <div className="h-140 border border-line">
+          <LessonView
+            {...args}
+            course={short}
+            workbench={
+              <div className="grid gap-2xs p-s">
+                <p className="font-heading text-step--2 font-bold uppercase text-muted">Workbench preview</p>
+                <p className="text-step--1">Custom interactive lesson controls mount inside this pane.</p>
+              </div>
+            }
+            className="h-full"
+          />
+        </div>
+      </Section>
     </div>
   ),
 };

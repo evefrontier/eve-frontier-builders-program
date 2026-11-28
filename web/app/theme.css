@@ -33,6 +33,7 @@
 
   /* status */
   --color-info: #0c27db;
+  --color-success: #116d35;
   --color-warning: #8a5a00;
   --color-danger: #c20046;
 
@@ -42,6 +43,14 @@
   --color-socket-u64: #086352;
   --color-socket-item: var(--color-info);
   --color-socket-boolean: var(--color-warning);
+
+  /* syntax highlighting for Move source previews */
+  --color-syntax-keyword: #ba3500;
+  --color-syntax-constant: #086352;
+  --color-syntax-function: #7a4b00;
+  --color-syntax-type: #0c27db;
+  --color-syntax-string: #3b5e12;
+  --color-syntax-comment: var(--color-muted);
 
   /* artwork */
   --color-illustration-paper:     #efe9d6;
@@ -184,9 +193,16 @@
     --color-tint-border: var(--orange-800);
     --color-tint-text: var(--orange-300);
     --color-info: #6b80ff;
+    --color-success: #4ade80;
     --color-danger: #ff5c8f;
     --color-warning: #ffb651;
     --color-socket-u64: #2dd4bf;
+    --color-syntax-keyword: #ff9166;
+    --color-syntax-constant: #5eead4;
+    --color-syntax-function: #e8d5a9;
+    --color-syntax-type: #b5bdff;
+    --color-syntax-string: #cfdb9b;
+    --color-syntax-comment: #a1a79d;
     --color-illustration-paper:     #181714;
     --color-illustration-ink:       #030303;
     --color-illustration-line:      #ebe6d2;
@@ -214,9 +230,16 @@
   --color-tint-border: var(--orange-800);
   --color-tint-text: var(--orange-300);
   --color-info: #6b80ff;
+  --color-success: #4ade80;
   --color-danger: #ff5c8f;
   --color-warning: #ffb651;
   --color-socket-u64: #2dd4bf;
+  --color-syntax-keyword: #ff9166;
+  --color-syntax-constant: #5eead4;
+  --color-syntax-function: #e8d5a9;
+  --color-syntax-type: #b5bdff;
+  --color-syntax-string: #cfdb9b;
+  --color-syntax-comment: #a1a79d;
   --color-illustration-paper:     #181714;
   --color-illustration-ink:       #030303;
   --color-illustration-line:      #ebe6d2;

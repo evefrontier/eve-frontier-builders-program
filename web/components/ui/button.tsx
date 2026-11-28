@@ -28,7 +28,7 @@ const sizes: Record<ButtonSize, string> = {
 
 const variants: Record<ButtonVariant, string> = {
   primary: "text-text-on-accent",
-  secondary: "text-foreground",
+  secondary: "text-foreground aria-pressed:text-background",
 };
 
 /**

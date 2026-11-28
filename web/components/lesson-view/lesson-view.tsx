@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  createContext,
+  useContext,
   useEffect,
   useId,
   useState,
@@ -10,6 +12,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ScrollArea } from "@base-ui/react/scroll-area";
@@ -20,10 +23,21 @@ import type { CourseOutline } from "@/lib/curriculum";
 import { cn } from "@/lib/cn";
 import styles from "./lesson-view.module.css";
 
+const WorkbenchHostContext = createContext<HTMLElement | null>(null);
+
+/** Portals a lesson's interactive workbench into the LessonView's Workbench pane. */
+export function LessonWorkbench({ children }: { children: ReactNode }) {
+  const host = useContext(WorkbenchHostContext);
+  if (!host) return null;
+  return createPortal(children, host);
+}
+
 export type LessonViewProps = {
   course: CourseOutline;
   /** The lesson's own content, under its heading */
   children: ReactNode;
+  /** Optional static workbench content (e.g. for Storybook previews) */
+  workbench?: ReactNode;
   /** For a height other than the screen's */
   className?: string;
 };
@@ -37,7 +51,7 @@ const SIDE = "bg-card bg-grain";
 /* Pane widths at lg, in px. The workbench gives way so the lesson keeps a readable measure. */
 const RAIL = 312;
 const GRIP = 7;
-const BENCH = 348;
+const BENCH = 440;
 const BENCH_MIN = 280;
 const LESSON_MIN = 360;
 const STEP = 24;
@@ -64,7 +78,7 @@ function numbered(course: CourseOutline) {
  * <LessonView course={getCourseOutline("example-course")}>{children}</LessonView>
  * ```
  */
-export function LessonView({ course, children, className }: LessonViewProps) {
+export function LessonView({ course, children, workbench, className }: LessonViewProps) {
   const { module, lesson } = useParams<{ module: string; lesson: string }>();
   const modules = numbered(course);
   const current = modules.find((entry) => entry.slug === module);
@@ -77,6 +91,7 @@ export function LessonView({ course, children, className }: LessonViewProps) {
   const [sheet, setSheet] = useState<Panel | null>(null);
   const [bench, setBench] = useState(BENCH);
   const [dragging, setDragging] = useState(false);
+  const [benchHost, setBenchHost] = useState<HTMLDivElement | null>(null);
 
   // The module on screen starts open, and opens again when the route moves to another
   const [open, setOpen] = useState([module]);
@@ -260,7 +275,7 @@ export function LessonView({ course, children, className }: LessonViewProps) {
                 <h1 className="font-heading text-step-3 font-bold">{here?.title ?? lesson}</h1>
                 {here?.duration && <p className="text-step--2 text-muted">{here.duration}</p>}
               </hgroup>
-              {children}
+              <WorkbenchHostContext.Provider value={benchHost}>{children}</WorkbenchHostContext.Provider>
             </div>
           </Pane>
         </main>
@@ -295,12 +310,17 @@ export function LessonView({ course, children, className }: LessonViewProps) {
           tabIndex={-1}
           className={cn(pane("bench", shown.bench), SIDE, "flex flex-col lg:border-l lg:border-line")}
         >
-          <Placeholder
-            as="div"
-            name="Workbench"
-            note="On lessons that need one: a terminal, a query runner or other hands-on pieces"
-            className="m-xs flex-1"
-          />
+          <Pane>
+            <div ref={setBenchHost} className="peer flex min-h-full flex-col empty:hidden">
+              {workbench}
+            </div>
+            <Placeholder
+              as="div"
+              name="Workbench"
+              note="On lessons that need one: a terminal, a query runner or other hands-on pieces"
+              className="m-xs min-h-[calc(100%-var(--spacing-xs)*2)] peer-[:not(:empty)]:hidden"
+            />
+          </Pane>
         </aside>
       </div>
 

@@ -45,6 +45,11 @@
     --btn-fill: var(--color-background);
   }
   .secondary:active { --btn-fill: var(--color-card-secondary); }
+  .secondary[aria-pressed="true"] {
+    --btn-edge: var(--color-foreground);
+    --btn-fill: var(--color-foreground);
+  }
+  .secondary[aria-pressed="true"]:active { --btn-fill: var(--color-foreground); }
 
   .focus.sm { --btn-cut-big: 12px; --btn-cut-small: 4px; }
 
@@ -107,6 +112,7 @@
 
   @media (forced-colors: active) {
     .button { border: 1px solid ButtonText; }
+    .button[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: 2px; }
     .button:focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
     .button:disabled { border-color: GrayText; }
     .focus { border: 0; }

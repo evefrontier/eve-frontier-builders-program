@@ -1,0 +1,4 @@
+title: Inventory rules
+description: Configure item-type deposit rules and inspect the generated Move.
+lessons:
+  - inventory-deposit-rule
